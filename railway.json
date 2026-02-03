@@ -4,7 +4,8 @@
         "builder": "NIXPACKS",
         "watchPatterns": [
             "web/**"
-        ]
+        ],
+        "rootDirectory": "web"
     },
     "deploy": {
         "startCommand": "cd web && npm start",
