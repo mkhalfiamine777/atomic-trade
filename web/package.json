@@ -8,8 +8,8 @@
     },
     "scripts": {
         "dev": "nodemon --exec ts-node --esm server.ts",
-        "build": "tsc server.ts --outDir dist --skipLibCheck --esModuleInterop --module NodeNext --moduleResolution NodeNext && next build",
-        "start": "NODE_ENV=production node dist/server.js",
+        "build": "tsc server.ts --skipLibCheck --esModuleInterop && next build",
+        "start": "NODE_ENV=production node server.js",
         "lint": "eslint",
         "postinstall": "prisma generate"
     },
