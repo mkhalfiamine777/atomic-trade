@@ -1,0 +1,154 @@
+// Social Commerce Schema - Full (Safe Mode) - With Password
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  phone     String   @unique
+  password  String
+  name      String?
+  avatarUrl String?
+  type      String   @default("INDIVIDUAL") // INDIVIDUAL, SHOP
+  shopCategory String? // e.g. GROCERY, FASHION, TECH
+  isVerified Boolean @default(false)
+  reputationScore Int @default(100)
+  latitude  Float?
+  longitude Float?
+  subscription String @default("FREE")
+  walletBalance Float @default(0.0)
+  totalSales Int @default(0)
+  listings  Listing[]
+  stories   MapStory[]
+  fiefdoms  ZoneMaster[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Chat Relations
+  messagesSent Message[]
+  conversationsAsP1 Conversation[] @relation("Participant1")
+  conversationsAsP2 Conversation[] @relation("Participant2")
+
+  // Social Relations
+  posts SocialPost[]
+  interactionsMade     Interaction[] @relation("Actor")
+  interactionsReceived Interaction[] @relation("TargetUser")
+}
+
+model Listing {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  price       Float
+  images      String
+  type        String   @default("PRODUCT") // PRODUCT, REQUEST
+  category    String?  // e.g. FOOD, ELECTRONICS
+  latitude    Float
+  longitude   Float
+  sellerId    String
+  seller      User     @relation(fields: [sellerId], references: [id])
+  isSold      Boolean  @default(false)
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  
+  conversations Conversation[]
+  interactions  Interaction[]
+}
+
+model MapStory {
+  id        String   @id @default(uuid())
+  mediaUrl  String   // Renamed from videoUrl
+  mediaType String   @default("VIDEO") // VIDEO, IMAGE
+  caption   String?
+  latitude  Float
+  longitude Float
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model ZoneMaster {
+  id        String   @id @default(uuid())
+  zoneName  String
+  geoHash   String   @unique
+  currentLordId String
+  currentLord   User   @relation(fields: [currentLordId], references: [id])
+  taxRate       Float
+  updatedAt     DateTime @updatedAt
+}
+
+model Conversation {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listingId String? 
+  listing Listing? @relation(fields: [listingId], references: [id])
+
+  participant1Id String
+  participant1 User @relation("Participant1", fields: [participant1Id], references: [id])
+  
+  participant2Id String
+  participant2 User @relation("Participant2", fields: [participant2Id], references: [id])
+
+  messages Message[]
+}
+
+model Message {
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())
+  
+  content String
+  
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  
+  senderId String
+  sender User @relation(fields: [senderId], references: [id])
+}
+
+// -----------------------------------------------------------------------------
+// GX Social Features (Profile, Posts, Interactions)
+// -----------------------------------------------------------------------------
+
+model SocialPost {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  mediaUrl  String
+  mediaType String   @default("IMAGE") // IMAGE, VIDEO
+  caption   String?
+  type      String   @default("POST") // POST, OFFER
+  createdAt DateTime @default(now())
+  
+  // Relations
+  interactions Interaction[]
+}
+
+model Interaction {
+  id        String   @id @default(uuid())
+  type      String   // LIKE, LOVE, COMMENT
+  content   String?  // For comments
+  
+  // Actor (Who did it)
+  userId    String
+  user      User     @relation("Actor", fields: [userId], references: [id])
+
+  // Targets (Polymorphic-ish)
+  postId    String?
+  post      SocialPost? @relation(fields: [postId], references: [id])
+
+  targetUserId String? // For liking a User Profile directly
+  targetUser   User?   @relation("TargetUser", fields: [targetUserId], references: [id])
+
+  listingId    String?
+  listing      Listing? @relation(fields: [listingId], references: [id])
+
+  createdAt DateTime @default(now())
+}
