@@ -8,7 +8,7 @@
     },
     "scripts": {
         "dev": "nodemon --exec ts-node --esm server.ts",
-        "build": "tsc server.ts --outDir dist --esModuleInterop --module NodeNext --moduleResolution NodeNext && next build",
+        "build": "tsc server.ts --outDir dist --skipLibCheck --esModuleInterop --module NodeNext --moduleResolution NodeNext && next build",
         "start": "NODE_ENV=production node dist/server.js",
         "lint": "eslint",
         "postinstall": "prisma generate"
