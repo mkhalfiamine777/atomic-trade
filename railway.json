@@ -8,7 +8,7 @@
         "rootDirectory": "web"
     },
     "deploy": {
-        "startCommand": "cd web && npm start",
+        "startCommand": "npm start",
         "restartPolicyType": "ON_FAILURE"
     }
 }
