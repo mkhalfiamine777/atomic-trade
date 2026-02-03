@@ -42,7 +42,7 @@ app.prepare().then(() => {
         })
     })
 
-    server.listen(port, () => {
+    server.listen(port, hostname, () => {
         console.log(`> Ready on http://${hostname}:${port}`)
         console.log(`> Socket.io ready on http://${hostname}:${port}/api/socket`)
     })
