@@ -61,15 +61,24 @@ export function SmartMarkerGroup<T>({
     // Cluster Icon (shows count when collapsed)
     const clusterIcon = getClusterIcon(items.length)
 
-    // Calculate Spiderfy Positions - Now 3x farther for better visibility
+    // Calculate Row Positions (Horizontal line below center)
     const getSpiderPosition = (index: number, total: number): [number, number] => {
         if (!isExpanded && total > 1) return center // Collapsed
         if (total === 1) return center
 
-        const radius = 0.0006 // Spread radius (~60 meters) - 3x original
-        const angle = (index / total) * Math.PI * 2 // Equal distribution in circle
+        // Configuration for Row Layout
+        const ROW_OFFSET_LAT = -0.0004; // Push row down below the main marker (~44m)
+        const ITEM_SPACING_LNG = 0.0003; // Horizontal spacing between items (~33m)
 
-        return [center[0] + Math.cos(angle) * radius, center[1] + Math.sin(angle) * radius]
+        // Calculate horizontal starting point to center the row
+        // longitude increases to the right (East)
+        const rowWidth = (total - 1) * ITEM_SPACING_LNG;
+        const startLng = center[1] - (rowWidth / 2);
+
+        const lat = center[0] + ROW_OFFSET_LAT;
+        const lng = startLng + (index * ITEM_SPACING_LNG);
+
+        return [lat, lng]
     }
 
     if (items.length === 1) {
