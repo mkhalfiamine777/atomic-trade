@@ -447,8 +447,22 @@ export default function Map({
                     </>
                 )}
 
+                {/* 🧪 Temporary Test Icons (Radius 5000m) */}
+                {center && (
+                    <>
+                        <Marker position={[center[0] + 0.002, center[1] + 0.002]} icon={getIndividualIcon(false, true)}> <Popup>User Online</Popup> </Marker>
+                        <Marker position={[center[0] + 0.0025, center[1] + 0.0025]} icon={getIndividualIcon(false, false)}> <Popup>User Offline</Popup> </Marker>
+
+                        <Marker position={[center[0] - 0.002, center[1] - 0.002]} icon={getShopIcon(false, true)}> <Popup>Shop Online</Popup> </Marker>
+                        <Marker position={[center[0] - 0.0025, center[1] - 0.0025]} icon={getShopIcon(false, false)}> <Popup>Shop Offline</Popup> </Marker>
+
+                        <Marker position={[center[0] + 0.002, center[1] - 0.002]} icon={getCompanyIcon(false, true)}> <Popup>Company Online</Popup> </Marker>
+                        <Marker position={[center[0] + 0.0025, center[1] - 0.0025]} icon={getCompanyIcon(false, false)}> <Popup>Company Offline</Popup> </Marker>
+                    </>
+                )}
+
                 {/* User Marker */}
-                <Marker position={center} icon={getIndividualIcon(false)}>
+                <Marker position={center} icon={getIndividualIcon(false, true)}>
                     <Popup>
                         <div className="text-right">
                             <h3 className="font-bold">أنت هنا 📍</h3>

@@ -6,10 +6,14 @@
 
 ### 🎥 ما تم تنفيذه
 
-| الحالة | الشكل | الوصف |
-|--------|-------|-------|
-| **🟢 متصل (Online)** | ![Online](https://placehold.co/24x24/3b82f6/ffffff?text=👤) | قرص أزرق مشع + تأثير نبض (Pulse Animation) |
-| **⚪ غير متصل (Offline)** | ![Offline](https://placehold.co/24x24/94a3b8/ffffff?text=👤) | قرص رمادي باهت + ثابت (دون حركة) |
+| النوع | الحالة | الشكل | الوصف |
+|-------|--------|-------|-------|
+| **👤 الفرد** | 🟢 متصل | ![Online Individual](https://placehold.co/24x24/3b82f6/ffffff?text=👤) | قرص **أزرق** مشع + نبض |
+| **👤 الفرد** | ⚪ غير متصل | ![Offline Individual](https://placehold.co/24x24/94a3b8/ffffff?text=👤) | قرص رمادي باهت + ثابت |
+| **🏪 المتجر** | 🟡 متصل | ![Online Shop](https://placehold.co/24x24/f59e0b/ffffff?text=🏪) | قرص **ذهبي** مشع + نبض |
+| **🏪 المتجر** | ⚪ غير متصل | ![Offline Shop](https://placehold.co/24x24/fde68a/ffffff?text=🏪) | قرص ذهبي باهت + ثابت |
+| **🏢 الشركة** | 🟣 متصل | ![Online Company](https://placehold.co/24x24/a78bfa/ffffff?text=🏢) | قرص **بنفسجي** مشع + نبض |
+| **🏢 الشركة** | ⚪ غير متصل | ![Offline Company](https://placehold.co/24x24/ddd6fe/ffffff?text=🏢) | قرص بنفسجي باهت + ثابت |
 
 ### 🛠️ الكود المضاف
 

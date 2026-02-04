@@ -17,13 +17,51 @@ export const getPinIcon = (
         popupAnchor: [0, -25]
     })
 
-// 🏪 Shop: Orange/Gold
-export const getShopIcon = (hasStories: boolean) =>
-    getPinIcon('#f59e0b', '#d97706', '#fff', '#f59e0b', hasStories, 'marker-shop')
+// 🏪 Shop: Gold Neon (Online Status)
+export const getShopIcon = (hasStories: boolean, isOnline: boolean = true) => {
+    // If Online -> Neon Gold Disc + Pulse
+    if (isOnline) {
+        return L.divIcon({
+            className: '',
+            html: `<div class="w-6 h-6 rounded-full gold-neon-active shadow-lg flex items-center justify-center text-white text-xs font-bold">🏪</div>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            popupAnchor: [0, -12]
+        })
+    }
 
-// 🏢 Company: Yellow/Gold
-export const getCompanyIcon = (hasStories: boolean) =>
-    getPinIcon('#fbbf24', '#f59e0b', '#fff', '#fbbf24', hasStories, 'marker-company')
+    // If Offline -> Faded Static Gold
+    return L.divIcon({
+        className: '',
+        html: `<div class="w-6 h-6 rounded-full bg-amber-200 shadow-sm flex items-center justify-center text-white text-xs font-bold border-2 border-amber-100 opacity-80">🏪</div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+        popupAnchor: [0, -12]
+    })
+}
+
+// 🏢 Company: Purple Neon (Online Status)
+export const getCompanyIcon = (hasStories: boolean, isOnline: boolean = true) => {
+    // If Online -> Neon Purple Disc + Pulse
+    if (isOnline) {
+        return L.divIcon({
+            className: '',
+            html: `<div class="w-6 h-6 rounded-full purple-neon-active shadow-lg flex items-center justify-center text-white text-xs font-bold">🏢</div>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            popupAnchor: [0, -12]
+        })
+    }
+
+    // If Offline -> Faded Static Purple
+    return L.divIcon({
+        className: '',
+        html: `<div class="w-6 h-6 rounded-full bg-violet-200 shadow-sm flex items-center justify-center text-white text-xs font-bold border-2 border-violet-100 opacity-80">🏢</div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+        popupAnchor: [0, -12]
+    })
+}
 
 // 👤 Individual: Blue
 // 👤 Individual: Blue Neon (Online Status)

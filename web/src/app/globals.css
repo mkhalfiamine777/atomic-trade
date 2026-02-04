@@ -166,3 +166,17 @@
     background: radial-gradient(circle, #60a5fa 0%, #2563eb 100%);
     border: 2px solid #93c5fd;
 }
+
+.gold-neon-active {
+    animation: neon-pulse 2s infinite;
+    background: radial-gradient(circle, #fcd34d 0%, #d97706 100%);
+    border: 2px solid #fde68a;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+}
+
+.purple-neon-active {
+    animation: neon-pulse 2.2s infinite;
+    background: radial-gradient(circle, #a78bfa 0%, #7c3aed 100%);
+    border: 2px solid #ddd6fe;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+}
