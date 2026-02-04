@@ -267,60 +267,62 @@ export default function Map({
 
             return (
                 <Marker key={listing.id} position={pos} icon={icon}>
-                    <Popup>
-                        <div className="text-right min-w-[200px]">
-                            <div className="flex justify-between items-start mb-2">
-                                <h3 className="font-bold text-lg">
+                    <Popup className="compact-popup">
+                        <div className="text-right min-w-[150px]">
+                            <div className="flex justify-between items-start mb-1">
+                                <h3 className="font-bold text-sm">
                                     {listing.type === 'REQUEST' ? '📣 طلب' : '🛒'} {listing.title}
                                 </h3>
                                 {trusted && (
-                                    <div className="text-xl" title="بائع موثوق">
+                                    <div className="text-sm" title="بائع موثوق">
                                         🛡️
                                     </div>
                                 )}
                             </div>
 
                             {listing.type === 'PRODUCT' && (
-                                <p className="text-green-600 font-bold mb-2">
+                                <p className="text-green-600 font-bold mb-1 text-xs">
                                     {listing.price} درهم
                                 </p>
                             )}
 
-                            <p className="text-xs text-zinc-500 mb-3 block">
+                            <p className="text-[10px] text-zinc-500 mb-2 block">
                                 {listing.type === 'REQUEST' ? 'الطالب:' : 'البائع:'}{' '}
                                 {listing.seller.name}
                                 {trusted && (
-                                    <span className="text-yellow-600 font-bold mx-1 text-[10px]">
+                                    <span className="text-yellow-600 font-bold mx-1 text-[9px]">
                                         ✓ موثوق
                                     </span>
                                 )}
                             </p>
 
-                            <div className="grid grid-cols-1 gap-2">
+                            <div className="grid grid-cols-1 gap-1">
                                 {listing.type === 'REQUEST' ? (
                                     <button
-                                        onClick={() =>
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             handleStartChat(
                                                 listing.id,
                                                 listing.sellerId,
                                                 listing.seller.name
                                             )
-                                        }
-                                        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-md text-sm transition-colors flex items-center justify-center gap-2 shadow-sm"
+                                        }}
+                                        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-1.5 rounded-md text-xs transition-colors flex items-center justify-center gap-1 shadow-sm"
                                     >
                                         <span>💸</span>
                                         <span>قدم عرضاً</span>
                                     </button>
                                 ) : (
                                     <button
-                                        onClick={() =>
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             handleStartChat(
                                                 listing.id,
                                                 listing.sellerId,
                                                 listing.seller.name
                                             )
-                                        }
-                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-md text-sm transition-colors flex items-center justify-center gap-2 shadow-sm"
+                                        }}
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 rounded-md text-xs transition-colors flex items-center justify-center gap-1 shadow-sm"
                                     >
                                         <span>💬</span>
                                         <span>مراسلة</span>
@@ -329,16 +331,20 @@ export default function Map({
 
                                 <a
                                     href={`tel:${listing.seller.phone}`}
-                                    className="block w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-300 text-center py-2 rounded-md text-sm transition-colors font-medium"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="block w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border border-zinc-300 text-center py-1.5 rounded-md text-xs transition-colors font-medium"
                                 >
                                     📞 اتصال
                                 </a>
 
                                 <button
-                                    onClick={() => router.push(`/u/${listing.sellerId}`)}
-                                    className="w-full bg-zinc-900 text-white border border-zinc-700 hover:bg-black py-2 rounded-md font-bold text-sm flex items-center justify-center gap-2 transition-colors mt-1"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        router.push(`/u/${listing.sellerId}`)
+                                    }}
+                                    className="w-full bg-zinc-900 text-white border border-zinc-700 hover:bg-black py-1.5 rounded-md font-bold text-xs flex items-center justify-center gap-1 transition-colors mt-0.5"
                                 >
-                                    👤 زيارة الملف
+                                    👤 الملف
                                 </button>
 
                                 <InteractionBar
@@ -447,22 +453,8 @@ export default function Map({
                     </>
                 )}
 
-                {/* 🧪 Temporary Test Icons (Radius 5000m) */}
-                {center && (
-                    <>
-                        <Marker position={[center[0] + 0.002, center[1] + 0.002]} icon={getIndividualIcon(false, true)}> <Popup>User Online</Popup> </Marker>
-                        <Marker position={[center[0] + 0.0025, center[1] + 0.0025]} icon={getIndividualIcon(false, false)}> <Popup>User Offline</Popup> </Marker>
-
-                        <Marker position={[center[0] - 0.002, center[1] - 0.002]} icon={getShopIcon(false, true)}> <Popup>Shop Online</Popup> </Marker>
-                        <Marker position={[center[0] - 0.0025, center[1] - 0.0025]} icon={getShopIcon(false, false)}> <Popup>Shop Offline</Popup> </Marker>
-
-                        <Marker position={[center[0] + 0.002, center[1] - 0.002]} icon={getCompanyIcon(false, true)}> <Popup>Company Online</Popup> </Marker>
-                        <Marker position={[center[0] + 0.0025, center[1] - 0.0025]} icon={getCompanyIcon(false, false)}> <Popup>Company Offline</Popup> </Marker>
-                    </>
-                )}
-
                 {/* User Marker */}
-                <Marker position={center} icon={getIndividualIcon(false, true)}>
+                <Marker position={center} icon={getIndividualIcon(false)}>
                     <Popup>
                         <div className="text-right">
                             <h3 className="font-bold">أنت هنا 📍</h3>

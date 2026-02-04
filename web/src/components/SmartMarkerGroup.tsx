@@ -48,7 +48,7 @@ export function SmartMarkerGroup<T>({
     const handleMouseLeave = () => {
         closeTimer.current = setTimeout(() => {
             setIsExpanded(false)
-        }, 500) // 500ms delay before collapsing
+        }, 1000) // 1000ms delay before collapsing for better UX
     }
 
     // Cleanup timer on unmount
