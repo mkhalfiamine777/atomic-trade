@@ -26,18 +26,33 @@
     *   التأكد من أن الأزرار تستخدم `e.stopPropagation()` عند النقر.
     *   فحص `zIndex` للتأكد من أن النافذة تظهر فوق أي طبقة شفافة أخرى.
 
-### 3. تأخير الاختفاء (`SmartMarkerGroup.tsx`)
-حالياً، القائمة قد تختفي فور خروج الماوس من الأيقونة الرئيسية قبل الوصول للأيقونات الفرعية.
+### 3. تأخير الظهور والاختفاء (Smart Hover Logic)
 
-*   **الإجراء:** زيادة مهلة دالة `setTimeout` في `handleMouseLeave`.
-*   **القيمة المقترحة:** زيادة التأخير من `500ms` إلى `800ms` أو `1000ms` (ثانية كاملة) لراحة المستخدم.
+لتحسين تجربة المستخدم ومنع الفتح العشوائي للقوائم أثناء تحريك الماوس على الخريطة:
+
+1.  **تأخير الظهور (Open Delay):** إضافة مهلة **2 ثانية** قبل فتح القائمة.
+    *   لضمان أن المستخدم ينوي فعلاً التفاعل مع هذه الأيقونة ولن يفتحها بالخطأ أثناء المرور السريع.
+2.  **البقاء ظاهرة (Keep Alive):** القائمة تظل مفتوحة طالما الماوس يتحرك فوقها أو فوق الأيقونات الفرعية.
+3.  **إغلاق عند المغادرة (Close on Leave):** بمجرد خروج الماوس، تبدأ مهلة قصيرة (للسماح بالتنقل) ثم تغلق القائمة.
 
 ```typescript
 // في SmartMarkerGroup.tsx
+const handleMouseEnter = () => {
+    // إلغاء مؤقت الإغلاق (إذا عدنا بسرعة)
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    
+    // بدء مؤقت الفتح (2 ثانية) فقط إذا لم تكن مفتوحة بالفعل
+    if (!isExpanded) {
+        openTimer.current = setTimeout(() => setIsExpanded(true), 2000);
+    }
+}
+
 const handleMouseLeave = () => {
-    closeTimer.current = setTimeout(() => {
-        setIsExpanded(false)
-    }, 1000) // زيادة التأخير إلى ثانية
+    // إلغاء محاولة الفتح إذا غادر المستخدم قبل الـ 2 ثانية
+    if (openTimer.current) clearTimeout(openTimer.current);
+    
+    // بدء مؤقت الإغلاق
+    closeTimer.current = setTimeout(() => setIsExpanded(false), 500); 
 }
 ```
 

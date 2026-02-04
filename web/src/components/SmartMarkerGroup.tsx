@@ -22,6 +22,7 @@ export function SmartMarkerGroup<T>({
     const [isExpanded, setIsExpanded] = useState(false)
     const map = useMap()
     const closeTimer = useRef<NodeJS.Timeout | null>(null)
+    const openTimer = useRef<NodeJS.Timeout | null>(null)
 
     // Sync with forceExpanded prop (Filter Trigger)
     useEffect(() => {
@@ -42,13 +43,26 @@ export function SmartMarkerGroup<T>({
             clearTimeout(closeTimer.current)
             closeTimer.current = null
         }
-        setIsExpanded(true)
+
+        // Only start open timer if not already expanded
+        if (!isExpanded) {
+            if (openTimer.current) clearTimeout(openTimer.current)
+            openTimer.current = setTimeout(() => {
+                setIsExpanded(true)
+            }, 2000) // 2-second delay before expanding (Prevents accidental trigger)
+        }
     }
 
     const handleMouseLeave = () => {
+        // Cancel any pending open action
+        if (openTimer.current) {
+            clearTimeout(openTimer.current)
+            openTimer.current = null
+        }
+
         closeTimer.current = setTimeout(() => {
             setIsExpanded(false)
-        }, 1000) // 1000ms delay before collapsing for better UX
+        }, 500) // Fast collapse (500ms) after leaving
     }
 
     // Cleanup timer on unmount
