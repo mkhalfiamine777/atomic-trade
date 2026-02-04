@@ -78,6 +78,7 @@
 
 /* 🔥 Glowing Beacon Icons for Map */
 @keyframes beacon-pulse {
+
     0%,
     100% {
         transform: scale(1);
@@ -91,6 +92,7 @@
 }
 
 @keyframes beacon-glow {
+
     0%,
     100% {
         box-shadow:
@@ -139,4 +141,28 @@
     animation: beacon-glow 2s ease-in-out infinite;
     border-color: #ec4899 !important;
     box-shadow: 0 0 10px #ec4899;
+}
+
+/* 🌟 Neon Pulse Animation for Map Icons */
+@keyframes neon-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7), 0 0 20px rgba(59, 130, 246, 0.5);
+        transform: scale(0.95);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0), 0 0 40px rgba(59, 130, 246, 0);
+        transform: scale(1);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0), 0 0 0 rgba(59, 130, 246, 0);
+        transform: scale(0.95);
+    }
+}
+
+.neon-active {
+    animation: neon-pulse 2s infinite;
+    background: radial-gradient(circle, #60a5fa 0%, #2563eb 100%);
+    border: 2px solid #93c5fd;
 }
