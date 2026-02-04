@@ -88,28 +88,29 @@ export const getIndividualIcon = (hasStories: boolean, isOnline: boolean = true)
 }
 
 // 📣 Request Icon (Distinct Circular Shape)
+// 📣 Request Icon (Red Neon - Fast Pulse)
 export const getRequestIcon = () =>
     L.divIcon({
         className: '',
-        html: `<div class="marker-request w-8 h-8 rounded-full bg-gradient-to-br from-red-400 to-rose-600 flex items-center justify-center text-sm shadow-lg border-2 border-white" style="animation:beacon-pulse 1s infinite;filter:drop-shadow(0 0 8px #ef4444);">📣</div>`,
+        html: `<div class="w-8 h-8 rounded-full red-neon-active shadow-lg flex items-center justify-center text-sm font-bold border-2 border-white">📣</div>`,
         iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32]
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16]
     })
 
-// 📸 Story Icon (Distinct Image Shape)
+// 📸 Story Icon (Pink Neon Glow)
 export const getStoryIcon = (mediaUrl: string, mediaType: string) =>
     L.divIcon({
         className: '',
-        html: `<div class="marker-story w-10 h-10 rounded-full overflow-hidden border-3 border-pink-500 shadow-lg" style="animation:beacon-glow 2s infinite;box-shadow:0 0 15px #ec4899;">
+        html: `<div class="w-10 h-10 rounded-full overflow-hidden pink-neon-glow shadow-lg relative bg-black">
             ${mediaType === 'VIDEO'
-                ? `<video src="${mediaUrl}" class="w-full h-full object-cover" muted loop autoplay playsinline></video>`
-                : `<img src="${mediaUrl}" class="w-full h-full object-cover" />`
+                ? `<video src="${mediaUrl}" class="w-full h-full object-cover opacity-90" muted loop autoplay playsinline></video>`
+                : `<img src="${mediaUrl}" class="w-full h-full object-cover opacity-90" />`
             }
           </div>`,
         iconSize: [40, 40],
-        iconAnchor: [20, 40],
-        popupAnchor: [0, -40]
+        iconAnchor: [20, 20],
+        popupAnchor: [0, -20]
     })
 
 // 🏴‍☠️ Loot Chest Icon (Treasure)

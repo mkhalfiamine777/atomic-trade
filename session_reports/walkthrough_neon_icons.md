@@ -14,6 +14,8 @@
 | **🏪 المتجر** | ⚪ غير متصل | ![Offline Shop](https://placehold.co/24x24/fde68a/ffffff?text=🏪) | قرص ذهبي باهت + ثابت |
 | **🏢 الشركة** | 🟣 متصل | ![Online Company](https://placehold.co/24x24/a78bfa/ffffff?text=🏢) | قرص **بنفسجي** مشع + نبض |
 | **🏢 الشركة** | ⚪ غير متصل | ![Offline Company](https://placehold.co/24x24/ddd6fe/ffffff?text=🏢) | قرص بنفسجي باهت + ثابت |
+| **📣 طلب** | 🔴 نشط | ![Request](https://placehold.co/24x24/ef4444/ffffff?text=📣) | قرص **أحمر** بنبض سريع (Urgent) |
+| **📸 قصة** | 🩷 جديد | ![Story](https://placehold.co/24x24/ec4899/ffffff?text=📸) | قرص **وردي** مع توهج (Glow) |
 
 ### 🛠️ الكود المضاف
 

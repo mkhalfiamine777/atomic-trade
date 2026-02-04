@@ -180,3 +180,18 @@
     border: 2px solid #ddd6fe;
     box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
 }
+
+.red-neon-active {
+    animation: neon-pulse 1s infinite;
+    /* Red pulses faster for urgency */
+    background: radial-gradient(circle, #f87171 0%, #dc2626 100%);
+    border: 2px solid #fecaca;
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.6);
+}
+
+.pink-neon-glow {
+    animation: neon-pulse 3s infinite;
+    /* Stories pulse slowly */
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.8);
+    border: 2px solid #fbcfe8 !important;
+}
