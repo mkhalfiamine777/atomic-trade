@@ -457,7 +457,7 @@ export default function Map({
                 </Marker>
                 <Circle
                     center={center}
-                    radius={50}
+                    radius={300}
                     pathOptions={{ color: '#22c55e', fillColor: '#22c55e', fillOpacity: 0.2 }}
                 />
 
