@@ -86,8 +86,8 @@ function MapController({
         if (!userLat || !userLng) return
         listings.forEach(listing => {
             const distance = getDistance(userLat, userLng, listing.latitude, listing.longitude)
-            // Show alert if distance <= 50m
-            if (distance <= 50) {
+            // Show alert if distance <= 300m
+            if (distance <= 300) {
                 toast.success(`🎉 أنت قريب من "${listing.title}"! (${Math.round(distance)}م)`, {
                     id: `listing-${listing.id}`, // Unique ID to prevent spam
                     duration: 5000
