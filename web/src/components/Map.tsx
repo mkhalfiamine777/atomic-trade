@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import { useGeolocation, getDistance } from '@/hooks/useGeolocation'
+import { useGeofencing } from '@/hooks/useGeofencing'
 import { toast } from 'sonner'
 import { startConversation } from '@/actions/chat'
 // ChatWindow removed
@@ -139,6 +140,13 @@ export default function Map({
     useEffect(() => {
         setIsMounted(true)
     }, [])
+
+    // 🚨 Activate Geofencing Alert System (300m Radius)
+    useGeofencing({
+        userLocation: coordinates,
+        listings: listings as any,
+        radius: 300
+    })
 
     // Fetch Listings on Mount, Refresh, and Location Change (Live Sync)
     useEffect(() => {
