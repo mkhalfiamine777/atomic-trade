@@ -53,7 +53,7 @@ export function CommentsSheet({ listingId, onClose, currentUserId }: Props) {
         // but wait, I exported it as 'addComment'. Let me fix import.
         const { addComment } = await import('@/actions/interactions')
 
-        const result = await addComment(listingId, currentUserId, newComment)
+        const result = await addComment(listingId, newComment)
 
         if (result.success) {
             setNewComment('')

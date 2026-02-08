@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { db } from '@/lib/db'
 
 // Define the shape of a Video Post based on Prisma schema + Frontend needs
 export type VideoPostDTO = {
@@ -15,14 +16,11 @@ export type VideoPostDTO = {
     shares: number
     location?: string
     isShop: boolean
+    isLiked: boolean
     createdAt: Date
 }
 
-// MOCK DATA for Safe Testing
-
-import { db } from '@/lib/db'
-
-export async function getFeedVideos(page = 1, limit = 10): Promise<VideoPostDTO[]> {
+export async function getFeedVideos(page = 1, limit = 10, currentUserId?: string): Promise<VideoPostDTO[]> {
     try {
         const skip = (page - 1) * limit
 
@@ -35,38 +33,33 @@ export async function getFeedVideos(page = 1, limit = 10): Promise<VideoPostDTO[
             orderBy: { createdAt: 'desc' },
             include: {
                 user: true,
-                _count: {
-                    select: {
-                        interactions: {
-                            where: { type: 'LIKE' }
-                        }
-                    }
-                },
                 interactions: {
-                    where: { type: 'COMMENT' },
-                    select: { id: true }
+                    select: {
+                        type: true,
+                        userId: true
+                    }
                 }
             }
         })
 
         const videoPosts: VideoPostDTO[] = posts.map(post => {
-            // Calculate counts manually or via refined queries in future
-            // For now, mapping what we have. Note: Schema doesn't have direct 'shares' count yet.
-            const likeCount = post._count.interactions // This gives total likes if we filtered _count above
-            const commentCount = post.interactions.length // Counting loaded comments (might need optimization)
+            const likeCount = post.interactions.filter(i => i.type === 'LIKE').length
+            const commentCount = post.interactions.filter(i => i.type === 'COMMENT').length
+            const isLiked = currentUserId ? post.interactions.some(i => i.type === 'LIKE' && i.userId === currentUserId) : false
 
             return {
                 id: post.id,
                 url: post.mediaUrl,
-                poster: undefined, // Generate or store thumbnail separately
+                poster: undefined,
                 username: post.user.name || 'مستخدم',
                 userAvatar: post.user.avatarUrl || undefined,
                 description: post.caption || '',
                 likes: likeCount,
                 comments: commentCount,
-                shares: 0, // Not tracked in current schema
-                location: undefined, // Not in SocialPost schema
+                shares: 0,
+                location: undefined,
                 isShop: post.user.type === 'SHOP',
+                isLiked: isLiked,
                 createdAt: post.createdAt
             }
         })

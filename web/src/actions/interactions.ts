@@ -1,12 +1,17 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
-
-
+import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 
-export async function toggleLike(postId: string, userId: string) {
+export async function toggleLike(postId: string) {
     try {
+        const cookieStore = await cookies()
+        const userId = cookieStore.get('user_id')?.value
+
+        if (!userId) {
+            return { liked: false, error: 'Unauthorized: Please login' }
+        }
+
         const existingLike = await db.interaction.findFirst({
             where: {
                 userId: userId,
@@ -68,8 +73,15 @@ export async function getComments(targetId: string) {
     }
 }
 
-export async function addComment(targetId: string, userId: string, content: string) {
+export async function addComment(targetId: string, content: string) {
     try {
+        const cookieStore = await cookies()
+        const userId = cookieStore.get('user_id')?.value
+
+        if (!userId) {
+            return { success: false, error: 'Unauthorized: Please login' }
+        }
+
         const newComment = await db.interaction.create({
             data: {
                 type: 'COMMENT',

@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { useState } from 'react'
 import { toggleLike } from '@/actions/interactions'
 import { toast } from 'sonner'
+import { CommentsSheet } from '@/components/CommentsSheet'
 
 interface VideoActionsProps {
     postId: string
@@ -20,6 +21,7 @@ interface VideoActionsProps {
         avatar?: string
         isShop?: boolean
     }
+    currentUserId?: string
 }
 
 export function VideoActions({
@@ -30,17 +32,19 @@ export function VideoActions({
     isLiked = false,
     className,
     location,
-    author
+    author,
+    currentUserId
 }: VideoActionsProps) {
     const [liked, setLiked] = useState(isLiked)
     const [likeCount, setLikeCount] = useState(likes)
     const [isLikeLoading, setIsLikeLoading] = useState(false)
-
-    // Placeholder User ID (Replace with real Auth later)
-    const userId = '1'
+    const [showComments, setShowComments] = useState(false)
 
     const handleLike = async () => {
-        if (isLikeLoading) return
+        if (isLikeLoading || !currentUserId) {
+            if (!currentUserId) toast.error('يرجى تسجيل الدخول للإعجاب')
+            return
+        }
 
         // Optimistic Update
         const previousState = liked
@@ -51,7 +55,7 @@ export function VideoActions({
         setIsLikeLoading(true)
 
         try {
-            const result = await toggleLike(postId, userId)
+            const result = await toggleLike(postId)
             if (result.error) {
                 throw new Error(result.error)
             }
@@ -117,7 +121,7 @@ export function VideoActions({
             <div className="flex flex-col items-center gap-1">
                 <motion.button
                     whileTap={{ scale: 0.8 }}
-                    onClick={() => toast.info('التعليقات قادمة قريباً! 💬')}
+                    onClick={() => setShowComments(true)}
                     className="p-3 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-colors"
                 >
                     <MessageCircle className="w-7 h-7" />
@@ -165,7 +169,14 @@ export function VideoActions({
                 </div>
             )}
 
-
+            {/* Comments Sheet */}
+            {showComments && (
+                <CommentsSheet
+                    listingId={postId}
+                    onClose={() => setShowComments(false)}
+                    currentUserId={currentUserId}
+                />
+            )}
         </div>
     )
 }

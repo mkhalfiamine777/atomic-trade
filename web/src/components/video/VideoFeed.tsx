@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export function VideoFeed() {
+export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
     const containerRef = useRef<HTMLDivElement>(null)
     const [videos, setVideos] = useState<VideoPostDTO[]>([])
     const [activeIndex, setActiveIndex] = useState(0)
@@ -19,7 +19,7 @@ export function VideoFeed() {
     // Fetch Videos
     const loadVideos = useCallback(async () => {
         try {
-            const newVideos = await getFeedVideos(page)
+            const newVideos = await getFeedVideos(page, 10, currentUserId)
             if (newVideos.length === 0) {
                 setHasMore(false)
                 if (page === 1) toast.info('لا توجد فيديوهات حالياً')
@@ -32,7 +32,7 @@ export function VideoFeed() {
         } finally {
             setLoading(false)
         }
-    }, [page])
+    }, [page, currentUserId])
 
     useEffect(() => {
         loadVideos()
@@ -131,11 +131,13 @@ export function VideoFeed() {
                                 comments={video.comments}
                                 shares={video.shares}
                                 location={video.location}
+                                isLiked={video.isLiked}
                                 author={{
                                     name: video.username,
                                     avatar: video.userAvatar,
                                     isShop: video.isShop
                                 }}
+                                currentUserId={currentUserId}
                             />
                         </div>
                     </div>
