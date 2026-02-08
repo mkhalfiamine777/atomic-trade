@@ -110,6 +110,22 @@ export default function DashboardClient({
                         </button>
 
                         <button
+                            onClick={() => router.push('/feed')}
+                            className="w-full bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-lg flex items-center justify-center gap-2 transition-colors border border-pink-500/30"
+                        >
+                            <span>📹</span>
+                            <span>تصفح الفيديوهات (Feed)</span>
+                        </button>
+
+                        <button
+                            onClick={() => router.push('/upload')}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg flex items-center justify-center gap-2 transition-colors border border-blue-500/30"
+                        >
+                            <span>🎥</span>
+                            <span>رفع فيديو جديد</span>
+                        </button>
+
+                        <button
                             onClick={() => setIsAddProductOpen(true)}
                             className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
                         >
