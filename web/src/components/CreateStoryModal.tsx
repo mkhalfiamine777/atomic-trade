@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { createStory } from '@/actions/stories'
-import { Button } from '@/ui/Button'
 import { Input } from '@/ui/Input'
-import { useUploadThing } from '@/utils/uploadthing'
+import { MediaUploader } from '@/components/video/MediaUploader'
 
 interface CreateStoryModalProps {
     isOpen: boolean
@@ -25,60 +24,25 @@ export function CreateStoryModal({
     userLng,
     onSuccess
 }: CreateStoryModalProps) {
-    const [file, setFile] = useState<File | null>(null)
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
     const [caption, setCaption] = useState('')
-    const [uploading, setUploading] = useState(false)
-    const fileInputRef = useRef<HTMLInputElement>(null)
+    const [isSaving, setIsSaving] = useState(false)
 
-    // Uploadthing Hook
-    const { startUpload } = useUploadThing("mediaPost", {
-        onClientUploadComplete: () => {
-            // Handled in handleSubmit manually for better control flow
-        },
-        onUploadError: (error: Error) => {
-            toast.error(`خطأ في الرفع: ${error.message}`);
-            setUploading(false);
-        },
-    });
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (file) {
-            if (file.size > 200 * 1024 * 1024) {
-                toast.error('الفيديو كبير جداً (الحد الأقصى 200 ميجابايت)')
-                return
-            }
-            setFile(file)
-            setPreviewUrl(URL.createObjectURL(file))
-        }
-    }
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!file) return
-
-        setUploading(true)
-
+    const handleUploadComplete = async (url: string, type: 'IMAGE' | 'VIDEO', metadata: any) => {
+        setIsSaving(true)
         try {
-            // 1. Upload to Cloud (Uploadthing)
-            const uploadRes = await startUpload([file]);
-
-            if (!uploadRes || uploadRes.length === 0) {
-                throw new Error("فشل رفع الملف");
-            }
-
-            const mediaUrl = uploadRes[0].url;
-            const mediaType = file.type.startsWith('video/') ? 'VIDEO' : 'IMAGE';
-
-            // 2. Save to DB via Server Action
+            // Save to DB via Server Action
             const formData = new FormData()
-            formData.append('mediaUrl', mediaUrl)
-            formData.append('mediaType', mediaType)
+            formData.append('mediaUrl', url)
+            formData.append('mediaType', type)
             formData.append('caption', caption)
             formData.append('userId', userId)
             formData.append('latitude', userLat.toString())
             formData.append('longitude', userLng.toString())
+
+            // Add metadata if needed later (trimming info)
+            if (type === 'VIDEO') {
+                formData.append('duration', metadata?.duration?.toString() || '0')
+            }
 
             const result = await createStory(formData)
 
@@ -88,15 +52,13 @@ export function CreateStoryModal({
                 toast.success('تم نشر قصتك بنجاح! 📹')
                 onClose()
                 if (onSuccess) onSuccess()
-                setFile(null)
-                setPreviewUrl(null)
                 setCaption('')
             }
         } catch (error) {
             console.error(error)
-            toast.error('حدث خطأ أثناء الرفع')
+            toast.error('حدث خطأ أثناء الحفظ')
         } finally {
-            setUploading(false)
+            setIsSaving(false)
         }
     }
 
@@ -108,7 +70,7 @@ export function CreateStoryModal({
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
-                        className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl"
+                        className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative"
                     >
                         <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
                             <h2 className="text-xl font-bold text-white">إضافة قصة جديدة 📹</h2>
@@ -117,74 +79,32 @@ export function CreateStoryModal({
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-4 space-y-4">
-                            {!previewUrl ? (
-                                <div
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="h-64 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-zinc-800/50 transition-colors"
-                                >
-                                    <span className="text-4xl mb-2">📸 / 📹</span>
-                                    <p className="text-zinc-400">اضغط لرفع صورة أو فيديو</p>
-                                    <p className="text-xs text-zinc-500 mt-2">
-                                        Images or Video (Max 200MB)
-                                    </p>
-                                </div>
-                            ) : (
-                                <div className="relative h-64 bg-black rounded-xl overflow-hidden">
-                                    {file?.type.startsWith('video/') ? (
-                                        <video
-                                            src={previewUrl}
-                                            controls
-                                            className="w-full h-full object-contain"
-                                        />
-                                    ) : (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img
-                                            src={previewUrl}
-                                            alt="Preview"
-                                            className="w-full h-full object-contain"
-                                        />
-                                    )}
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setFile(null)
-                                            setPreviewUrl(null)
-                                        }}
-                                        className="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1 hover:bg-red-500"
-                                    >
-                                        ✕
-                                    </button>
-                                </div>
-                            )}
-
-                            <input
-                                type="file"
-                                accept="video/*,image/*"
-                                ref={fileInputRef}
-                                onChange={handleFileChange}
-                                className="hidden"
-                            />
-
+                        <div className="p-4 space-y-4">
+                            {/* Caption Input - Always visible */}
                             <div>
                                 <Input
                                     label="وصف القصة (اختياري)"
                                     value={caption}
                                     onChange={e => setCaption(e.target.value)}
-                                    placeholder="ماذا يحدث حولك؟"
-                                    className="bg-zinc-800 border-zinc-700 placeholder-zinc-500 focus:ring-2 focus:ring-indigo-500"
+                                    placeholder="اكتب تعليقاً..."
+                                    className="bg-zinc-800 border-zinc-700 placeholder-zinc-500 focus:ring-2 focus:ring-indigo-500 mb-4"
+                                    disabled={isSaving}
                                 />
                             </div>
 
-                            <Button
-                                type="submit"
-                                disabled={!file || uploading}
-                                isLoading={uploading}
-                                className="w-full bg-indigo-600 hover:bg-indigo-700 h-auto py-3 rounded-xl"
-                            >
-                                {uploading ? 'جاري الرفع...' : 'نشر القصة 🚀'}
-                            </Button>
-                        </form>
+                            {/* New Media Uploader */}
+                            <MediaUploader
+                                onUploadComplete={handleUploadComplete}
+                                disabled={isSaving}
+                                className="w-full"
+                            />
+                        </div>
+
+                        {isSaving && (
+                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
+                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+                            </div>
+                        )}
                     </motion.div>
                 </div>
             )}
