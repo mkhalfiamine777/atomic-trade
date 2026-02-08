@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Play, ShoppingBag, Megaphone, Image as ImageIcon } from 'lucide-react'
+import { VideoModal } from '@/components/video/VideoModal'
 
 // Define unified types for the view
 export interface TabStory {
@@ -44,6 +45,7 @@ export function ProfileTabs({ stories, posts, products, requests }: Props) {
     }
 
     const [activeTab, setActiveTab] = useState<TabType>(getInitialTab())
+    const [selectedPost, setSelectedPost] = useState<TabPost | null>(null)
 
     const mediaCount = stories.length + posts.length
     const salesCount = products.length
@@ -87,7 +89,11 @@ export function ProfileTabs({ stories, posts, products, requests }: Props) {
                     className="min-h-[200px]"
                 >
                     {activeTab === 'MEDIA' && (
-                        <MediaGrid stories={stories} posts={posts} />
+                        <MediaGrid
+                            stories={stories}
+                            posts={posts}
+                            onPostClick={(post) => setSelectedPost(post)}
+                        />
                     )}
                     {activeTab === 'SALES' && (
                         <ListingsGrid items={products} type="PRODUCT" />
@@ -97,6 +103,13 @@ export function ProfileTabs({ stories, posts, products, requests }: Props) {
                     )}
                 </motion.div>
             </AnimatePresence>
+
+            {/* Video Modal */}
+            <VideoModal
+                isOpen={!!selectedPost}
+                onClose={() => setSelectedPost(null)}
+                post={selectedPost}
+            />
         </div>
     )
 }
@@ -121,7 +134,7 @@ function TabButton({ isActive, onClick, icon, label, count }: { isActive: boolea
     )
 }
 
-function MediaGrid({ stories, posts }: { stories: TabStory[], posts: TabPost[] }) {
+function MediaGrid({ stories, posts, onPostClick }: { stories: TabStory[], posts: TabPost[], onPostClick: (post: TabPost) => void }) {
     const storyItems = stories.map(s => ({
         id: s.id,
         mediaUrl: s.mediaUrl,
@@ -138,14 +151,19 @@ function MediaGrid({ stories, posts }: { stories: TabStory[], posts: TabPost[] }
         _type: 'POST' as const
     }))
 
-    const items = [...storyItems, ...postItems]
+    // Combine stories and posts, ensuring they conform to TabPost structure for click handler
+    const items: (TabPost & { _type: 'STORY' | 'POST' })[] = [...storyItems, ...postItems]
 
     if (items.length === 0) return <EmptyState label="لا توجد صور أو فيديوهات" />
 
     return (
         <div className="grid grid-cols-3 gap-1">
             {items.map(item => (
-                <div key={item.id} className="aspect-square relative bg-zinc-900 overflow-hidden cursor-pointer group">
+                <div
+                    key={item.id}
+                    onClick={() => onPostClick(item)}
+                    className="aspect-square relative bg-zinc-900 overflow-hidden cursor-pointer group"
+                >
                     {item.mediaType === 'VIDEO' || item.mediaUrl.endsWith('.mp4') ? (
                         <video src={item.mediaUrl + '#t=0.1'} className="w-full h-full object-cover" muted playsInline />
                     ) : (
