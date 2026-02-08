@@ -41,10 +41,10 @@ export default function UploadPage() {
         setIsSaving(true)
         try {
             const formData = new FormData()
-            formData.append('userId', userId)
-            formData.append('mediaUrl', mediaUrl)
-            formData.append('caption', caption)
-            formData.append('location', location) // Optional: Store location if schema supports
+            // userId handled by server action via cookies
+            formData.append('videoUrl', mediaUrl)
+            formData.append('description', caption) // Server expects 'description' mapped to caption
+            formData.append('location', location)
 
             const result = await createVideoPost(formData)
 
