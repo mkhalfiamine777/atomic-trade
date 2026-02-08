@@ -22,6 +22,7 @@ export interface TabListing {
 export interface TabPost {
     id: string
     mediaUrl: string
+    mediaType: string
     caption?: string | null
 }
 
@@ -132,7 +133,7 @@ function MediaGrid({ stories, posts }: { stories: TabStory[], posts: TabPost[] }
     const postItems = posts.map(p => ({
         id: p.id,
         mediaUrl: p.mediaUrl,
-        mediaType: 'IMAGE', // Default for posts if not specified
+        mediaType: p.mediaType || 'IMAGE',
         caption: p.caption,
         _type: 'POST' as const
     }))
@@ -146,14 +147,20 @@ function MediaGrid({ stories, posts }: { stories: TabStory[], posts: TabPost[] }
             {items.map(item => (
                 <div key={item.id} className="aspect-square relative bg-zinc-900 overflow-hidden cursor-pointer group">
                     {item.mediaType === 'VIDEO' || item.mediaUrl.endsWith('.mp4') ? (
-                        <video src={item.mediaUrl} className="w-full h-full object-cover" muted />
+                        <video src={item.mediaUrl + '#t=0.1'} className="w-full h-full object-cover" muted playsInline />
                     ) : (
                         <img src={item.mediaUrl} alt={item.caption || ''} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                     )}
 
                     {/* Type Badge */}
-                    <div className="absolute top-1 right-1">
+                    <div className="absolute top-1 right-1 pointer-events-none">
                         {item._type === 'STORY' && <div className="bg-purple-600/80 rounded-full p-1"><Play className="w-3 h-3 text-white fill-white" /></div>}
+                        {item.mediaType === 'VIDEO' && item._type === 'POST' && <div className="bg-black/50 rounded-full p-1"><Play className="w-3 h-3 text-white fill-white" /></div>}
+                    </div>
+
+                    {/* View Count Overlay (Optional Future) */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1">
+                        {/* <span className="text-[10px] text-white flex items-center gap-1"><Play size={10} /> 1.2k</span> */}
                     </div>
                 </div>
             ))}

@@ -54,6 +54,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
     const posts = user.posts.map(p => ({
         id: p.id,
         mediaUrl: p.mediaUrl,
+        mediaType: p.mediaType,
         caption: p.caption
     }))
 
