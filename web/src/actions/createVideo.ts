@@ -3,19 +3,23 @@
 import { revalidatePath } from 'next/cache'
 
 
+import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 
 export async function createVideoPost(formData: FormData) {
     try {
         const videoUrl = formData.get('videoUrl') as string
         const description = formData.get('description') as string
-        const duration = formData.get('duration')
 
-        // TODO: Get real User ID from session
-        const userId = 'user-1'
+        const cookieStore = await cookies()
+        const userId = cookieStore.get('user_id')?.value
 
-        if (!videoUrl || !userId) {
-            throw new Error('Video URL and User ID are required')
+        if (!userId) {
+            throw new Error('Unauthorized: No user logged in')
+        }
+
+        if (!videoUrl) {
+            throw new Error('Video URL is required')
         }
 
         await db.socialPost.create({
