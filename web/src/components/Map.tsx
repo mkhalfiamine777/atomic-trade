@@ -105,7 +105,7 @@ function RecenterButton({ lat, lng }: { lat: number; lng: number }) {
     return (
         <button
             onClick={() => map.flyTo([lat, lng], 16)}
-            className="absolute bottom-24 left-4 z-[400] bg-white dark:bg-zinc-800 text-indigo-600 p-3 rounded-full shadow-xl border border-zinc-200 dark:border-zinc-700 hover:scale-110 transition-transform"
+            className="absolute bottom-32 left-4 z-[400] bg-white dark:bg-zinc-800 text-indigo-600 p-3 rounded-full shadow-xl border border-zinc-200 dark:border-zinc-700 hover:scale-110 transition-transform"
             title="موقعي الحالي"
         >
             🎯
@@ -437,7 +437,7 @@ export default function Map({
         }
     }
     return (
-        <div className="h-[600px] w-full rounded-xl overflow-hidden border border-zinc-800 shadow-2xl relative z-0">
+        <div className="h-full w-full relative z-0 bg-zinc-950">
             <MapContainer center={center} zoom={16} style={{ height: '100%', width: '100%' }}>
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

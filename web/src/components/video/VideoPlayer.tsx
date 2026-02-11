@@ -70,6 +70,8 @@ export function VideoPlayer({
                 muted={isMuted}
                 playsInline
                 poster={poster}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
             />
 
             {/* Play/Pause Overlay Icon */}
