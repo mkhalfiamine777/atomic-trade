@@ -1,12 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createPost } from '@/actions/social'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import { AnimatePresence, motion } from 'framer-motion'
+import { X } from 'lucide-react'
 
-export function CreatePostButton({ userId }: { userId: string }) {
-    const [isOpen, setIsOpen] = useState(false)
+interface CreatePostModalProps {
+    isOpen: boolean
+    onClose: () => void
+    userId: string
+    onSuccess?: () => void
+}
+
+export function CreatePostModal({ isOpen, onClose, userId, onSuccess }: CreatePostModalProps) {
     const [mediaUrl, setMediaUrl] = useState('')
     const [caption, setCaption] = useState('')
     const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
@@ -15,33 +23,44 @@ export function CreatePostButton({ userId }: { userId: string }) {
     const router = useRouter()
 
     // Get location when modal opens
-    const handleOpen = () => {
-        setIsOpen(true)
-        if (navigator.geolocation) {
-            setLocationStatus('loading')
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setLocation({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    })
-                    setLocationStatus('success')
-                },
-                (error) => {
-                    console.error('Error getting location:', error)
-                    setLocationStatus('error')
-                    toast.error('تعذر تحديد موقعك 📍')
-                }
-            )
+    useEffect(() => {
+        if (isOpen) {
+            if (navigator.geolocation) {
+                setLocationStatus('loading')
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        setLocation({
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        })
+                        setLocationStatus('success')
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error)
+                        setLocationStatus('error')
+                        toast.error('تعذر تحديد موقعك 📍')
+                    }
+                )
+            } else {
+                setLocationStatus('error')
+                toast.error('المتصفح لا يدعم تحديد الموقع')
+            }
         } else {
-            setLocationStatus('error')
-            toast.error('المتصفح لا يدعم تحديد الموقع')
+            // Reset state when closed
+            setMediaUrl('')
+            setCaption('')
+            setLocationStatus('idle')
         }
-    }
+    }, [isOpen])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!mediaUrl) return
+
+        if (locationStatus !== 'success') {
+            toast.warning('يرجى انتظار تحديد الموقع لإضافة المنشور للخريطة ⏳')
+            return
+        }
 
         setIsSubmitting(true)
 
@@ -57,10 +76,9 @@ export function CreatePostButton({ userId }: { userId: string }) {
 
         if (result.success) {
             toast.success('تم نشر المنشور بنجاح! 🎉')
-            setIsOpen(false)
-            setMediaUrl('')
-            setCaption('')
+            onClose()
             router.refresh()
+            if (onSuccess) onSuccess()
         } else {
             toast.error('حدث خطأ أثناء النشر')
         }
@@ -75,51 +93,48 @@ export function CreatePostButton({ userId }: { userId: string }) {
     ]
 
     return (
-        <>
-            <button
-                onClick={handleOpen}
-                className="fixed bottom-24 left-6 z-50 bg-gx-primary hover:bg-pink-600 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl transition-transform hover:scale-110 border-2 border-white/20"
-                title="منشور جديد"
-            >
-                ➕
-            </button>
-
+        <AnimatePresence>
             {isOpen && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                    <div className="bg-gx-card border border-white/10 w-full max-w-md rounded-2xl p-6 relative shadow-2xl animate-in zoom-in-95 duration-200">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="bg-zinc-900 border border-white/10 w-full max-w-md rounded-2xl p-6 relative shadow-2xl"
+                    >
                         <button
-                            onClick={() => setIsOpen(false)}
-                            className="absolute top-4 left-4 text-zinc-400 hover:text-white"
+                            onClick={onClose}
+                            className="absolute top-4 left-4 text-zinc-400 hover:text-white bg-zinc-800 p-1 rounded-full transition-colors"
                         >
-                            ✕
+                            <X size={20} />
                         </button>
 
-                        <div className="flex justify-between items-center mb-6">
-                            <div className="text-xs flex items-center gap-1">
+                        <div className="flex justify-between items-center mb-6 mt-2">
+                            <div className="text-xs flex items-center gap-1 font-mono">
                                 {locationStatus === 'loading' && <span className="text-yellow-400 animate-pulse">جاري تحديد الموقع... 📍</span>}
                                 {locationStatus === 'success' && <span className="text-green-400">تم تحديد الموقع ✅</span>}
                                 {locationStatus === 'error' && <span className="text-red-400">موقع غير معروف ❌</span>}
                             </div>
                             <h2 className="text-xl font-bold text-white text-right">
-                                منشور جديد 📸
+                                منشور اجتماعي 💬
                             </h2>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             {/* Image Preview / Input */}
                             <div className="space-y-2">
-                                <label className="text-sm text-zinc-400 block text-right">
-                                    رابط الصورة (أو اختر من الأسفل)
+                                <label className="text-sm text-zinc-400 block text-right font-medium">
+                                    صورة المنشور
                                 </label>
                                 <input
                                     type="text"
                                     placeholder="https://example.com/image.jpg"
                                     value={mediaUrl}
                                     onChange={e => setMediaUrl(e.target.value)}
-                                    className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-gx-primary outline-none text-right placeholder-zinc-600"
+                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-white focus:border-purple-500 outline-none text-right placeholder-zinc-700 dir-ltr"
                                 />
 
-                                <div className="flex gap-2 justify-end mt-2">
+                                <div className="flex gap-2 justify-end mt-2 overflow-x-auto pb-2">
                                     {presets.map((url, i) => (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img
@@ -127,7 +142,7 @@ export function CreatePostButton({ userId }: { userId: string }) {
                                             src={url}
                                             alt={`Preset ${i + 1}`}
                                             onClick={() => setMediaUrl(url)}
-                                            className={`w-12 h-12 rounded-md object-cover cursor-pointer hover:opacity-80 border-2 ${mediaUrl === url ? 'border-gx-primary' : 'border-transparent'}`}
+                                            className={`w-16 h-16 rounded-md object-cover cursor-pointer hover:opacity-80 border-2 transition-all ${mediaUrl === url ? 'border-purple-500 scale-105' : 'border-transparent'}`}
                                         />
                                     ))}
                                 </div>
@@ -135,28 +150,28 @@ export function CreatePostButton({ userId }: { userId: string }) {
 
                             {/* Caption */}
                             <div className="space-y-2">
-                                <label className="text-sm text-zinc-400 block text-right">
+                                <label className="text-sm text-zinc-400 block text-right font-medium">
                                     الوصف
                                 </label>
                                 <textarea
-                                    placeholder="اكتب شيئاً جميلاً..."
+                                    placeholder="شارك لحظاتك مع المجتمع..."
                                     value={caption}
                                     onChange={e => setCaption(e.target.value)}
-                                    className="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-gx-primary outline-none text-right h-24 placeholder-zinc-600 resize-none"
+                                    className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-white focus:border-purple-500 outline-none text-right h-24 placeholder-zinc-700 resize-none dir-rtl"
                                 />
                             </div>
 
                             <button
                                 type="submit"
-                                disabled={isSubmitting}
-                                className="w-full bg-gx-primary hover:bg-pink-600 text-white py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                                disabled={isSubmitting || locationStatus !== 'success'}
+                                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4 shadow-lg shadow-purple-900/20"
                             >
-                                {isSubmitting ? 'جاري النشر...' : 'نشر 🚀'}
+                                {isSubmitting ? 'جاري النشر...' : 'نشر على الخريطة 🗺️'}
                             </button>
                         </form>
-                    </div>
+                    </motion.div>
                 </div>
             )}
-        </>
+        </AnimatePresence>
     )
 }

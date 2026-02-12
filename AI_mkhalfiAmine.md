@@ -4,8 +4,8 @@
 > 2.  **END (الاختتام):** يجب تحديث هذا الملف قبل إغلاق الجلسة. سجل "الإنجازات" الجديدة وحدث "الحالة".
 > 3.  **GOAL:** لا تشتت. التزم بالمسار.
 
-**Last Updated:** 2026-02-11 18:20
-**Status:** Session Closed (Waiting for Next Sprint) ⏸️
+**Last Updated:** 2026-02-12 00:55
+**Status:** Session Closed (Living Map Phase Integrated) ✅
 
 ---
 
@@ -20,14 +20,23 @@
 ---
 
 ## 📍 2. الحالة الحالية (Current Pulse)
-**نحن الآن في:** منتصف **المرحلة 1: الخريطة الحية (The Living Map)**.
-*   ✅ **تم إنجاز:** إعادة تصميم صفحة البروفايل بالكامل (Glassmorphism & Living Map Background). إصلاح مشكلة الداشبورد. تنظيف الكود وتوحيد الأنواع.
-*   🚧 **جاري العمل:** تفعيل الربط الجغرافي (Geo-tagging) للمنشورات والمنتجات.
+**نحن الآن في:** نهاية **المرحلة 1: الخريطة الحية (The Living Map)**.
+*   ✅ **تم إنجاز:** تفعيل الخريطة الحية بالكامل (Geo-tagging للمنشورات)، وربط القائمة العائمة (FAB)، وتنفيذ أساسيات اقتصاد الثقة (Opacity & Badges).
+*   🚧 **جاري العمل:** التحضير للمرحلة الثانية (Social Engine & Real-time).
 *   ⏳ **المعلق:** إصلاح السيرفر (Socket.io) للمحادثات الحية.
 
 ---
 
 ## 📜 3. سجل الإنجازات (Achievement Log)
+
+### 📅 12-02-2026 (Living Map Integration & Trust Economy)
+*   **الإنجاز:** تفعيل **Geo-tagging** للمنشورات الاجتماعية (Social Posts) وعرضها على الخريطة.
+*   **الإنجاز:** تطوير **CreatePostModal** وربطه بالقائمة العائمة (FAB).
+*   **الإنجاز:** تنفيذ **اقتصاد الثقة (Trust Economy):**
+    *   إخفاء المنشورات (Transparency 0.7) للمستخدمين الجدد (<50).
+    *   منح **شارة الثقة (🛡️)** للمستخدمين الموثوقين (>80).
+*   **الإنجاز:** إنشاء **Developer Tool (`/api/dev/set-rep`)** لتعديل نقاط السمعة يدوياً.
+*   **الإنجاز:** التحقق اليدوي الناجح من جميع وظائف الخريطة (إنشاء، عرض، تفاعل).
 
 ### 📅 11-02-2026 (Profile Redesign Session)
 *   **الإنجاز:** إعادة بناء `src/app/u/[username]/page.tsx` بتصميم زجاجي كامل.
@@ -40,13 +49,13 @@
 
 ## 🗺️ 4. خارطة الطريق النشطة (Active Roadmap)
 
-### **أ. المرحلة الحالية: الخريطة والبيانات (Geo-Data Foundation)**
-1.  [ ] **DB Schema Check:** التأكد من دعم `lat`, `lng` في `SocialPost` و `Listing`.
-2.  [ ] **Backend Action:** تحديث `createPost` و `createListing` لاستقبال وحفظ الإحداثيات.
-3.  [ ] **Frontend (Creation):** تحديث مودالات الإنشاء (`CreateRequestModal`, `AddProductModal`) لإرسال الموقع الحالي.
-4.  [ ] **Frontend (Map):** تحديث `Map.tsx` لعرض العلامات (Markers) للمنشورات والمنتجات الجديدة.
+### **أ. المرحلة الحالية: الخريطة والبيانات (Geo-Data Foundation) - ✅ Completed**
+1.  [x] **DB Schema Check:** التأكد من دعم `lat`, `lng` في `SocialPost` و `Listing`.
+2.  [x] **Backend Action:** تحديث `createPost` و `createListing` لاستقبال وحفظ الإحداثيات.
+3.  [x] **Frontend (Creation):** تحديث مودالات الإنشاء (`CreateRequestModal`, `AddProductModal`) لإرسال الموقع الحالي.
+4.  [x] **Frontend (Map):** تحديث `Map.tsx` لعرض العلامات (Markers) للمنشورات والمنتجات الجديدة.
 
-### **ب. المرحلة القادمة: المحرك الاجتماعي (Social Engine)**
+### **ب. المرحلة القادمة: المحرك الاجتماعي (Social Engine) - 🚧 Next**
 1.  [ ] **Socket Server:** إصلاح `server.ts` أو فصله لتفعيل الـ Real-time.
 2.  [ ] **Chat:** تفعيل المحادثات المباشرة.
 

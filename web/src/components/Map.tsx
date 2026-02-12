@@ -12,17 +12,15 @@ import { startConversation } from '@/actions/chat'
 // ChatWindow removed
 import { getListings } from '@/actions/market'
 import { getStories } from '@/actions/stories'
+import { getMapPosts } from '@/actions/social'
 import { StoryViewer } from './StoryViewer'
 import { MapFilterBar, FilterType, ALL_FILTERS } from './MapFilterBar'
 import { SmartMarkerGroup } from './SmartMarkerGroup'
 import { InteractionBar } from './profile/InteractionBar'
 import { CommentsSheet } from './CommentsSheet'
-// Duplicate import removed
-// ZoneGridLayer removed
 
 import { getShopIcon, getCompanyIcon, getIndividualIcon, getRequestIcon, getStoryIcon } from '@/utils/mapIcons'
 
-// Type definition for Listings
 interface Listing {
     id: string
     title: string
@@ -48,12 +46,30 @@ interface Story {
     caption: string | null
     latitude: number
     longitude: number
-    userId: string // 🆕 Ensure we capture this
+    userId: string
     user: {
         name: string | null
         avatarUrl: string | null
         reputationScore?: number
         isVerified?: boolean
+    }
+    createdAt: Date
+}
+
+interface Post {
+    id: string
+    caption: string | null
+    mediaUrl: string
+    mediaType: string
+    latitude: number
+    longitude: number
+    userId: string
+    user: {
+        name: string | null
+        avatarUrl: string | null
+        reputationScore: number
+        isVerified: boolean
+        type: string
     }
     createdAt: Date
 }
@@ -128,6 +144,7 @@ export default function Map({
     const { coordinates, loading, error } = useGeolocation()
     const [listings, setListings] = useState<Listing[]>([])
     const [stories, setStories] = useState<Story[]>([])
+    const [posts, setPosts] = useState<Post[]>([]) // New Post State
     const [selectedStory, setSelectedStory] = useState<Story | null>(null)
     const [isMounted, setIsMounted] = useState(false)
     const [selectedFilters, setSelectedFilters] = useState<FilterType[]>([])
@@ -150,12 +167,9 @@ export default function Map({
 
     // Fetch Listings on Mount, Refresh, and Location Change (Live Sync)
     useEffect(() => {
-        getListings().then(data => {
-            setListings(data)
-        })
-        getStories().then(data => {
-            setStories(data)
-        })
+        getListings().then(data => setListings(data))
+        getStories().then(data => setStories(data))
+        getMapPosts().then(data => setPosts(data as unknown as Post[])) // Type assertion for now to align prisma vs interface
     }, [refreshTrigger, coordinates]) // Re-fetch when trigger changes OR location changes
 
     // --- Filtering Logic ---
@@ -186,8 +200,8 @@ export default function Map({
     // --- Clustering Logic (Group items by same location) ---
     // We combine all items into a generic structure to group them
     type MapItem = {
-        type: 'LISTING' | 'STORY'
-        data: Listing | Story
+        type: 'LISTING' | 'STORY' | 'POST'
+        data: Listing | Story | Post
         lat: number
         lng: number
         id: string
@@ -207,6 +221,13 @@ export default function Map({
             lat: s.latitude,
             lng: s.longitude,
             id: s.id
+        })),
+        ...posts.map(p => ({
+            type: 'POST' as const,
+            data: p,
+            lat: p.latitude,
+            lng: p.longitude,
+            id: p.id
         }))
     ]
 
@@ -372,7 +393,77 @@ export default function Map({
                     </Popup>
                 </Marker>
             )
-        } else {
+        }
+
+        if (item.type === 'POST') {
+            const post = item.data as Post
+            const reputation = post.user.reputationScore || 0
+            const isTrusted = reputation >= 80
+            const isNewUser = reputation < 50
+
+            return (
+                <Marker
+                    key={`post-${post.id}`}
+                    position={pos}
+                    opacity={isNewUser ? 0.7 : 1} // 👻 Ghost mode for low rep
+                    // Using story icon style for visual consistency but distinct
+                    icon={getStoryIcon(post.mediaUrl, 'IMAGE')}
+                >
+                    <Popup className="story-popup" minWidth={200}>
+                        <div className="p-1 text-center">
+                            <div className={`flex items-center gap-1 mb-2 p-1 rounded-full w-fit mx-auto border ${isTrusted ? 'bg-yellow-50 border-yellow-200' : 'bg-zinc-50 border-zinc-100'}`}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={post.user.avatarUrl || '/placeholder-user.jpg'} alt="Avatar" className="w-6 h-6 rounded-full" />
+                                <div className="flex flex-col text-right px-1">
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-xs font-bold text-zinc-800 line-clamp-1 max-w-[80px]">{post.user.name}</span>
+                                        {isTrusted && <span title="بائع موثوق" className="text-[10px]">🛡️</span>}
+                                    </div>
+                                    <div className="flex items-center gap-0.5">
+                                        <span className="text-[8px] text-zinc-500">⭐ {reputation}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="relative w-full h-32 rounded-lg overflow-hidden border border-zinc-200 mb-2 group">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={post.mediaUrl}
+                                    alt="Post"
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                                <div className="absolute top-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                                    📸 منشور
+                                </div>
+                            </div>
+
+                            {post.caption && (
+                                <p className="text-center text-xs text-zinc-600 mb-2 line-clamp-2 dir-rtl">
+                                    {post.caption}
+                                </p>
+                            )}
+
+                            <div className="grid grid-cols-2 gap-2 mt-2">
+                                <button
+                                    onClick={() => toast.success('❤️ إعجاب!')}
+                                    className="bg-pink-600 hover:bg-pink-700 text-white py-1 rounded text-xs font-bold transition-colors"
+                                >
+                                    ❤️ إعجاب
+                                </button>
+                                <button
+                                    onClick={() => router.push(`/u/${post.userId}`)}
+                                    className="bg-zinc-800 hover:bg-zinc-900 text-white py-1 rounded text-xs font-bold transition-colors"
+                                >
+                                    👤 الملف
+                                </button>
+                            </div>
+                        </div>
+                    </Popup>
+                </Marker>
+            )
+        }
+
+        else {
             const story = item.data as Story
             const trusted = isTrusted(story.user.reputationScore, story.user.isVerified)
 

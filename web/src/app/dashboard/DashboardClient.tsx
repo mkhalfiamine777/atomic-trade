@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { CreatePostModal } from '@/components/CreatePostModal'
 import { AddProductModal } from '@/components/AddProductModal'
 import { CreateRequestModal } from '@/components/CreateRequestModal'
 import { CreateStoryModal } from '@/components/CreateStoryModal'
@@ -29,6 +30,7 @@ export default function DashboardClient({
 }) {
     const [isAddProductOpen, setIsAddProductOpen] = useState(false)
     const [isRequestOpen, setIsRequestOpen] = useState(false)
+    const [isPostOpen, setIsPostOpen] = useState(false) // New Post Modal State
     const [isStoryOpen, setIsStoryOpen] = useState(false)
     const [isFabOpen, setIsFabOpen] = useState(false)
     const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -54,6 +56,13 @@ export default function DashboardClient({
                 onSuccess={handleRefresh}
             />
             <CreateRequestModal isOpen={isRequestOpen} onClose={() => setIsRequestOpen(false)} />
+
+            <CreatePostModal
+                isOpen={isPostOpen}
+                onClose={() => setIsPostOpen(false)}
+                userId={userId}
+                onSuccess={handleRefresh}
+            />
 
             {coordinates && (
                 <CreateStoryModal
@@ -96,9 +105,10 @@ export default function DashboardClient({
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: 20, scale: 0.8 }}
                                 transition={{ delay: 0.05 }}
-                                onClick={() => { setIsRequestOpen(true); setIsFabOpen(false) }}
+                                // UPDATED: Open Post Modal instead of Request Modal
+                                onClick={() => { setIsPostOpen(true); setIsFabOpen(false) }}
                                 className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white shadow-lg border border-purple-500"
-                                title="طلب خدمة"
+                                title="منشور جديد"
                             >
                                 <MessageSquarePlus size={20} />
                             </motion.button>

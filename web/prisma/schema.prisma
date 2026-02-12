@@ -147,11 +147,16 @@ model SocialPost {
   type      String   @default("POST") // POST, OFFER
   createdAt DateTime @default(now())
   
+  // Geo-tagging
+  latitude  Float?
+  longitude Float?
+
   // Relations
   interactions Interaction[]
 
   @@index([userId])
   @@index([createdAt]) // For Feed sorting
+  @@index([latitude, longitude]) // For Map View
 }
 
 model Interaction {
