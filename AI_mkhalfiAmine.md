@@ -65,7 +65,18 @@
 
 ---
 
-## 💡 5. ملاحظات وتذكيرات (AI Memory)
+## 🏗️ 5. البنية التحتية (Infrastructure Context)
+*   **Development:**
+    *   **OS:** Windows Localhost.
+    *   **Server:** `npx next dev` (Next.js) + `npm run dev:socket` (Standalone Socket Server).
+    *   **DB:** Docker (PostgreSQL).
+*   **Production:**
+    *   **Platform:** **Railway**.
+    *   **Scaling:** Single service or Microservices (TBD for Socket.io).
+
+---
+
+## 💡 6. ملاحظات وتذكيرات (AI Memory)
 *   **Server Issue:** `server.ts` الحالي يسبب مشاكل في التوجيه على ويندوز. الحل المؤقت هو `npx next dev`. يجب إصلاحه لاحقاً لتفعيل السوكيت.
 *   **Design Consistnecy:** الحفاظ على الـ Glassmorphism والـ Neon في كل مكون جديد.
 *   **Performance:** انتبه دائماً لاستخدام `next/dynamic` للخريطة والمكونات الثقيلة.

@@ -11,6 +11,7 @@
         "build": "tsc server.ts --skipLibCheck --esModuleInterop && next build",
         "start": "NODE_ENV=production node server.js",
         "lint": "eslint",
+        "dev:socket": "npx tsx socket-server.ts",
         "postinstall": "prisma generate"
     },
     "dependencies": {
@@ -32,7 +33,6 @@
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "react-leaflet": "^5.0.0",
-        "socket.io": "^4.8.3",
         "socket.io-client": "^4.8.3",
         "sonner": "^2.0.7",
         "tailwind-merge": "^3.4.0",
@@ -50,6 +50,7 @@
         "@types/node": "^20.19.31",
         "@types/react": "^19",
         "@types/react-dom": "^19",
+        "@types/socket.io": "^3.0.1",
         "eslint": "^9",
         "eslint-config-next": "16.1.3",
         "eslint-config-prettier": "^10.1.8",
@@ -57,6 +58,7 @@
         "nodemon": "^3.1.11",
         "prettier": "^3.8.1",
         "prisma": "^5.10.0",
+        "socket.io": "^4.8.3",
         "typescript": "^5.9.3"
     }
 }
