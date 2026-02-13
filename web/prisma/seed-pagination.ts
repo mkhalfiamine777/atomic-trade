@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, MediaType, ListingType } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -51,7 +51,7 @@ async function main() {
     const postsData = Array.from({ length: 50 }).map((_, i) => ({
         userId: user.id,
         mediaUrl: `https://picsum.photos/seed/post_${Date.now()}_${i}/600/600`,
-        mediaType: 'IMAGE',
+        mediaType: MediaType.IMAGE,
         caption: `${SEED_TAG} منشور رقم ${i + 1}`,
     }))
 
@@ -65,7 +65,7 @@ async function main() {
         description: `${SEED_TAG} وصف المنتج رقم ${i + 1}`,
         price: (i + 1) * 50 + 9,
         images: `https://picsum.photos/seed/prod_${Date.now()}_${i}/600/600`,
-        type: 'PRODUCT' as const,
+        type: ListingType.PRODUCT,
         latitude: 33.5731, // Default coordinates (Casablanca)
         longitude: -7.5898,
         category: 'GENERAL',

@@ -1,5 +1,5 @@
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserType } from "@prisma/client";
 import { hash } from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -16,7 +16,7 @@ async function main() {
             username: "user1",
             name: "User One",
             password,
-            type: "INDIVIDUAL",
+            type: UserType.INDIVIDUAL,
             reputationScore: 95,
         }
     });
@@ -30,7 +30,7 @@ async function main() {
             username: "user2",
             name: "User Two",
             password,
-            type: "INDIVIDUAL",
+            type: UserType.INDIVIDUAL,
             reputationScore: 65,
         }
     });
