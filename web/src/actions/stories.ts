@@ -2,6 +2,7 @@
 
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { MediaType } from '@prisma/client'
 
 export async function createStory(formData: FormData) {
     try {
@@ -10,7 +11,7 @@ export async function createStory(formData: FormData) {
         const userId = formData.get('userId') as string
         const latitude = parseFloat(formData.get('latitude') as string)
         const longitude = parseFloat(formData.get('longitude') as string)
-        const mediaType = (formData.get('mediaType') as string) || 'IMAGE' // Passed from client
+        const mediaType = (formData.get('mediaType') as MediaType) || MediaType.IMAGE // Passed from client
 
         if (!mediaUrl || !userId) {
             return { error: 'Missing file or user ID' }

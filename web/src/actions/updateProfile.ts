@@ -5,7 +5,7 @@ import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 
 // ... imports
-import { Prisma } from '@prisma/client'
+import { Prisma, UserType } from '@prisma/client'
 
 export async function updateProfile(formData: FormData) {
     try {
@@ -19,7 +19,7 @@ export async function updateProfile(formData: FormData) {
         const name = formData.get('name') as string
         const username = formData.get('username') as string
         const avatarUrl = formData.get('avatarUrl') as string
-        const type = formData.get('type') as string // INDIVIDUAL or SHOP
+        const type = formData.get('type') as UserType // INDIVIDUAL or SHOP
         const shopCategory = formData.get('shopCategory') as string | null
 
         // Validate basic inputs

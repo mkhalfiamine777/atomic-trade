@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { ListingType } from '@prisma/client'
 
 export async function createListing(formData: FormData) {
     console.log("🚀 Create Listing Action Triggered!")
@@ -16,7 +17,7 @@ export async function createListing(formData: FormData) {
     const title = formData.get('title') as string
     const price = parseFloat(formData.get('price') as string)
     const description = formData.get('description') as string
-    const type = (formData.get('type') as string) || 'PRODUCT' // PRODUCT or REQUEST
+    const type = (formData.get('type') as ListingType) || ListingType.PRODUCT
     const imageUrl = (formData.get('imageUrl') as string) || '' // 📸 Image URL or empty string
 
     // Geo-Location (Sent from Client)
@@ -29,7 +30,7 @@ export async function createListing(formData: FormData) {
     }
 
     // If Logic requires image for Product but not Request
-    if (type === 'PRODUCT' && !imageUrl) {
+    if (type === ListingType.PRODUCT && !imageUrl) {
         return { error: 'يجب إضافة صورة للمنتج! 📸' }
     }
 
