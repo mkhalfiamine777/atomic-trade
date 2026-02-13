@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
+import { UserType } from '@prisma/client'
 
 import bcrypt from 'bcryptjs'
 
@@ -75,7 +76,7 @@ export async function signup(_prevState: unknown, formData: FormData) {
                 phone,
                 name,
                 password: hashedPassword,
-                type: type || 'INDIVIDUAL',
+                type: (type as UserType) || UserType.INDIVIDUAL,
                 shopCategory
             }
         })
