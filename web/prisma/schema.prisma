@@ -8,7 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── Enums ──────────────────────────────────────────────────
+// --- Enums ---
 enum UserType {
   INDIVIDUAL
   SHOP
@@ -41,7 +41,7 @@ enum InteractionType {
   COMMENT
 }
 
-// ─── Models ─────────────────────────────────────────────────
+// --- Models ---
 
 model User {
   id        String   @id @default(uuid())
