@@ -1,12 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
-import { Listing } from '@prisma/client'
 import { getDistance } from './useGeolocation'
 
-interface Coordinates {
-    latitude: number
-    longitude: number
-}
+import { Coordinates, Listing } from "@/types";
 
 interface UseGeofencingProps {
     userLocation: Coordinates | null
@@ -24,8 +20,8 @@ export function useGeofencing({ userLocation, listings, radius = 300 }: UseGeofe
         listings.forEach(listing => {
             // calculated distance
             const distance = getDistance(
-                userLocation.latitude,
-                userLocation.longitude,
+                userLocation.lat,
+                userLocation.lng,
                 listing.latitude,
                 listing.longitude
             )

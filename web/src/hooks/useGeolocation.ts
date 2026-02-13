@@ -1,10 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { updateUserLocation } from '@/actions/user' // Import server action
 
-interface Coordinates {
-    latitude: number
-    longitude: number
-}
+import { Coordinates } from "@/types";
 
 interface GeolocationState {
     coordinates: Coordinates | null
@@ -30,60 +27,32 @@ export function getDistance(lat1: number, lon1: number, lat2: number, lon2: numb
 }
 
 export function useGeolocation() {
-    const [location, setLocation] = useState<GeolocationState>(() => {
+    const [state, setState] = useState<GeolocationState>(() => {
         if (typeof window !== 'undefined' && !('geolocation' in navigator)) {
             return { coordinates: null, error: 'Geolocation not supported', loading: false }
         }
         return { coordinates: null, error: null, loading: true }
     })
 
-    const lastSyncedLocation = useRef<Coordinates | null>(null)
-    const isSyncing = useRef(false)
-
     useEffect(() => {
-        if (!('geolocation' in navigator)) return
+        if (!navigator.geolocation) {
+            setState({ coordinates: null, error: 'Geolocation is not supported', loading: false })
+            return
+        }
 
-        const watcher = navigator.geolocation.watchPosition(
-            async position => {
-                const newCoords = {
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                }
+        const geo = navigator.geolocation
+        const watcher = geo.watchPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords
+                const newCoords: Coordinates = { lat: latitude, lng: longitude }
 
-                setLocation({
-                    coordinates: newCoords,
-                    error: null,
-                    loading: false
-                })
+                setState({ coordinates: newCoords, error: null, loading: false })
 
-                // 🔄 Server Sync Logic (The Nomad Vendor)
-                // Only sync if moved > 10 meters to save battery/data
-                if (!isSyncing.current) {
-                    const dist = lastSyncedLocation.current
-                        ? getDistance(
-                              lastSyncedLocation.current.latitude,
-                              lastSyncedLocation.current.longitude,
-                              newCoords.latitude,
-                              newCoords.longitude
-                          )
-                        : 999 // Force first sync
-
-                    if (dist > 10) {
-                        isSyncing.current = true
-                        try {
-                            // Fire and forget (don't await strictly to block UI)
-                            updateUserLocation(newCoords.latitude, newCoords.longitude).then(() => {
-                                lastSyncedLocation.current = newCoords
-                                isSyncing.current = false
-                            })
-                        } catch (e) {
-                            isSyncing.current = false
-                        }
-                    }
-                }
+                // Only sync to server if not syncing or far enough (optimization)
+                updateUserLocation(newCoords.lat, newCoords.lng)
             },
-            error => {
-                setLocation(prev => ({ ...prev, error: error.message, loading: false }))
+            (error) => {
+                setState(prev => ({ ...prev, error: error.message, loading: false }))
             },
             {
                 enableHighAccuracy: true,
@@ -95,5 +64,5 @@ export function useGeolocation() {
         return () => navigator.geolocation.clearWatch(watcher)
     }, [])
 
-    return location
+    return { ...state, loading: !state.coordinates && !state.error }
 }

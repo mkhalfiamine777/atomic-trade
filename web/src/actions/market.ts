@@ -51,13 +51,12 @@ export async function createListing(formData: FormData) {
         // 5. Update UI
         revalidatePath('/dashboard')
         return { success: true }
-    } catch (error: any) {
-        console.error('Market Error Details:', {
+    } catch (error: unknown) {
+        const errDetails = error instanceof Error ? {
             message: error.message,
-            code: error.code,
-            meta: error.meta,
             stack: error.stack
-        })
+        } : { message: String(error) }
+        console.error('Market Error Details:', errDetails)
         return { error: 'Failed to create listing' }
     }
 }
@@ -69,7 +68,10 @@ export async function getListings() {
             include: {
                 seller: {
                     select: {
+                        id: true,
                         name: true,
+                        username: true,
+                        avatarUrl: true,
                         phone: true,
                         reputationScore: true, // 🛡️ Trust Score
                         isVerified: true, // ✅ Verified Badge

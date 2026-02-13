@@ -1,7 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { CreatePostModal } from '@/components/CreatePostModal'
 import { AddProductModal } from '@/components/AddProductModal'
@@ -35,15 +35,20 @@ export default function DashboardClient({
     const [isFabOpen, setIsFabOpen] = useState(false)
     const [refreshTrigger, setRefreshTrigger] = useState(0)
     const router = useRouter()
+    const lastLocationUpdate = useRef<number>(0)
 
     const handleRefresh = () => setRefreshTrigger(prev => prev + 1)
 
     const { coordinates } = useGeolocation()
 
-    // Live Tracking: Update user location in DB when coordinates change
+    // Live Tracking: Throttled - update user location every 30s max
     useEffect(() => {
         if (coordinates) {
-            updateUserLocation(coordinates.latitude, coordinates.longitude)
+            const now = Date.now()
+            if (now - lastLocationUpdate.current > 30000) {
+                lastLocationUpdate.current = now
+                updateUserLocation(coordinates.lat, coordinates.lng)
+            }
         }
     }, [coordinates])
 
@@ -69,8 +74,8 @@ export default function DashboardClient({
                     isOpen={isStoryOpen}
                     onClose={() => setIsStoryOpen(false)}
                     userId={userId}
-                    userLat={coordinates.latitude}
-                    userLng={coordinates.longitude}
+                    userLat={coordinates.lat}
+                    userLng={coordinates.lng}
                     onSuccess={handleRefresh}
                 />
             )}

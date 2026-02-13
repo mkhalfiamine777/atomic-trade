@@ -17,6 +17,26 @@ const io = new Server(httpServer, {
 io.on("connection", (socket) => {
     console.log("Client connected:", socket.id);
 
+    socket.on("join_room", (room) => {
+        socket.join(room);
+    });
+
+    socket.on("send_message", (data) => {
+        // data: { conversationId, content, senderId, senderName, senderAvatar }
+
+        // Broadcast to everyone in the room EXCEPT the sender
+        // Verify proper room targeting
+        socket.to(data.conversationId).emit("receive_message", data);
+    });
+
+    socket.on("typing", (room) => {
+        socket.to(room).emit("typing");
+    });
+
+    socket.on("stop_typing", (room) => {
+        socket.to(room).emit("stop_typing");
+    });
+
     socket.on("ping", () => {
         socket.emit("pong", { message: "Hello from standalone socket server!" });
     });

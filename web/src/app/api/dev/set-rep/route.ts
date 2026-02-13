@@ -3,9 +3,9 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
 export async function GET(request: Request) {
-    // Only allow in development
-    if (process.env.NODE_ENV === 'production') {
-        return NextResponse.json({ error: 'Not allowed in production' }, { status: 403 })
+    // Only allow in explicit development mode
+    if (process.env.NODE_ENV !== 'development') {
+        return NextResponse.json({ error: 'Not allowed outside development' }, { status: 403 })
     }
 
     const { searchParams } = new URL(request.url)

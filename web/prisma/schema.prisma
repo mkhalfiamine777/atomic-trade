@@ -8,6 +8,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── Enums ──────────────────────────────────────────────────
+enum UserType {
+  INDIVIDUAL
+  SHOP
+}
+
+enum SubscriptionPlan {
+  FREE
+  BASIC
+  PREMIUM
+}
+
+enum ListingType {
+  PRODUCT
+  REQUEST
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum PostType {
+  POST
+  OFFER
+}
+
+enum InteractionType {
+  LIKE
+  LOVE
+  COMMENT
+}
+
+// ─── Models ─────────────────────────────────────────────────
+
 model User {
   id        String   @id @default(uuid())
   phone     String   @unique
@@ -15,13 +50,13 @@ model User {
   password  String
   name      String?
   avatarUrl String?
-  type      String   @default("INDIVIDUAL") // INDIVIDUAL, SHOP
+  type      UserType @default(INDIVIDUAL)
   shopCategory String? // e.g. GROCERY, FASHION, TECH
   isVerified Boolean @default(false)
   reputationScore Int @default(100)
   latitude  Float?
   longitude Float?
-  subscription String @default("FREE")
+  subscription SubscriptionPlan @default(FREE)
   walletBalance Float @default(0.0)
   totalSales Int @default(0)
   listings  Listing[]
@@ -45,12 +80,12 @@ model User {
 }
 
 model Listing {
-  id          String   @id @default(uuid())
+  id          String      @id @default(uuid())
   title       String
   description String
   price       Float
   images      String
-  type        String   @default("PRODUCT") // PRODUCT, REQUEST
+  type        ListingType @default(PRODUCT)
   category    String?  // e.g. FOOD, ELECTRONICS
   latitude    Float
   longitude   Float
@@ -69,9 +104,9 @@ model Listing {
 }
 
 model MapStory {
-  id        String   @id @default(uuid())
-  mediaUrl  String   // Renamed from videoUrl
-  mediaType String   @default("VIDEO") // VIDEO, IMAGE
+  id        String    @id @default(uuid())
+  mediaUrl  String    // Renamed from videoUrl
+  mediaType MediaType @default(VIDEO)
   caption   String?
   latitude  Float
   longitude Float
@@ -138,14 +173,14 @@ model Message {
 // -----------------------------------------------------------------------------
 
 model SocialPost {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
   mediaUrl  String
-  mediaType String   @default("IMAGE") // IMAGE, VIDEO
+  mediaType MediaType @default(IMAGE)
   caption   String?
-  type      String   @default("POST") // POST, OFFER
-  createdAt DateTime @default(now())
+  type      PostType  @default(POST)
+  createdAt DateTime  @default(now())
   
   // Geo-tagging
   latitude  Float?
@@ -160,8 +195,8 @@ model SocialPost {
 }
 
 model Interaction {
-  id        String   @id @default(uuid())
-  type      String   // LIKE, LOVE, COMMENT
+  id        String          @id @default(uuid())
+  type      InteractionType
   content   String?  // For comments
   
   // Actor (Who did it)
@@ -187,3 +222,4 @@ model Interaction {
   @@index([listingId])
   @@index([type])
 }
+

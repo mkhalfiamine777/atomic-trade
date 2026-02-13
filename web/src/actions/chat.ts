@@ -4,73 +4,57 @@ import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 
-// Start a conversation for a specific listing between current user and seller/buyer
-export async function startConversation(listingId: string, otherUserId: string) {
-    const userId = (await cookies()).get('user_id')?.value
-    if (!userId) return { error: 'Unauthorized' }
-
+export async function startConversation(listingId: string | null, otherUserId: string) {
     try {
-        // Check if conversation already exists for this listing and these two users
-        const existing = await db.conversation.findFirst({
+        const cookieStore = await cookies()
+        const currentUserId = cookieStore.get('user_id')?.value
+
+        if (!currentUserId) {
+            return { error: 'Unauthorized: Please login' }
+        }
+
+        if (currentUserId === otherUserId) {
+            return { error: 'Cannot chat with yourself' }
+        }
+
+        // 1. Check if conversation already exists
+        // We look for a conversation where:
+        // - Participants match (order doesn't matter)
+        // - Listing ID matches (if provided) OR it's a direct message (if listingId is null)
+        const existingConversation = await db.conversation.findFirst({
             where: {
-                listingId,
                 OR: [
-                    { participant1Id: userId, participant2Id: otherUserId },
-                    { participant1Id: otherUserId, participant2Id: userId }
+                    {
+                        participant1Id: currentUserId,
+                        participant2Id: otherUserId,
+                        listingId: listingId
+                    },
+                    {
+                        participant1Id: otherUserId,
+                        participant2Id: currentUserId,
+                        listingId: listingId
+                    }
                 ]
             }
         })
 
-        if (existing) {
-            return { conversationId: existing.id }
+        if (existingConversation) {
+            return { conversationId: existingConversation.id }
         }
 
-        // Create new
-        const newConv = await db.conversation.create({
+        // 2. Create new conversation
+        const newConversation = await db.conversation.create({
             data: {
-                listingId,
-                participant1Id: userId,
-                participant2Id: otherUserId
+                participant1Id: currentUserId,
+                participant2Id: otherUserId,
+                listingId: listingId
             }
         })
 
-        return { conversationId: newConv.id }
+        revalidatePath('/messages')
+        return { conversationId: newConversation.id }
     } catch (error) {
-        console.error('Start Chat Error:', error)
-        return { error: 'Failed to start chat' }
-    }
-}
-
-export async function sendMessage(conversationId: string, content: string) {
-    const userId = (await cookies()).get('user_id')?.value
-    if (!userId) return { error: 'Unauthorized' }
-
-    if (!content.trim()) return { error: 'Empty message' }
-
-    try {
-        await db.message.create({
-            data: {
-                conversationId,
-                senderId: userId,
-                content
-            }
-        })
-        revalidatePath(`/dashboard`)
-        return { success: true }
-    } catch (_error) {
-        return { error: 'Failed to send' }
-    }
-}
-
-export async function getConversationMessages(conversationId: string) {
-    try {
-        const messages = await db.message.findMany({
-            where: { conversationId },
-            orderBy: { createdAt: 'asc' },
-            include: { sender: { select: { name: true, id: true } } }
-        })
-        return messages
-    } catch (_error) {
-        return []
+        console.error('Error starting conversation:', error)
+        return { error: 'Failed to start conversation' }
     }
 }

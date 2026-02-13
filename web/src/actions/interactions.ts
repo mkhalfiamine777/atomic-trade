@@ -49,7 +49,14 @@ export async function getComments(targetId: string) {
                 type: 'COMMENT'
             },
             include: {
-                user: true
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        avatarUrl: true,
+                        isVerified: true
+                    }
+                }
             },
             orderBy: {
                 createdAt: 'desc'
@@ -90,7 +97,14 @@ export async function addComment(targetId: string, content: string) {
                 postId: targetId
             },
             include: {
-                user: true
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        avatarUrl: true,
+                        isVerified: true
+                    }
+                }
             }
         })
 
@@ -115,11 +129,47 @@ export async function addComment(targetId: string, content: string) {
 }
 
 export async function interactWithUser(targetUserId: string, actorUserId: string, type: 'LIKE' | 'LOVE') {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    return { success: true, action: 'added' }
+    try {
+        const cookieStore = await cookies()
+        const userId = cookieStore.get('user_id')?.value
+        if (!userId || userId !== actorUserId) return { success: false, error: 'Unauthorized' }
+
+        const existing = await db.interaction.findFirst({
+            where: { userId: actorUserId, targetUserId, type }
+        })
+        if (existing) {
+            await db.interaction.delete({ where: { id: existing.id } })
+            return { success: true, action: 'removed' }
+        }
+        await db.interaction.create({
+            data: { type, userId: actorUserId, targetUserId }
+        })
+        return { success: true, action: 'added' }
+    } catch (error) {
+        console.error('Error interacting with user:', error)
+        return { success: false, error: 'Database error' }
+    }
 }
 
 export async function interactWithListing(listingId: string, actorUserId: string, type: 'LIKE' | 'LOVE') {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    return { success: true, action: 'added' }
+    try {
+        const cookieStore = await cookies()
+        const userId = cookieStore.get('user_id')?.value
+        if (!userId || userId !== actorUserId) return { success: false, error: 'Unauthorized' }
+
+        const existing = await db.interaction.findFirst({
+            where: { userId: actorUserId, listingId, type }
+        })
+        if (existing) {
+            await db.interaction.delete({ where: { id: existing.id } })
+            return { success: true, action: 'removed' }
+        }
+        await db.interaction.create({
+            data: { type, userId: actorUserId, listingId }
+        })
+        return { success: true, action: 'added' }
+    } catch (error) {
+        console.error('Error interacting with listing:', error)
+        return { success: false, error: 'Database error' }
+    }
 }

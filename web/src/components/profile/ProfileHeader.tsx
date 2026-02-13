@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { EditProfileModal } from './EditProfileModal'
+import { TrustBadge } from '../trust/TrustBadge'
 import { InteractionBar } from './InteractionBar'
 import { BadgeCheck, Store, Building2, User as UserIcon, Star, Edit2, MapPin } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -83,11 +84,7 @@ export function ProfileHeader({ user, stats, currentUserId }: ProfileHeaderProps
                         <div>
                             <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center justify-center sm:justify-start gap-2 tracking-tight">
                                 {user.name}
-                                {user.reputationScore > 100 && (
-                                    <span title="بائع مميز" className="bg-yellow-500/10 p-1 rounded-full">
-                                        <Star className="w-5 h-5 fill-yellow-500 text-yellow-500 animate-pulse-slow" />
-                                    </span>
-                                )}
+                                <TrustBadge score={user.reputationScore} showLabel={false} className="ml-2 bg-white/5 p-1 px-2 rounded-full border border-white/5" />
                             </h1>
 
                             <div className="flex items-center gap-2 justify-center sm:justify-start mt-1">

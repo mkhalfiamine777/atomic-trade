@@ -2,12 +2,11 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Save, Upload, User, Store } from 'lucide-react'
+import { X, Save, User, Store } from 'lucide-react'
 import { updateProfile } from '@/actions/updateProfile'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
-
-// ... imports
+import { AvatarUploader } from './AvatarUploader'
 
 interface EditProfileModalProps {
     isOpen: boolean
@@ -84,27 +83,7 @@ export function EditProfileModal({ isOpen, onClose, user }: EditProfileModalProp
                     <form onSubmit={handleSubmit} className="p-6 space-y-6">
 
                         {/* Avatar Input */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-zinc-400">صورة الملف الشخصي (رابط)</label>
-                            <div className="flex gap-2">
-                                <div className="relative flex-1">
-                                    <input
-                                        type="url"
-                                        value={avatarUrl}
-                                        onChange={e => setAvatarUrl(e.target.value)}
-                                        placeholder="https://example.com/avatar.jpg"
-                                        className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 pl-10 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                                    />
-                                    <Upload className="w-4 h-4 text-zinc-500 absolute left-3 top-3.5" />
-                                </div>
-                                {avatarUrl && (
-                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-zinc-700 bg-zinc-800 shrink-0">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={avatarUrl} alt="Preview" className="w-full h-full object-cover" />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                        <AvatarUploader value={avatarUrl} onChange={setAvatarUrl} />
 
                         {/* Name Input */}
                         <div className="space-y-2">

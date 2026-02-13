@@ -3,16 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 
-interface Story {
-    id: string
-    mediaUrl: string
-    mediaType: string // 'VIDEO' | 'IMAGE'
-    caption: string | null
-    user: { name: string | null; avatarUrl: string | null }
-    createdAt: Date
-    latitude: number
-    longitude: number
-}
+import { Story } from "@/types"
 
 interface StoryViewerProps {
     isOpen: boolean
@@ -44,11 +35,11 @@ export function StoryViewer({ isOpen, onClose, story }: StoryViewerProps) {
                         {/* Story Header */}
                         <div className="absolute top-4 left-4 z-10 flex items-center gap-3 w-full">
                             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold border-2 border-white shadow-lg">
-                                {story.user.name?.[0].toUpperCase() || '?'}
+                                {story.user?.name?.[0]?.toUpperCase() || '?'}
                             </div>
                             <div className="flex-1">
                                 <h3 className="text-white font-bold drop-shadow-md text-lg">
-                                    {story.user.name}
+                                    {story.user?.name || 'Unknown'}
                                 </h3>
                                 <p className="text-xs text-white/80 drop-shadow-md">
                                     {new Date(story.createdAt).toLocaleTimeString()} ⌚

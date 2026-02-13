@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { createStory } from '@/actions/stories'
-import { Input } from '@/ui/Input'
+import { Input } from '@/components/ui/input'
 import { MediaUploader } from '@/components/video/MediaUploader'
 
 interface CreateStoryModalProps {
@@ -82,8 +82,8 @@ export function CreateStoryModal({
                         <div className="p-4 space-y-4">
                             {/* Caption Input - Always visible */}
                             <div>
+                                <label className="block text-sm text-zinc-400 mb-1">وصف القصة (اختياري)</label>
                                 <Input
-                                    label="وصف القصة (اختياري)"
                                     value={caption}
                                     onChange={e => setCaption(e.target.value)}
                                     placeholder="اكتب تعليقاً..."

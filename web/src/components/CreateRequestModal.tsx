@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { createListing } from '@/actions/market'
 import { toast } from 'sonner'
 import { useGeolocation } from '@/hooks/useGeolocation'
-import { Button } from '@/ui/Button'
-import { Input } from '@/ui/Input'
-import { Textarea } from '@/ui/Textarea'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 
 interface Props {
     isOpen: boolean
@@ -25,8 +25,8 @@ export function CreateRequestModal({ isOpen, onClose }: Props) {
         }
 
         setLoading(true)
-        formData.append('lat', coordinates.latitude.toString())
-        formData.append('lng', coordinates.longitude.toString())
+        formData.append('lat', coordinates.lat.toString())
+        formData.append('lng', coordinates.lng.toString())
         formData.append('type', 'REQUEST') // Important: Set type to REQUEST
 
         // Server Action
@@ -68,8 +68,8 @@ export function CreateRequestModal({ isOpen, onClose }: Props) {
 
                         <form action={handleSubmit} className="space-y-4 text-right" dir="rtl">
                             <div>
+                                <label className="block text-sm text-zinc-400 mb-1">ماذا تريد؟</label>
                                 <Input
-                                    label="ماذا تريد؟"
                                     name="title"
                                     required
                                     className="focus:border-purple-500"
@@ -96,8 +96,8 @@ export function CreateRequestModal({ isOpen, onClose }: Props) {
                             <input type="hidden" name="price" value="0" />
 
                             <div>
+                                <label className="block text-sm text-zinc-400 mb-1">تفاصيل إضافية</label>
                                 <Textarea
-                                    label="تفاصيل إضافية"
                                     name="description"
                                     rows={3}
                                     className="focus:border-purple-500"
@@ -107,12 +107,11 @@ export function CreateRequestModal({ isOpen, onClose }: Props) {
 
                             <div className="pt-2">
                                 <Button
-                                    variant="purple"
+                                    variant="secondary"
                                     disabled={loading || !coordinates}
-                                    isLoading={loading}
                                     className="w-full h-12"
                                 >
-                                    📣 أرسل الطلب للجيران
+                                    {loading ? '⏳ جاري الإرسال...' : '📣 أرسل الطلب للجيران'}
                                 </Button>
                                 {!coordinates && (
                                     <p className="text-xs text-red-400 mt-2 text-center">

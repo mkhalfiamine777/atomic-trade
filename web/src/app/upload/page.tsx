@@ -6,9 +6,9 @@ import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { Camera, MapPin, X } from 'lucide-react'
 
-import { Button } from '@/ui/Button'
-import { Input } from '@/ui/Input'
-import { Textarea } from '@/ui/Textarea'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { MediaUploader } from '@/components/video/MediaUploader'
 import { createVideoPost } from '@/actions/createVideo'
 
@@ -129,7 +129,6 @@ export default function UploadPage() {
                     <Button
                         type="submit"
                         disabled={!mediaUrl || isSaving}
-                        isLoading={isSaving}
                         className="w-full bg-indigo-600 hover:bg-indigo-700 py-4 text-lg font-bold"
                     >
                         {isSaving ? 'جاري النشر...' : 'نشر الفيديو ✨'}

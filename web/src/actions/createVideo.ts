@@ -15,11 +15,11 @@ export async function createVideoPost(formData: FormData) {
         const userId = cookieStore.get('user_id')?.value
 
         if (!userId) {
-            throw new Error('Unauthorized: No user logged in')
+            return { success: false, error: 'Unauthorized: No user logged in' }
         }
 
         if (!videoUrl) {
-            throw new Error('Video URL is required')
+            return { success: false, error: 'Video URL is required' }
         }
 
         await db.socialPost.create({

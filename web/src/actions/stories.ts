@@ -20,22 +20,17 @@ export async function createStory(formData: FormData) {
         // Expires in 24 hours
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
 
-        try {
-            await db.mapStory.create({
-                data: {
-                    mediaUrl, // URL from Uploadthing
-                    mediaType,
-                    caption,
-                    latitude,
-                    longitude,
-                    userId,
-                    expiresAt
-                } as any
-            })
-        } catch (_error) {
-            console.error('Database Error:', _error)
-            return { error: 'حدث خطأ في قاعدة البيانات.' }
-        }
+        await db.mapStory.create({
+            data: {
+                mediaUrl, // URL from Uploadthing
+                mediaType,
+                caption,
+                latitude,
+                longitude,
+                userId,
+                expiresAt
+            }
+        })
 
         revalidatePath('/dashboard')
         return { success: true }
@@ -57,7 +52,9 @@ export async function getStories() {
             include: {
                 user: {
                     select: {
+                        id: true,
                         name: true,
+                        username: true,
                         avatarUrl: true,
                         type: true,
                         latitude: true,

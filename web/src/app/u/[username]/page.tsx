@@ -78,7 +78,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
     const mappedStories = user.stories.map(s => ({
         id: s.id,
         mediaUrl: s.mediaUrl,
-        mediaType: s.mediaType,
+        mediaType: s.mediaType as 'IMAGE' | 'VIDEO',
         caption: s.caption
     }))
 
@@ -115,7 +115,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                             id: user.id,
                             name: user.name,
                             username: user.username,
-                            type: user.type,
+                            type: user.type as 'INDIVIDUAL' | 'SHOP',
                             avatarUrl: user.avatarUrl,
                             isVerified: user.isVerified,
                             reputationScore: user.reputationScore,
@@ -132,7 +132,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                         <ProfileTabs
                             userId={user.id}
                             initialStories={mappedStories}
-                            initialPosts={posts}
+                            initialPosts={posts as import('@/types').TabPost[]}
                             initialProducts={products}
                             initialRequests={requests}
                         />

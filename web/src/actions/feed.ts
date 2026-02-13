@@ -32,7 +32,15 @@ export async function getFeedVideos(page = 1, limit = 10, currentUserId?: string
             },
             orderBy: { createdAt: 'desc' },
             include: {
-                user: true,
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        avatarUrl: true,
+                        type: true,
+                        isVerified: true
+                    }
+                },
                 interactions: {
                     select: {
                         type: true,

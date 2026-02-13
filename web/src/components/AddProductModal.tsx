@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { createListing } from '@/actions/market'
 import { toast } from 'sonner'
 import { useGeolocation } from '@/hooks/useGeolocation'
-import { Button } from '@/ui/Button'
-import { Input } from '@/ui/Input'
-import { Textarea } from '@/ui/Textarea'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { useUploadThing } from '@/utils/uploadthing'
 
 interface Props {
@@ -57,8 +57,8 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
             }
 
             // Append Location & ImageURL
-            formData.append('lat', coordinates.latitude.toString())
-            formData.append('lng', coordinates.longitude.toString())
+            formData.append('lat', coordinates.lat.toString())
+            formData.append('lng', coordinates.lng.toString())
             if (imageUrl) formData.append('imageUrl', imageUrl)
 
             // Server Action
@@ -100,8 +100,8 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
 
                         <form onSubmit={handleSubmit} className="space-y-4 text-right" dir="rtl">
                             <div>
+                                <label className="block text-sm text-zinc-400 mb-1">اسم المنتج</label>
                                 <Input
-                                    label="اسم المنتج"
                                     name="title"
                                     required
                                     placeholder="مثلاً: زيت زيتون بكر"
@@ -121,8 +121,8 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
                             </div>
 
                             <div>
+                                <label className="block text-sm text-zinc-400 mb-1">السعر (درهم)</label>
                                 <Input
-                                    label="السعر (درهم)"
                                     name="price"
                                     type="number"
                                     required
@@ -131,8 +131,8 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
                             </div>
 
                             <div>
+                                <label className="block text-sm text-zinc-400 mb-1">الوصف</label>
                                 <Textarea
-                                    label="الوصف"
                                     name="description"
                                     rows={3}
                                     placeholder="تفاصيل المنتج..."
@@ -142,10 +142,9 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
                             <div className="pt-2">
                                 <Button
                                     disabled={loading || !coordinates}
-                                    isLoading={loading}
                                     className="w-full h-12"
                                 >
-                                    🚀 نشر في الحي
+                                    {loading ? '⏳ جاري النشر...' : '🚀 نشر في الحي'}
                                 </Button>
                                 {!coordinates && (
                                     <p className="text-xs text-red-400 mt-2 text-center">
