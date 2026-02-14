@@ -47,7 +47,16 @@ export async function GET(request: Request) {
 
         const updatedUser = await db.user.update({
             where: { id: user.id },
-            data: { reputationScore: score }
+            data: { reputationScore: score },
+            select: {
+                id: true,
+                username: true,
+                name: true,
+                reputationScore: true,
+                avatarUrl: true,
+                type: true,
+                isVerified: true
+            }
         })
 
         return NextResponse.json({

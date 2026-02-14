@@ -8,7 +8,7 @@ import { useGeolocation } from '@/hooks/useGeolocation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { useUploadThing } from '@/utils/uploadthing'
+import { useMediaUpload } from '@/hooks/useMediaUpload'
 
 interface Props {
     isOpen: boolean
@@ -19,18 +19,16 @@ interface Props {
 export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
     const { coordinates } = useGeolocation()
     const [loading, setLoading] = useState(false)
-    const [file, setFile] = useState<File | null>(null) // Track file locally
 
-    // Uploadthing Hook
-    const { startUpload } = useUploadThing("mediaPost", {
-        onClientUploadComplete: () => { },
-        onUploadError: (error: Error) => {
-            toast.error(`خطأ في الرفع: ${error.message}`);
-            setLoading(false);
-        },
-    });
+    const {
+        file,
+        startUpload,
+        onInputChange
+    } = useMediaUpload({
+        endpoint: "mediaPost"
+    })
 
-    async function handleSubmit(e: React.FormEvent) { // Changed to manual handling
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
         const form = e.target as HTMLFormElement
         const formData = new FormData(form)
@@ -45,12 +43,8 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
         try {
             let imageUrl = ''
 
-            // Upload Image if selected
-            const fileInput = form.querySelector('input[type="file"]') as HTMLInputElement
-            const file = fileInput?.files?.[0]
-
             if (file) {
-                const uploadRes = await startUpload([file]);
+                const uploadRes = await startUpload()
                 if (uploadRes && uploadRes[0]) {
                     imageUrl = uploadRes[0].url
                 }
@@ -116,6 +110,7 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
                                     name="file"
                                     type="file"
                                     accept="image/*"
+                                    onChange={onInputChange}
                                     className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-sm text-zinc-300 file:bg-primary file:text-black file:border-0 file:rounded-md file:px-4 file:py-1 file:ml-4 file:font-bold hover:file:opacity-90 transition-all cursor-pointer"
                                 />
                             </div>

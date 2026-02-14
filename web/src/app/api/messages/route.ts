@@ -85,6 +85,23 @@ export async function GET(req: Request) {
             }
         }
 
+
+        // 🛡️ Security Check: Verify User is a Participant
+        if (targetConversationId && !targetConversationId.startsWith("conv-")) {
+            const conversation = await prisma.conversation.findUnique({
+                where: { id: targetConversationId },
+                select: { participant1Id: true, participant2Id: true }
+            });
+
+            if (!conversation) {
+                return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
+            }
+
+            if (conversation.participant1Id !== userId && conversation.participant2Id !== userId) {
+                return NextResponse.json({ error: "Unauthorized access to this conversation" }, { status: 403 });
+            }
+        }
+
         const messages = await prisma.message.findMany({
             where: { conversationId: targetConversationId },
             orderBy: { createdAt: "asc" },

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+const rateLimit = new Map<string, { count: number; lastReset: number }>()
+
 export function middleware(request: NextRequest) {
     const userId = request.cookies.get('user_id')?.value
     const { pathname } = request.nextUrl
@@ -13,6 +15,30 @@ export function middleware(request: NextRequest) {
     const isPublicRoute = publicRoutes.some(
         route => pathname === route || pathname.startsWith('/u/')
     )
+
+    const ip = request.headers.get('x-forwarded-for') || '127.0.0.1'
+
+    // Rate Limiting for Auth Routes (Login/Signup - POST only)
+    if ((pathname === '/login' || pathname === '/signup') && request.method === 'POST') {
+        const LIMIT = 5 // 5 attempts per window
+        const WINDOW = 60 * 1000 // 1 minute
+
+        const current = rateLimit.get(ip) || { count: 0, lastReset: Date.now() }
+
+        if (Date.now() - current.lastReset > WINDOW) {
+            // Reset window
+            current.count = 1
+            current.lastReset = Date.now()
+        } else {
+            current.count++
+        }
+
+        rateLimit.set(ip, current)
+
+        if (current.count > LIMIT) {
+            return new NextResponse('Too Many Requests', { status: 429 })
+        }
+    }
 
     // If the user is not authenticated and trying to access a protected route
     if (

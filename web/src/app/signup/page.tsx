@@ -1,41 +1,9 @@
 'use client'
 
-import { signup } from '@/actions/auth'
-import { useActionState } from 'react'
-import { useFormStatus } from 'react-dom'
+import { AuthForm } from '@/components/auth/AuthForm'
 import { motion } from 'framer-motion'
-import { useState } from 'react'
-import { toast } from 'sonner'
-import { useEffect } from 'react'
-
-const initialState = {
-    error: ''
-}
-
-function SubmitButton() {
-    const { pending } = useFormStatus()
-
-    return (
-        <button
-            type="submit"
-            disabled={pending}
-            className="w-full bg-primary text-primary-foreground h-12 rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-        >
-            {pending ? 'جاري الإنشاء...' : 'إنشاء حساب جديد'}
-        </button>
-    )
-}
 
 export default function SignupPage() {
-    const [accountType, setAccountType] = useState('INDIVIDUAL')
-    const [state, formAction] = useActionState(signup, initialState)
-
-    useEffect(() => {
-        if (state?.error) {
-            toast.error(state.error)
-        }
-    }, [state])
-
     return (
         <div className="min-h-screen grid lg:grid-cols-2">
             {/* Right Side: Visuals */}
@@ -84,117 +52,7 @@ export default function SignupPage() {
                         <p className="text-muted-foreground">أدخل بياناتك للانضمام إلى مجتمعنا</p>
                     </div>
 
-                    <form action={formAction} className="space-y-6 text-right" dir="rtl">
-                        {/* Account Type Toggle */}
-                        <div className="flex bg-zinc-800 p-1 rounded-lg mb-6">
-                            <button
-                                type="button"
-                                onClick={() => setAccountType('INDIVIDUAL')}
-                                className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${accountType === 'INDIVIDUAL' ? 'bg-primary text-white shadow' : 'text-zinc-400 hover:text-white'}`}
-                            >
-                                👤 مستخدم عادي
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setAccountType('SHOP')}
-                                className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${accountType === 'SHOP' ? 'bg-primary text-white shadow' : 'text-zinc-400 hover:text-white'}`}
-                            >
-                                🏪 تاجر / محل
-                            </button>
-                        </div>
-                        <input type="hidden" name="type" value={accountType} />
-
-                        <div className="space-y-2">
-                            <label
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                htmlFor="name"
-                            >
-                                {accountType === 'SHOP' ? 'اسم المتجر التجاري' : 'الاسم الكامل'}
-                            </label>
-                            <input
-                                className="flex h-12 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                id="name"
-                                name="name"
-                                placeholder={
-                                    accountType === 'SHOP'
-                                        ? 'مثلاً: بقالة الأمانة'
-                                        : 'مثلاً: محمد عبده'
-                                }
-                                required
-                            />
-                        </div>
-
-                        {accountType === 'SHOP' && (
-                            <div className="space-y-2">
-                                <label
-                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                    htmlFor="shopCategory"
-                                >
-                                    نوع النشاط
-                                </label>
-                                <select
-                                    className="flex h-12 w-full rounded-md border border-input bg-zinc-950 px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                    id="shopCategory"
-                                    name="shopCategory"
-                                >
-                                    <option value="GROCERY">🛒 مواد غذائية (Hanout)</option>
-                                    <option value="FASHION">👕 ملابس وأزياء</option>
-                                    <option value="ELECTRONICS">📱 إلكترونيـات</option>
-                                    <option value="SERVICES">🔧 خدمات / حرف</option>
-                                    <option value="FOOD">🍔 مطعم / مقهى</option>
-                                    <option value="OTHER">📦 أخرى</option>
-                                </select>
-                            </div>
-                        )}
-
-                        <div className="space-y-2">
-                            <label
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                htmlFor="phone"
-                            >
-                                رقم الهاتف
-                            </label>
-                            <input
-                                className="flex h-12 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                id="phone"
-                                name="phone"
-                                type="tel"
-                                placeholder="0600000000"
-                                required
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                htmlFor="password"
-                            >
-                                كلمة المرور
-                            </label>
-                            <input
-                                className="flex h-12 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                id="password"
-                                name="password"
-                                type="password"
-                                required
-                            />
-                        </div>
-
-                        {state?.error && (
-                            <div className="text-red-500 text-sm font-medium text-center">
-                                ⚠️ {state.error}
-                            </div>
-                        )}
-
-                        <SubmitButton />
-                    </form>
-
-                    <div className="text-center text-sm text-muted-foreground">
-                        لديك حساب بالفعل؟{' '}
-                        <a href="/login" className="font-semibold text-primary hover:underline">
-                            تسجيل الدخول
-                        </a>
-                    </div>
+                    <AuthForm mode="signup" />
                 </div>
             </div>
         </div>

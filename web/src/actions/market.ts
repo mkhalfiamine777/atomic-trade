@@ -5,6 +5,8 @@ import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { ListingType } from '@prisma/client'
 
+import { createListingSchema } from '@/lib/schemas'
+
 export async function createListing(formData: FormData) {
     console.log("🚀 Create Listing Action Triggered!")
     // 1. Auth Check
@@ -13,25 +15,35 @@ export async function createListing(formData: FormData) {
         return { error: 'Unauthorized' }
     }
 
-    // 2. Data Extraction
-    const title = formData.get('title') as string
-    const price = parseFloat(formData.get('price') as string)
-    const description = formData.get('description') as string
-    const type = (formData.get('type') as ListingType) || ListingType.PRODUCT
-    const imageUrl = (formData.get('imageUrl') as string) || '' // 📸 Image URL or empty string
-
-    // Geo-Location (Sent from Client)
-    const lat = parseFloat(formData.get('lat') as string)
-    const lng = parseFloat(formData.get('lng') as string)
-
-    // Validation
-    if (!title || isNaN(price) || !lat || !lng) {
-        return { error: 'Missing required fields' }
+    // 2. Data Extraction & Validation
+    const rawData = {
+        title: formData.get('title'),
+        price: formData.get('price'),
+        description: formData.get('description'),
+        type: formData.get('type') || ListingType.PRODUCT,
+        category: formData.get('category'),
+        imageUrl: formData.get('imageUrl'),
+        latitude: formData.get('lat'),
+        longitude: formData.get('lng'),
     }
 
-    // If Logic requires image for Product but not Request
+    const validatedFields = createListingSchema.safeParse(rawData)
+
+    if (!validatedFields.success) {
+        const errors = validatedFields.error.flatten().fieldErrors
+        return { error: errors.title?.[0] || errors.price?.[0] || "بيانات غير صالحة" }
+    }
+
+    const { title, price, description, type, category, imageUrl, latitude, longitude } = validatedFields.data
+
+    // 3. Logic: Logic requires image for Product but not Request
     if (type === ListingType.PRODUCT && !imageUrl) {
         return { error: 'يجب إضافة صورة للمنتج! 📸' }
+    }
+
+    // Ensure location is present (schema makes them optional, but logic might require them)
+    if (!latitude || !longitude) {
+        return { error: 'الموقع مطلوب' }
     }
 
     try {
@@ -41,10 +53,11 @@ export async function createListing(formData: FormData) {
                 title,
                 price,
                 description: description || '',
-                images: imageUrl, // Saved URL
+                images: imageUrl || '', // Saved URL
                 type,
-                latitude: lat,
-                longitude: lng,
+                category: category,
+                latitude,
+                longitude,
                 sellerId: userId
             }
         })
@@ -58,7 +71,7 @@ export async function createListing(formData: FormData) {
             stack: error.stack
         } : { message: String(error) }
         console.error('Market Error Details:', errDetails)
-        return { error: 'Failed to create listing' }
+        return { error: 'فشل إنشاء العرض' }
     }
 }
 

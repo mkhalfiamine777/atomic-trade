@@ -6,10 +6,13 @@ let socket: Socket
 
 export const getSocket = (): Socket => {
     if (!socket) {
-        socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001", {
+        const url = process.env.NEXT_PUBLIC_SOCKET_URL ||
+            (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000")
+
+        socket = io(url, {
             path: "/api/socket",
             addTrailingSlash: false,
-            transports: ["websocket"],
+            transports: ["websocket", "polling"], // Added polling for better firewall compatibility
         })
     }
     return socket

@@ -21,8 +21,16 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
     if (isUUID) {
         user = await db.user.findUnique({
             where: { id: paramId },
-            include: {
-                stories: true // Stories are usually few (24h), so fetching all is fine for now
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                type: true,
+                avatarUrl: true,
+                isVerified: true,
+                reputationScore: true,
+                createdAt: true,
+                stories: true
             }
         })
     }
@@ -31,8 +39,16 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
     if (!user) {
         user = await db.user.findUnique({
             where: { username: paramId.toLowerCase() }, // Case insensitive search
-            include: {
-                stories: true // Stories are usually few (24h), so fetching all is fine for now
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                type: true,
+                avatarUrl: true,
+                isVerified: true,
+                reputationScore: true,
+                createdAt: true,
+                stories: true
             }
         })
     }

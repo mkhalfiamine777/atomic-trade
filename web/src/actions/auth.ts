@@ -7,13 +7,21 @@ import { UserType } from '@prisma/client'
 
 import bcrypt from 'bcryptjs'
 
-export async function login(_prevState: unknown, formData: FormData) {
-    const phone = formData.get('phone') as string
-    const password = formData.get('password') as string
+import { loginSchema, signupSchema } from '@/lib/schemas'
 
-    if (!phone || !password) {
-        return { error: 'Please fill in all fields' }
+export async function login(_prevState: unknown, formData: FormData) {
+    const rawData = {
+        phone: formData.get('phone'),
+        password: formData.get('password'),
     }
+
+    const validatedFields = loginSchema.safeParse(rawData)
+
+    if (!validatedFields.success) {
+        return { error: validatedFields.error.flatten().fieldErrors.phone?.[0] || validatedFields.error.flatten().fieldErrors.password?.[0] || "بيانات غير صالحة" }
+    }
+
+    const { phone, password } = validatedFields.data
 
     try {
         const user = await db.user.findUnique({
@@ -27,7 +35,7 @@ export async function login(_prevState: unknown, formData: FormData) {
         const isMatch = await bcrypt.compare(password, user?.password || '')
 
         if (!user || !isMatch) {
-            return { error: 'Invalid credentials' }
+            return { error: 'رقم الهاتف أو كلمة المرور غير صحيحة' }
         }
 
         // Set secure session cookie
@@ -40,22 +48,29 @@ export async function login(_prevState: unknown, formData: FormData) {
         })
     } catch (error) {
         console.error('Login error:', error)
-        return { error: 'Something went wrong' }
+        return { error: 'حدث خطأ ما' }
     }
 
     redirect('/dashboard')
 }
 
 export async function signup(_prevState: unknown, formData: FormData) {
-    const phone = formData.get('phone') as string
-    const name = formData.get('name') as string
-    const password = formData.get('password') as string
-    const type = formData.get('type') as string // 'INDIVIDUAL' or 'SHOP'
-    const shopCategory = (formData.get('shopCategory') as string) || null
-
-    if (!phone || !password || !name) {
-        return { error: 'Please fill in all fields' }
+    const rawData = {
+        name: formData.get('name'),
+        phone: formData.get('phone'),
+        password: formData.get('password'),
+        type: formData.get('type'),
+        shopCategory: formData.get('shopCategory'),
     }
+
+    const validatedFields = signupSchema.safeParse(rawData)
+
+    if (!validatedFields.success) {
+        const errors = validatedFields.error.flatten().fieldErrors
+        return { error: errors.name?.[0] || errors.phone?.[0] || errors.password?.[0] || "البيانات غير صالحة" }
+    }
+
+    const { name, phone, password, type, shopCategory } = validatedFields.data
 
     try {
         // Check if user exists
@@ -64,7 +79,7 @@ export async function signup(_prevState: unknown, formData: FormData) {
         })
 
         if (existingUser) {
-            return { error: 'User already exists' }
+            return { error: 'المستخدم مسجل بالفعل' }
         }
 
         // Hash password
@@ -76,7 +91,7 @@ export async function signup(_prevState: unknown, formData: FormData) {
                 phone,
                 name,
                 password: hashedPassword,
-                type: (type as UserType) || UserType.INDIVIDUAL,
+                type: type,
                 shopCategory
             }
         })
@@ -91,7 +106,7 @@ export async function signup(_prevState: unknown, formData: FormData) {
         })
     } catch (error) {
         console.error('Signup error:', error)
-        return { error: error instanceof Error ? error.message : 'Signup failed' }
+        return { error: error instanceof Error ? error.message : 'فشل التسجيل' }
     }
 
     // Redirect to dashboard or login

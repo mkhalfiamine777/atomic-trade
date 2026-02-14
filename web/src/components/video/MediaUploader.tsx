@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check } from 'lucide-react'
-import { useUploadThing } from '@/utils/uploadthing'
+import { useMediaUpload } from '@/hooks/useMediaUpload'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -24,13 +24,7 @@ export function MediaUploader({
     className,
     maxSize = 250 // increased for video
 }: MediaUploaderProps) {
-    const [file, setFile] = useState<File | null>(null)
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-    const [uploading, setUploading] = useState(false)
-    const [progress, setProgress] = useState(0)
-
-    // Video specific state
-    const [isVideo, setIsVideo] = useState(false)
+    // Video specific state (kept local as it's UI specific)
     const [isPlaying, setIsPlaying] = useState(false)
     const [duration, setDuration] = useState(0)
     const [currentTime, setCurrentTime] = useState(0)
@@ -39,48 +33,41 @@ export function MediaUploader({
     const fileInputRef = useRef<HTMLInputElement>(null)
     const videoRef = useRef<HTMLVideoElement>(null)
 
-    const { startUpload } = useUploadThing("mediaPost", {
-        onClientUploadComplete: (res) => {
-            setUploading(false)
+    const {
+        file,
+        previewUrl,
+        isVideo,
+        uploading,
+        progress,
+        handleFileSelect: hookHandleFileSelect,
+        onInputChange,
+        removeFile: hookRemoveFile,
+        startUpload
+    } = useMediaUpload({
+        endpoint: "mediaPost",
+        maxSize,
+        onUploadComplete: (res) => {
             if (res && res[0]) {
-                toast.success("تم الرفع بنجاح!")
                 onUploadComplete(res[0].url, isVideo ? 'VIDEO' : 'IMAGE', {
                     duration,
                     trimStart: trimRange[0],
                     trimEnd: trimRange[1]
                 })
             }
-        },
-        onUploadError: (error) => {
-            setUploading(false)
-            toast.error(`فشل الرفع: ${error.message}`)
-        },
-        onUploadProgress: (p) => {
-            setProgress(p)
         }
     })
 
-    // Handle file selection from DropZone or Input
+    // Wrapper to reset video state
     const handleFileSelect = (selectedFile: File) => {
-        setFile(selectedFile)
-        const objectUrl = URL.createObjectURL(selectedFile)
-        setPreviewUrl(objectUrl)
-        setIsVideo(selectedFile.type.startsWith('video/'))
-
-        // Reset video state
+        hookHandleFileSelect(selectedFile)
         setDuration(0)
         setTrimRange([0, 0])
     }
 
-    // Input change handler
-    const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files?.[0]) {
-            if (maxSize && e.target.files[0].size > maxSize * 1024 * 1024) {
-                toast.error(`الملف كبير جداً. الحد الأقصى هو ${maxSize} ميجابايت`)
-                return
-            }
-            handleFileSelect(e.target.files[0])
-        }
+    // Wrapper to clear input
+    const removeFile = () => {
+        hookRemoveFile()
+        if (fileInputRef.current) fileInputRef.current.value = ''
     }
 
     // Video metadata loaded
@@ -131,23 +118,9 @@ export function MediaUploader({
     }
 
     const handleUpload = async () => {
-        if (!file) return
-        setUploading(true)
-        await startUpload([file])
+        await startUpload()
     }
 
-    const removeFile = () => {
-        setFile(null)
-        setPreviewUrl(null)
-        if (fileInputRef.current) fileInputRef.current.value = ''
-    }
-
-    // Cleanup object URL
-    useEffect(() => {
-        return () => {
-            if (previewUrl) URL.revokeObjectURL(previewUrl)
-        }
-    }, [previewUrl])
 
     return (
         <div className={cn("w-full", className)}>

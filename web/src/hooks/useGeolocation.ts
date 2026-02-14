@@ -27,6 +27,7 @@ export function getDistance(lat1: number, lon1: number, lat2: number, lon2: numb
 }
 
 export function useGeolocation() {
+    const lastUpdateRef = useRef<number>(0)
     const [state, setState] = useState<GeolocationState>(() => {
         if (typeof window !== 'undefined' && !('geolocation' in navigator)) {
             return { coordinates: null, error: 'Geolocation not supported', loading: false }
@@ -49,7 +50,12 @@ export function useGeolocation() {
                 setState({ coordinates: newCoords, error: null, loading: false })
 
                 // Only sync to server if not syncing or far enough (optimization)
-                updateUserLocation(newCoords.lat, newCoords.lng)
+                // Throttle: Only update server every 30 seconds
+                const now = Date.now()
+                if (now - lastUpdateRef.current > 30000) {
+                    updateUserLocation(newCoords.lat, newCoords.lng)
+                    lastUpdateRef.current = now
+                }
             },
             (error) => {
                 setState(prev => ({ ...prev, error: error.message, loading: false }))
