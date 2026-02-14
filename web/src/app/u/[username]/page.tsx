@@ -6,9 +6,19 @@ import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 
-export default async function UserProfilePage(props: { params: Promise<{ username: string }> }) {
+export default async function UserProfilePage(props: {
+    params: Promise<{ username: string }>
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
     // Next.js 15+ requires awaiting params
     const params = await props.params
+    const searchParams = await props.searchParams
+
+    // Parse Tab
+    const tabParam = typeof searchParams.tab === 'string' ? searchParams.tab.toUpperCase() : undefined
+    const initialTab = ['MEDIA', 'SALES', 'REQUESTS'].includes(tabParam || '')
+        ? (tabParam as 'MEDIA' | 'SALES' | 'REQUESTS')
+        : undefined
 
     // 1. Resolve User (Smart ID/Username Resolution)
     const paramId = params.username // Can be UUID or Username
@@ -151,6 +161,7 @@ export default async function UserProfilePage(props: { params: Promise<{ usernam
                             initialPosts={posts as import('@/types').TabPost[]}
                             initialProducts={products}
                             initialRequests={requests}
+                            initialTab={initialTab}
                         />
                     </div>
                 </div>

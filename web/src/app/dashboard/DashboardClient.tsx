@@ -3,18 +3,18 @@
 import dynamic from 'next/dynamic'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { CreatePostModal } from '@/components/CreatePostModal'
-import { AddProductModal } from '@/components/AddProductModal'
-import { CreateRequestModal } from '@/components/CreateRequestModal'
-import { CreateStoryModal } from '@/components/CreateStoryModal'
+import { CreatePostModal } from '@/components/modals/CreatePostModal'
+import { AddProductModal } from '@/components/modals/AddProductModal'
+import { CreateRequestModal } from '@/components/modals/CreateRequestModal'
+import { CreateStoryModal } from '@/components/modals/CreateStoryModal'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { updateUserLocation } from '@/actions/user'
 import { BottomNav } from '@/components/layout/BottomNav'
-import { Plus, ShoppingBag, Video, MessageSquarePlus } from 'lucide-react'
+import { Plus, ShoppingBag, Video, MessageSquarePlus, LogOut } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 
 // Dynamically import Map to avoid SSR issues
-const Map = dynamic(() => import('@/components/Map'), {
+const Map = dynamic(() => import('@/components/map/Map'), {
     ssr: false,
     loading: () => <div className="h-screen w-full bg-zinc-950 flex items-center justify-center"><div className="animate-spin text-blue-500">🌍</div></div>
 })
@@ -142,6 +142,20 @@ export default function DashboardClient({
 
             {/* 📱 Bottom Navigation */}
             <BottomNav />
+
+            {/* 🚪 Logout Button - Moved under the exact location control (top-right) */}
+            <div className="absolute top-24 right-4 z-50">
+                <button
+                    onClick={async () => {
+                        await import('@/actions/auth').then(mod => mod.logout())
+                    }}
+                    className="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-red-500/30 px-3 py-2 rounded-full text-xs font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors shadow-lg"
+                    title="تسجيل الخروج"
+                >
+                    <LogOut size={16} />
+                    <span className="hidden sm:inline">خروج</span>
+                </button>
+            </div>
         </div>
     )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useEffect, useState, useCallback } from 'react'
+import Link from 'next/link'
 import { VideoPlayer } from './VideoPlayer'
 import { VideoActions } from './VideoActions'
 import { getFeedVideos, type VideoPostDTO } from '@/actions/feed'
@@ -112,10 +113,10 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
                         <div className="absolute bottom-0 left-0 right-0 p-4 pb-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none z-10">
                             <div className="flex flex-col items-end w-full pr-16">
                                 <div className="pointer-events-auto text-right w-full">
-                                    <h3 className="text-white font-bold text-lg drop-shadow-md mb-1 flex items-center justify-end gap-2">
+                                    <Link href={`/u/${video.username}`} className="text-white font-bold text-lg drop-shadow-md mb-1 flex items-center justify-end gap-2 hover:underline">
                                         {video.isShop && <span className="text-[10px] bg-indigo-500 px-1.5 py-0.5 rounded text-white font-normal">متجر</span>}
                                         {video.username}
-                                    </h3>
+                                    </Link>
                                     <p className="text-white/90 text-sm drop-shadow-md leading-relaxed line-clamp-3 ml-auto" dir="rtl">
                                         {video.description}
                                     </p>

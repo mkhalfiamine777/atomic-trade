@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { MapPin, Users, Store, Building2, BellRing, ArrowLeft } from 'lucide-react'
-import ParticleField from '@/components/ParticleField'
+import ParticleField from '@/components/ui/ParticleField'
 
 export default function Home() {
     return (

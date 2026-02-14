@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db as prisma } from "@/lib/db";
+import { getOrCreateConversation } from "@/services/conversationService";
 
 export async function GET(req: Request) {
     try {
@@ -143,29 +144,10 @@ export async function POST(req: Request) {
             activeConversationId = null;
         }
 
-        // If no conversation exists, create one or find existing
+        // If no conversation exists, create one or find existing using the shared service
         if (!activeConversationId && receiverId) {
-            // Check if conversation already exists between these two
-            const existingConv = await prisma.conversation.findFirst({
-                where: {
-                    OR: [
-                        { AND: [{ participant1Id: senderId }, { participant2Id: receiverId }] },
-                        { AND: [{ participant1Id: receiverId }, { participant2Id: senderId }] }
-                    ]
-                }
-            });
-
-            if (existingConv) {
-                activeConversationId = existingConv.id;
-            } else {
-                const newConv = await prisma.conversation.create({
-                    data: {
-                        participant1Id: senderId,
-                        participant2Id: receiverId
-                    }
-                });
-                activeConversationId = newConv.id;
-            }
+            const { conversationId } = await getOrCreateConversation(senderId, receiverId, null) // API DMs usually don't have listing context yet
+            activeConversationId = conversationId
         }
 
         // Create the message

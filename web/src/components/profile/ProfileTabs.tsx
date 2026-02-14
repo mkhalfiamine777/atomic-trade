@@ -17,12 +17,15 @@ interface Props {
     initialPosts: TabPost[]
     initialProducts: TabListing[]
     initialRequests: TabListing[]
+    initialTab?: TabType // Optional prop to force a specific tab
 }
 
 type TabType = 'MEDIA' | 'SALES' | 'REQUESTS'
 
-export function ProfileTabs({ userId, initialStories, initialPosts, initialProducts, initialRequests }: Props) {
+export function ProfileTabs({ userId, initialStories, initialPosts, initialProducts, initialRequests, initialTab }: Props) {
     const getInitialTab = (): TabType => {
+        if (initialTab) return initialTab // Use prop if provided
+
         if (initialProducts.length > 0) return 'SALES'
         if (initialRequests.length > 0) return 'REQUESTS'
         return 'MEDIA'

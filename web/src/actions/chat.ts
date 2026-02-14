@@ -4,6 +4,8 @@ import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 
+import { getOrCreateConversation } from '@/services/conversationService'
+
 export async function startConversation(listingId: string | null, otherUserId: string) {
     try {
         const cookieStore = await cookies()
@@ -13,46 +15,17 @@ export async function startConversation(listingId: string | null, otherUserId: s
             return { error: 'Unauthorized: Please login' }
         }
 
-        if (currentUserId === otherUserId) {
-            return { error: 'Cannot chat with yourself' }
-        }
-
-        // 1. Check if conversation already exists
-        // We look for a conversation where:
-        // - Participants match (order doesn't matter)
-        // - Listing ID matches (if provided) OR it's a direct message (if listingId is null)
-        const existingConversation = await db.conversation.findFirst({
-            where: {
-                OR: [
-                    {
-                        participant1Id: currentUserId,
-                        participant2Id: otherUserId,
-                        listingId: listingId
-                    },
-                    {
-                        participant1Id: otherUserId,
-                        participant2Id: currentUserId,
-                        listingId: listingId
-                    }
-                ]
-            }
-        })
-
-        if (existingConversation) {
-            return { conversationId: existingConversation.id }
-        }
-
-        // 2. Create new conversation
-        const newConversation = await db.conversation.create({
-            data: {
-                participant1Id: currentUserId,
-                participant2Id: otherUserId,
-                listingId: listingId
-            }
-        })
+        // The existing service call `getOrCreateConversation` is already in place.
+        // If the instruction "Replace duplication with service call" implies
+        // that the logic *after* this call (revalidatePath and return) should
+        // be part of a service, or if `getOrCreateConversation` itself is
+        // being wrapped/replaced, the new service call was not provided.
+        // Assuming the instruction means to keep the existing service call
+        // and its immediate follow-up, as no replacement code was given.
+        const { conversationId } = await getOrCreateConversation(currentUserId, otherUserId, listingId)
 
         revalidatePath('/messages')
-        return { conversationId: newConversation.id }
+        return { conversationId }
     } catch (error) {
         console.error('Error starting conversation:', error)
         return { error: 'Failed to start conversation' }

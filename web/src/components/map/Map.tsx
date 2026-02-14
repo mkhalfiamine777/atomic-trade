@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet'
 import { useRouter } from 'next/navigation'
 import 'leaflet/dist/leaflet.css'
 import { useGeolocation } from '@/hooks/useGeolocation'
@@ -12,15 +12,15 @@ import { startConversation } from '@/actions/chat'
 import { getListings } from '@/actions/market'
 import { getStories } from '@/actions/stories'
 import { getMapPosts } from '@/actions/social'
-import { StoryViewer } from './StoryViewer'
+import { StoryViewer } from '../StoryViewer'
 import { MapFilterBar, FilterType, ALL_FILTERS } from './MapFilterBar'
-import { CommentsSheet } from './CommentsSheet'
+import { CommentsSheet } from '../CommentsSheet'
 
 import { getIndividualIcon } from '@/utils/mapIcons'
 
 import { Listing, Story, Post } from "@/types"
-import { MapControls, RecenterButton } from './map/MapControls'
-import { MapMarker, MapItem } from './map/MapMarker'
+import { MapControls, RecenterButton } from './MapControls'
+import { MapMarker, MapItem } from './MapMarker'
 
 export default function Map({
     currentUserId,
@@ -138,6 +138,18 @@ export default function Map({
                             userLng={coordinates.lng}
                             listings={filteredListings}
                         />
+                        {/* 🔵 Radar Circle (300m) */}
+                        <Circle
+                            center={[coordinates.lat, coordinates.lng]}
+                            radius={300}
+                            pathOptions={{
+                                color: '#6366f1', // Indigo-500
+                                fillColor: '#6366f1',
+                                fillOpacity: 0.1,
+                                weight: 1,
+                                dashArray: '5, 10'
+                            }}
+                        />
                         <RecenterButton lat={coordinates.lat} lng={coordinates.lng} />
                     </>
                 )}
@@ -156,6 +168,7 @@ export default function Map({
                         item={item}
                         position={[item.lat, item.lng]}
                         onStartChat={handleStartChat}
+                        onViewStory={(story) => setSelectedStory(story)}
                     />
                 ))}
 

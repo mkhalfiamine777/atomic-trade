@@ -90,6 +90,7 @@ export async function signup(_prevState: unknown, formData: FormData) {
             data: {
                 phone,
                 name,
+                username: name ? `${name.replace(/\s+/g, '').toLowerCase()}${Math.floor(Math.random() * 1000)}` : `user${Math.floor(Math.random() * 10000)}`,
                 password: hashedPassword,
                 type: type,
                 shopCategory
@@ -111,4 +112,10 @@ export async function signup(_prevState: unknown, formData: FormData) {
 
     // Redirect to dashboard or login
     redirect('/dashboard')
+}
+
+export async function logout() {
+    const cookieStore = await cookies()
+    cookieStore.delete('user_id')
+    redirect('/login')
 }
