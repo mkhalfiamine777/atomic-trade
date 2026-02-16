@@ -55,7 +55,7 @@ graph TD
     MarketServ --> ExtPayment
 ```
 
-## 2. تدفق منطق "تنبيه الـ 50 متر" (Proximity Alert Logic) 🚶‍♂️↔️🏪
+## 2. تدفق منطق "تنبيه الـ 300 متر" (Proximity Alert Logic) 🚶‍♂️↔️🏪
 هذا المخطط يشرح "الدماغ" خلف الميزة العبقرية لتنبيه القرب.
 
 ```mermaid
@@ -69,7 +69,7 @@ sequenceDiagram
         App->>Socket: 📡 إرسال الموقع الحالي (Lat, Long)
     end
 
-    Socket->>GeoDB: 🔍 بحث عن بائعين في دائرة 50m
+    Socket->>GeoDB: 🔍 بحث عن بائعين في دائرة 300
     GeoDB-->>Socket: ✅ تم العثور على "محل الأحذية" (Distance: 42m)
 
     rect rgb(200, 255, 200)

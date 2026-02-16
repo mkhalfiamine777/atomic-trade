@@ -25,14 +25,21 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
         function onConnect() {
             setIsConnected(true)
+            console.log("🟢 SocketProvider: Connected to server")
         }
 
         function onDisconnect() {
             setIsConnected(false)
+            console.log("🔴 SocketProvider: Disconnected")
+        }
+
+        function onConnectError(err: Error) {
+            console.error("⚠️ SocketProvider Error:", err.message)
         }
 
         socketInstance.on('connect', onConnect)
         socketInstance.on('disconnect', onDisconnect)
+        socketInstance.on('connect_error', onConnectError)
 
         setSocket(socketInstance)
 
@@ -44,6 +51,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         return () => {
             socketInstance.off('connect', onConnect)
             socketInstance.off('disconnect', onDisconnect)
+            socketInstance.off('connect_error', onConnectError)
         }
     }, [])
 

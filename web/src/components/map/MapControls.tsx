@@ -26,20 +26,44 @@ export function MapControls({ userLat, userLng, listings }: MapControlsProps) {
         return () => clearTimeout(timer)
     }, [userLat, userLng, map])
 
-    // 2. Radar: Check for nearby listings
+    // 2. Radar: Check for nearby listings (Products & Requests)
     useEffect(() => {
         if (!userLat || !userLng) return
+
         listings.forEach(listing => {
             const distance = getDistance(userLat, userLng, listing.latitude, listing.longitude)
-            // Show alert if distance <= 300m
-            if (distance <= 300) {
+
+            // A. Product Alert (300m)
+            if (listing.type === 'PRODUCT' && distance <= 300) {
                 toast.success(`🎉 أنت قريب من "${listing.title}"! (${Math.round(distance)}م)`, {
                     id: `listing-${listing.id}`,
                     duration: 5000
                 })
             }
+
+            // B. Request Alert (5km) - Merged from MapControllerReverse
+            if (listing.type === 'REQUEST' && distance <= 5000) {
+                toast('📣 فرصة بيع قريبة!', {
+                    id: `req-${listing.id}`,
+                    description: `شخص يبحث عن "${listing.title}" على بعد ${Math.round(distance)} متر.`,
+                    action: {
+                        label: 'عرض',
+                        onClick: () => {
+                            // In future: Center map on request
+                            map.flyTo([listing.latitude, listing.longitude], 16)
+                        }
+                    },
+                    duration: 8000,
+                    position: 'top-center',
+                    style: {
+                        background: 'linear-gradient(to right, #4c1d95, #7e22ce)',
+                        color: 'white',
+                        border: '1px solid #a855f7'
+                    }
+                })
+            }
         })
-    }, [userLat, userLng, listings])
+    }, [userLat, userLng, listings, map])
 
     return null
 }

@@ -196,116 +196,54 @@
     border: 2px solid #fbcfe8 !important;
 }
 
-/* 🫀 Living Pulse Advanced - The Map "Breathes" with Dark Phase */
 @keyframes living-pulse-advanced {
+    /* === Heart Rhythm Simulation (Lub-Dub) === */
+    /* Cycle Duration: 4s (Normal Resting Heart Rate ~75 BPM scaled for effect) */
 
-    /* === المرحلة 1: 5 نبضات عادية (0% - 55%) === */
+    /* Beat 1 (Lub) - The heavy contraction */
     0% {
-        filter: brightness(0.5);
         transform: scale(1);
+        filter: brightness(0.65);
     }
 
-    5.5% {
-        filter: brightness(0.6);
-        transform: scale(1.03);
-    }
-
-    11% {
-        filter: brightness(0.5);
-        transform: scale(1);
-    }
-
-    16.5% {
-        filter: brightness(0.6);
-        transform: scale(1.03);
-    }
-
-    22% {
-        filter: brightness(0.5);
-        transform: scale(1);
-    }
-
-    27.5% {
-        filter: brightness(0.6);
-        transform: scale(1.03);
-    }
-
-    33% {
-        filter: brightness(0.5);
-        transform: scale(1);
-    }
-
-    38.5% {
-        filter: brightness(0.6);
-        transform: scale(1.03);
-    }
-
-    44% {
-        filter: brightness(0.5);
-        transform: scale(1);
-    }
-
-    49.5% {
-        filter: brightness(0.6);
-        transform: scale(1.03);
-    }
-
-    55% {
-        filter: brightness(0.5);
-        transform: scale(1);
-    }
-
-    /* === المرحلة 2: الانتقال للظلام الأحمر (55% - 65%) - بطيء === */
-    65% {
-        filter: brightness(0.1) sepia(0.4) hue-rotate(-20deg);
-        transform: scale(1);
-    }
-
-    /* === المرحلة 3: 3 نبضات في الظلام (61% - 94%) === */
-    66% {
-        filter: brightness(0.1) sepia(0.4) hue-rotate(-20deg);
-        transform: scale(1);
-    }
-
-    71.5% {
-        filter: brightness(0.15) sepia(0.4) hue-rotate(-20deg);
+    4% {
         transform: scale(1.02);
+        filter: brightness(0.85);
     }
 
-    77% {
-        filter: brightness(0.1) sepia(0.4) hue-rotate(-20deg);
+    /* Systole */
+    8% {
         transform: scale(1);
+        filter: brightness(0.65);
     }
 
-    82.5% {
-        filter: brightness(0.15) sepia(0.4) hue-rotate(-20deg);
-        transform: scale(1.02);
+    /* Beat 2 (Dub) - The relaxation/filling (echo) */
+    12% {
+        transform: scale(1.01);
+        filter: brightness(0.75);
     }
 
-    88% {
-        filter: brightness(0.1) sepia(0.4) hue-rotate(-20deg);
+    /* Diastole */
+    20% {
         transform: scale(1);
+        filter: brightness(0.65);
     }
 
-    93% {
-        filter: brightness(0.15) sepia(0.4) hue-rotate(-20deg);
-        transform: scale(1.02);
-    }
-
-    /* === المرحلة 4: العودة للضوء (88% - 100%) - بطيء === */
-    88% {
-        filter: brightness(0.1) sepia(0.4) hue-rotate(-20deg);
+    /* Pause (Resting Phase) */
+    20.1% {
         transform: scale(1);
+        filter: brightness(0.65);
     }
 
     100% {
-        filter: brightness(0.5);
         transform: scale(1);
+        filter: brightness(0.65);
     }
 }
 
 .living-map {
-    animation: living-pulse-advanced 36s ease-in-out infinite;
+    /* 5 seconds per cycle = ~12 beats per minute (Slow, deep breathing giant) */
+    animation: living-pulse-advanced 5s ease-in-out infinite;
 }
 
 /* 🎭 3D Floating Portal Cards */

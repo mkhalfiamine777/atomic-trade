@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { ModalWrapper } from './ModalWrapper'
 import { toast } from 'sonner'
 import { createStory } from '@/actions/stories'
 import { Input } from '@/components/ui/input'
@@ -63,51 +63,39 @@ export function CreateStoryModal({
     }
 
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative"
-                    >
-                        <div className="p-4 border-b border-zinc-800 flex justify-between items-center">
-                            <h2 className="text-xl font-bold text-white">إضافة قصة جديدة 📹</h2>
-                            <button onClick={onClose} className="text-zinc-400 hover:text-white">
-                                ✕
-                            </button>
-                        </div>
+        <ModalWrapper
+            isOpen={isOpen}
+            onClose={onClose}
+            title="إضافة قصة جديدة 📹"
+            className="border-zinc-700"
+            zIndex={2000}
+        >
+            <div className="space-y-4">
+                {/* Caption Input - Always visible */}
+                <div>
+                    <label className="block text-sm text-zinc-400 mb-1">وصف القصة (اختياري)</label>
+                    <Input
+                        value={caption}
+                        onChange={e => setCaption(e.target.value)}
+                        placeholder="اكتب تعليقاً..."
+                        className="bg-zinc-800 border-zinc-700 placeholder-zinc-500 focus:ring-2 focus:ring-indigo-500 mb-4"
+                        disabled={isSaving}
+                    />
+                </div>
 
-                        <div className="p-4 space-y-4">
-                            {/* Caption Input - Always visible */}
-                            <div>
-                                <label className="block text-sm text-zinc-400 mb-1">وصف القصة (اختياري)</label>
-                                <Input
-                                    value={caption}
-                                    onChange={e => setCaption(e.target.value)}
-                                    placeholder="اكتب تعليقاً..."
-                                    className="bg-zinc-800 border-zinc-700 placeholder-zinc-500 focus:ring-2 focus:ring-indigo-500 mb-4"
-                                    disabled={isSaving}
-                                />
-                            </div>
+                {/* New Media Uploader */}
+                <MediaUploader
+                    onUploadComplete={handleUploadComplete}
+                    disabled={isSaving}
+                    className="w-full"
+                />
+            </div>
 
-                            {/* New Media Uploader */}
-                            <MediaUploader
-                                onUploadComplete={handleUploadComplete}
-                                disabled={isSaving}
-                                className="w-full"
-                            />
-                        </div>
-
-                        {isSaving && (
-                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
-                                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
-                            </div>
-                        )}
-                    </motion.div>
+            {isSaving && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 rounded-2xl">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
                 </div>
             )}
-        </AnimatePresence>
+        </ModalWrapper>
     )
 }

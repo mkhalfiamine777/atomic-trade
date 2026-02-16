@@ -4,9 +4,9 @@
 > 2.  **END (الاختتام):** يجب تحديث هذا الملف قبل إغلاق الجلسة. سجل "الإنجازات" الجديدة وحدث "الحالة".
 > 3.  **GOAL:** لا تشتت. التزم بالمسار.
 
-**Last Updated:** 2026-02-13 20:33
-
-**Status:** Session Closed (Phase 4 Complete — Decomposition + Server + Enums) ✅
+**Last Updated:** 2026-02-16 00:05
+**Status:** Session Paused (Phase 10.4: Zone Grid Planning Complete) ⏸️
+**Time Report:** [View Report](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/0eee0296-0fbf-43ba-ad1c-7b67f579aedc/time_tracking_report.md)
 
 ---
 
@@ -21,14 +21,61 @@
 ---
 
 ## 📍 2. الحالة الحالية (Current Pulse)
-**نحن الآن في:** بعد **المرحلة 4 البنيوية** — تفكيك المكونات + توحيد Server + Prisma Enums.
-*   ✅ **تم إنجاز:** الخريطة الحية، الدردشة، نظام الثقة، تدقيق شامل، + المرحلة 4 كاملة.
-*   🚧 **المرحلة القادمة:** القصص الحية (Live Stories) — قصص متحركة على الخريطة.
-*   ⏳ **مستقبلي:** لعبة السيطرة (Zone Master)، خوارزمية السمعة المتقدمة.
+**نحن الآن في:** إتمام **المرحلة 9 (التحسينات الجمالية والوظيفية)**.
+*   ✅ **تم إنجاز:** الملاحة (Navigation)، صفحة الاستكشاف (Explore)، وتحسين تسجيل الدخول (Ui/Auth).
+*   🚀 **حالة النظام:** **مستقر (Stable)** وتم نشره على Railway بآخر التحديثات.
+*   🚧 **المرحلة القادمة:** البدء في **اقتصاد اللعبة (Game Economy)** والسيطرة على المناطق.
+*   ⏳ **مستقبلي:** خوارزمية السمعة المتقدمة، نظام الإعلانات.
 
 ---
 
 ## 📜 3. سجل الإنجازات (Achievement Log)
+
+### 📅 15-02-2026 — الجلسة 7 (Optimization & Unification)
+*   **الإنجاز: 10.1 دمج وحدات الخريطة (Map Controllers):**
+    *   دمج منطق `MapControllerReverse` داخل `MapControls`.
+    *   إصدار تقارير معمارية: `map_architecture_report.md` و `map_marker_report.md`.
+*   **الإنجاز: 10.2 توحيد Geolocation:**
+    *   استبدال المنطق اليدوي في `CreatePostModal` بـ `useGeolocation hook`.
+*   **الإنجاز: 10.3 توحيد المودالات (Modal Wrapper):**
+    *   إنشاء `ModalWrapper.tsx` وتحديث 4 مودالات لاستخدامه (Post, Request, Product, Story).
+    *   إصدار `modals_technical_report.md` و `ux_engineering_report.md`.
+*   **الإنجاز: 10.4 تخطيط المناطق (Zone Grid Phase):**
+    *   دراسة شاملة للمفهوم التقني والاقتصادي (`zone_master_comprehensive_study.md`).
+    *   تطوير "نبض المدينة" (Heartbeat Animation) في الصفحة الرئيسية.
+*   **التحقق:** السيرفر يعمل بنجاح (Uptime 3h+). تم إغلاق ملف SocketStatus.
+
+### 📅 14-02-2026 — الجلسة 6 (Navigation, Auth & Decoration Phase)
+
+*   **الإنجاز: 🧭 تحسينات التنقل والملاحة (Navigation Phase 9.4):**
+    *   إصلاح `/activity`: إعادة توجيه ذكية لـ `/u/[username]?tab=SALES`.
+    *   إنشاء `/explore`: صفحة استكشاف جديدة تعرض `VideoFeed`.
+    *   توحيد زر "العودة للخريطة" 🗺️ في جميع الصفحات الرئيسية.
+*   **الإنجاز: 🔐 المصادقة وتجربة المستخدم (Auth UX Phase 9.3):**
+    *   إضافة `AuthModal` بتصميم زجاجي ونيون (Glass/Neon UI) للزوار.
+    *   إضافة زر "تسجيل الخروج" 🚪 (Logout) في لوحة التحكم (Top-Right).
+    *   إصلاح التوجيه المتكرر (Redirect Loop) في صفحة الملف الشخصي.
+*   **الإنجاز: 🎨 تحسينات الخريطة والواجهة (Map & UI):**
+    *   استعادة دائرة النطاق (300m Radar Circle) حول المستخدم.
+    *   تحسين موقع أزرار التحكم في الخريطة.
+*   **التحقق:** نشر ناجح لجميع الميزات الجديدة على Railway 🚀.
+
+### 📅 14-02-2026 — الجلسة 5 (Production Fixes & Comprehensive Review)
+*   **الإنجاز: 🔴 إصلاحات الإنتاج (Production Fixes):**
+    *   حل مشكلة `User.username does not exist` عبر إضافة `--accept-data-loss` لحل تعارض الـ Schema.
+    *   إصلاح `package.json`: إزالة تكرار script `start` وضمان تشغيل أمر التهجير الصحيح.
+    *   نقل `prisma` إلى `dependencies` لضمان عمل CLI في بيئة الإنتاج.
+*   **الإنجاز: 🔐 الأمن (Security Phase 6):**
+    *   سد ثغرة `/api/messages`: إضافة تحقق صارم من المشاركين (Participation Check) قبل عرض الرسائل.
+    *   التحقق من صحة بيانات الجلسة والمصادقة.
+*   **الإنجاز: 🛠️ التحسينات البنيوية (Phase 5):**
+    *   إنشاء `SocketProvider` لتوحيد اتصال المقابس (Sockets) عبر التطبيق.
+    *   استخراج `useMediaUpload` hook لتوحيد منطق رفع الملفات.
+    *   تطبيق Rate Limiting في `middleware.ts`.
+*   **الإنجاز: 📚 المراجعة الشاملة (Phase 7):**
+    *   إجراء تحليل تقني، هندسي، أمني، وبنيوي شامل للمشروع.
+    *   إصدار التقرير النهائي للمراجعة: `comprehensive_report.md`.
+*   **التحقق:** النشر ناجح على Railway ✅.
 
 ### 📅 13-02-2026 — الجلسة 4 (Phase 4: Structural Improvements)
 *   **الإنجاز: 4.1 تفكيك المكونات الكبيرة:**
@@ -99,40 +146,44 @@
 
 ## 🗺️ 4. خارطة الطريق النشطة (Active Roadmap)
 
-### **أ. المرحلة الحالية: الخريطة والبيانات (Geo-Data Foundation) - ✅ Completed**
-1.  [x] **DB Schema Check:** التأكد من دعم `lat`, `lng` في `SocialPost` و `Listing`.
-2.  [x] **Backend Action:** تحديث `createPost` و `createListing` لاستقبال وحفظ الإحداثيات.
-3.  [x] **Frontend (Creation):** تحديث مودالات الإنشاء (`CreateRequestModal`, `AddProductModal`) لإرسال الموقع الحالي.
-4.  [x] **Frontend (Map):** تحديث `Map.tsx` لعرض العلامات (Markers) للمنشورات والمنتجات الجديدة.
+### **أ. المرحلة الحالية: الإنتاج والمراجعة (Production & Review) - ✅ Completed**
+1.  [x] **Production Fixes:** إصلاح مشاكل Prisma Schema و Start Script والنشر على Railway.
+2.  [x] **Security Audit:** سد ثغرات API Messages وتأمين البيانات.
+3.  [x] **Code Polish:** تفكيك المكونات (Modals, Map) وتحسين الأداء (Rate Limiting).
+4.  [x] **Comprehensive Review:** إصدار تقرير شامل لحالة المشروع.
 
-### **ب. المرحلة المكتملة: المحرك الاجتماعي (Social Engine) - ✅ Completed**
-1.  [x] **Socket Server:** فصل السيرفر إلى `socket-server.ts` مستقل (المنفذ 3001).
-2.  [x] **Chat:** تفعيل المحادثات المباشرة (Real-time عبر Socket.IO).
-3.  [x] **Trust Score:** إنشاء `TrustBadge` (3 مستويات: ذهبي/فضي/برونزي) ودمجه في الملف الشخصي والخريطة.
+### **ب. المرحلة المكتملة: المحرك الاجتماعي والخريطة - ✅ Completed**
+1.  [x] **Living Map:** Geo-tagging للمنشورات والمنتجات.
+2.  [x] **Real-time Chat:** Socket.io + Persistence.
+3.  [x] **Trust Economy:** Reputation Score + Badges.
+4.  [x] **Structural:** Enums + Server Unification.
 
-### **ج. المرحلة المكتملة: التحسينات البنيوية (Structural) - ✅ Completed**
-1.  [x] **Component Decomposition:** تفكيك 5 مكونات كبيرة.
-2.  [x] **Server Unification:** توحيد `server.ts` (Railway + Socket.io مدمج).
-3.  [x] **Prisma Enums:** 6 enums + migration + type safety.
+### **ج. المرحلة التالية: قصص حية + تحسينات الواجهة (Live Stories & UI Polish) - ✅ Completed**
+1.  [x] **UI & Bug Fixes:** تصحيح الأخطاء وتطوير الواجهة (Navigation, Explore, Activity).
+2.  [x] **Live Stories:** تمكين القصص الحية وربطها بالموقع (Phase 9 Completed).
+3.  [x] **Auth UX:** تحسين تجربة الدخول (Modal + Logout).
 
-### **د. المرحلة التالية: القصص الحية (Live Stories)**
-1.  [x] **Location Tracking:** تحديث موقع المستخدم تلقائياً — ✅ مع throttle 30 ثانية.
-2.  [ ] **Live Stories:** جعل قصص الأفراد تتحرك مع موقعهم، وبقاء قصص المتاجر ثابتة.
+### **د. المرحلة 10: التحسين والاقتصاد (Optimization & Economy)**
+1.  [x] **Merge Map Controllers:** دمج وحدات التحكم في الخريطة.
+2.  [x] **Unify Geolocation:** استخدام Hook موحد.
+3.  [x] **Unify Modals:** استخدام ModalWrapper.
+4.  [ ] **Zone Grid:** تقسيم الخريطة (Phase 10.4).
+5.  [ ] **Socket Cleanup:** تنظيف SocketStatus.
 
-### **هـ. المرحلة المستقبلية: الاقتصاد واللعب (Economy)**
+### **هـ. المرحلة المستقبلية: الاقتصاد واللعب (Economy & Gamification)**
 1.  [ ] **Advanced Trust Algorithm:** خوارزمية سمعة متقدمة.
-2.  [ ] **Zone Layout:** تقسيم الخريطة إلى مربعات (Grids) — لعبة السيطرة.
 
 ---
 
 ## 🏗️ 5. البنية التحتية (Infrastructure Context)
 *   **Development:**
     *   **OS:** Windows Localhost.
-    *   **Server:** `npx next dev` (Next.js) + `npm run dev:socket` (Standalone Socket Server).
+    *   **Server:** `npx next dev` (Next.js) + `server.ts` (Unified).
     *   **DB:** Docker (PostgreSQL).
 *   **Production:**
     *   **Platform:** **Railway**.
-    *   **Scaling:** Single service or Microservices (TBD for Socket.io).
+    *   **Scaling:** Single service (Web + Socket combined).
+    *   **Start Script:** `npx prisma db push --accept-data-loss && NODE_ENV=production npx tsx server.ts`
 
 ---
 
@@ -141,14 +192,14 @@
 *   **Auth:** المصادقة عبر كوكي `user_id`. استخدم `getCurrentUser()`. الـ `/api/messages` الآن يستخدم cookies بدلاً من query params.
 *   **Socket URL:** يُقرأ من `NEXT_PUBLIC_SOCKET_URL` (مُعرف في `.env`). لا تستخدم URL ثابت.
 *   **Location Throttle:** تحديث الموقع في `DashboardClient.tsx` مُقيد بـ 30 ثانية عبر `useRef`.
-*   **Dependencies:** `@prisma/client` و `socket.io` في `dependencies` (ليس devDependencies).
+*   **Dependencies:** `@prisma/client` و `socket.io` و `prisma` في `dependencies` لضمان الإنتاج المستقر.
 *   **Error Handling:** جميع Server Actions تستخدم `return { success: false, error: '...' }` — لا `throw`.
 *   **Type Safety:** لا `as any` — لا `error: any` — استخدم `error: unknown` + `instanceof Error`.
 *   **Design Consistency:** الحفاظ على الـ Glassmorphism والـ Neon في كل مكون جديد.
 *   **Performance:** استخدم `next/dynamic` للخريطة والمكونات الثقيلة.
 *   **Types:** استخدم `@/types/index.ts` وتجنب التعريفات المحلية.
 *   **Chat Files:** `useChat.ts` (hook)، `ChatWindow.tsx` (UI)، `socket-server.ts` (server)، `/api/messages` (API).
-*   **Audit Reports:** `audit_report.md`، `phase4_reports.md` في مجلد الجلسة.
+*   **Audit Reports:** `comprehensive_report.md`، `audit_report.md`، `phase4_reports.md` في مجلد الجلسة.
 
 ---
 **⚠️ تعليمات للمساعد (AI Instructions):**
