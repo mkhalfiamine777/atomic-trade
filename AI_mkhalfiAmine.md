@@ -1,12 +1,13 @@
 # 🧠 AI Context File: Project mkhalfiamine777 (Social Commerce)
 > **🚨 AI PROTOCOL (آلية الحساسية):**
-> 1.  **START (الافتتاح):** يجب قراءة هذا الملف فوراً عند بداية الجلسة. انسخ "الحالة الحالية" و"خارطة الطريق النشطة" إلى ذاكرتك.
+> 1.  **START (الافتتاح):** يجب قراءة هذا الملف **+ الوثيقة التأسيسية (`core_vision_report.md`)** فوراً عند بداية الجلسة.
 > 2.  **END (الاختتام):** يجب تحديث هذا الملف قبل إغلاق الجلسة. سجل "الإنجازات" الجديدة وحدث "الحالة".
-> 3.  **GOAL:** لا تشتت. التزم بالمسار.
+> 3.  **GOAL:** لا تشتت. التزم بالمسار. كل ميزة يجب أن تخدم **العرض والطلب على الخريطة**.
 
-**Last Updated:** 2026-02-16 00:05
-**Status:** Session Paused (Phase 10.4: Zone Grid Planning Complete) ⏸️
+**Last Updated:** 2026-02-18 10:00
+**Status:** Session Active (Phase 10.4: Zone Grid Implementation) 🟢
 **Time Report:** [View Report](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/0eee0296-0fbf-43ba-ad1c-7b67f579aedc/time_tracking_report.md)
+**📜 Core Vision:** [الوثيقة التأسيسية](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/0eee0296-0fbf-43ba-ad1c-7b67f579aedc/core_vision_report.md) ← **اقرأها أولاً!**
 
 ---
 
@@ -31,6 +32,27 @@
 
 ## 📜 3. سجل الإنجازات (Achievement Log)
 
+### 📅 18-02-2026 — الجلسة 9 (Active: Zone Grid Implementation)
+*   **Current Focus:** تنفيذ نظام Zones (Schema + Logic + UI).
+*   **Planned:**
+    *   إنشاء `ZoneMaster` Model في Prisma.
+    *   تطوير `ZoneService` لحساب GeoHash.
+    *   عرض الشبكة (Grid Overlay) على الخريطة.
+
+### 📅 17-02-2026 — الجلسة 8 (Finalizing Phase 10)
+*   **الإنجاز: 10.4 Zone Grid Implementation:**
+    *   تحديد وتطبيق منطق تقسيم الخريطة إلى مناطق (Zone Grid).
+    *   تطوير واجهة المستخدم لعرض حدود المناطق وتفاعلاتها.
+    *   دمج بيانات المناطق مع نظام اللعبة الأساسي.
+*   **الإنجاز: 10.5 Socket Cleanup:**
+    *   تنظيف وإزالة ملف `SocketStatus` القديم.
+    *   التحقق من استقرار اتصال Socket.IO بعد التنظيف.
+*   **الإنجاز: 10.6 Dashboard Refactor:**
+    *   إنشاء `SettingsDrawer` كقائمة موحدة للإجراءات والإعدادات.
+    *   إزالة الزر العائم (FAB) لتنظيف واجهة الخريطة.
+    *   توحيد منطق المودالات في `handleOpenModal`.
+*   **التحقق:** جميع ميزات المرحلة 10 تعمل بكفاءة. الخريطة نظيفة وجاهزة للمرحلة القادمة.
+
 ### 📅 15-02-2026 — الجلسة 7 (Optimization & Unification)
 *   **الإنجاز: 10.1 دمج وحدات الخريطة (Map Controllers):**
     *   دمج منطق `MapControllerReverse` داخل `MapControls`.
@@ -43,6 +65,7 @@
 *   **الإنجاز: 10.4 تخطيط المناطق (Zone Grid Phase):**
     *   دراسة شاملة للمفهوم التقني والاقتصادي (`zone_master_comprehensive_study.md`).
     *   تطوير "نبض المدينة" (Heartbeat Animation) في الصفحة الرئيسية.
+    *   إنشاء دليل المستخدم الآلي (`site_user_guide_automated.md`) لشرح آلية ظهور الخريطة.
 *   **التحقق:** السيرفر يعمل بنجاح (Uptime 3h+). تم إغلاق ملف SocketStatus.
 
 ### 📅 14-02-2026 — الجلسة 6 (Navigation, Auth & Decoration Phase)

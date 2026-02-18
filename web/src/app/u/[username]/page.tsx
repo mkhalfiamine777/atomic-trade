@@ -149,7 +149,9 @@ export default async function UserProfilePage(props: {
                         }}
                         stats={{
                             likes: likesCount,
-                            loves: lovesCount
+                            loves: lovesCount,
+                            posts: posts.length,
+                            products: products.length
                         }}
                         currentUserId={currentUserId}
                     />

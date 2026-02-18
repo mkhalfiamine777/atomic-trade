@@ -130,29 +130,31 @@ export function ProfileTabs({ userId, initialStories, initialPosts, initialProdu
 
     return (
         <div className="w-full">
-            {/* Tabs Header */}
-            <div className="flex border-b border-zinc-800 mb-4 overflow-x-auto scrollbar-hide">
-                <TabButton
-                    isActive={activeTab === 'MEDIA'}
-                    onClick={() => setActiveTab('MEDIA')}
-                    icon={<ImageIcon className="w-4 h-4" />}
-                    label="الوسائط"
-                    count={mediaCount}
-                />
-                <TabButton
-                    isActive={activeTab === 'SALES'}
-                    onClick={() => setActiveTab('SALES')}
-                    icon={<ShoppingBag className="w-4 h-4" />}
-                    label="المبيعات"
-                    count={salesCount}
-                />
-                <TabButton
-                    isActive={activeTab === 'REQUESTS'}
-                    onClick={() => setActiveTab('REQUESTS')}
-                    icon={<Megaphone className="w-4 h-4" />}
-                    label="الطلبات"
-                    count={requestsCount}
-                />
+            {/* Sticky Tabs Header */}
+            <div className="sticky top-0 z-20 bg-zinc-950/80 backdrop-blur-xl border-b border-white/5 -mx-2 sm:-mx-4 px-2 sm:px-4">
+                <div className="flex relative">
+                    <TabButton
+                        isActive={activeTab === 'MEDIA'}
+                        onClick={() => setActiveTab('MEDIA')}
+                        icon={<ImageIcon className="w-4 h-4" />}
+                        label="المحتوى"
+                        count={mediaCount}
+                    />
+                    <TabButton
+                        isActive={activeTab === 'SALES'}
+                        onClick={() => setActiveTab('SALES')}
+                        icon={<ShoppingBag className="w-4 h-4" />}
+                        label="المنتجات"
+                        count={salesCount}
+                    />
+                    <TabButton
+                        isActive={activeTab === 'REQUESTS'}
+                        onClick={() => setActiveTab('REQUESTS')}
+                        icon={<Megaphone className="w-4 h-4" />}
+                        label="الطلبات"
+                        count={requestsCount}
+                    />
+                </div>
             </div>
 
             {/* Content Area */}

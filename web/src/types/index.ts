@@ -22,6 +22,18 @@ export interface UserProfile {
     longitude?: number | null
 }
 
+export interface LocationUser {
+    id: string
+    name: string | null
+    username: string | null
+    avatarUrl: string | null
+    latitude: number
+    longitude: number
+    type: 'INDIVIDUAL' | 'SHOP' | null
+    isOnline: boolean
+    hasStories: boolean
+}
+
 export interface Message {
     id: string
     content: string

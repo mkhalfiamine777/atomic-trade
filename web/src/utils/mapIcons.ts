@@ -65,7 +65,18 @@ export const getCompanyIcon = (hasStories: boolean, isOnline: boolean = true) =>
 
 // 👤 Individual: Blue
 // 👤 Individual: Blue Neon (Online Status)
-export const getIndividualIcon = (hasStories: boolean, isOnline: boolean = true) => {
+export const getIndividualIcon = (hasStories: boolean, isOnline: boolean = true, isVisible: boolean = true) => {
+    // 🔴 Hidden Mode — Same icon, red color
+    if (!isVisible) {
+        return L.divIcon({
+            className: '',
+            html: `<div class="w-6 h-6 rounded-full red-neon-active shadow-lg flex items-center justify-center text-white text-xs font-bold">👤</div>`,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            popupAnchor: [0, -12]
+        })
+    }
+
     // If Online -> Neon Blue Disc + Pulse
     if (isOnline) {
         return L.divIcon({

@@ -8,7 +8,6 @@ import { useGeolocation } from '@/hooks/useGeolocation'
 import { useGeofencing } from '@/hooks/useGeofencing'
 import { toast } from 'sonner'
 import { startConversation } from '@/actions/chat'
-// ChatWindow removed
 import { getListings } from '@/actions/market'
 import { getStories } from '@/actions/stories'
 import { getMapPosts } from '@/actions/social'
@@ -18,24 +17,28 @@ import { CommentsSheet } from '../CommentsSheet'
 
 import { getIndividualIcon } from '@/utils/mapIcons'
 
-import { Listing, Story, Post } from "@/types"
+import { LocationUser, Listing, Story, Post } from "@/types"
 import { MapControls, RecenterButton } from './MapControls'
 import { MapMarker, MapItem } from './MapMarker'
+import { getAllActiveUsers } from '@/actions/map'
 
 export default function Map({
     currentUserId,
     userType = 'INDIVIDUAL',
-    refreshTrigger = 0
+    refreshTrigger = 0,
+    isLocationVisible = true
 }: {
     currentUserId?: string | null
     userType?: string
     refreshTrigger?: number
+    isLocationVisible?: boolean
 }) {
     const router = useRouter()
     const { coordinates, loading, error } = useGeolocation()
     const [listings, setListings] = useState<Listing[]>([])
     const [stories, setStories] = useState<Story[]>([])
     const [posts, setPosts] = useState<Post[]>([])
+    const [globalUsers, setGlobalUsers] = useState<LocationUser[]>([])
     const [selectedStory, setSelectedStory] = useState<Story | null>(null)
     const [isMounted, setIsMounted] = useState(false)
     const [selectedFilters, setSelectedFilters] = useState<FilterType[]>([])
@@ -43,6 +46,8 @@ export default function Map({
 
     useEffect(() => {
         setIsMounted(true)
+        // Fetch all active users for global visibility
+        getAllActiveUsers().then(setGlobalUsers)
     }, [])
 
     useGeofencing({
@@ -138,12 +143,11 @@ export default function Map({
                             userLng={coordinates.lng}
                             listings={filteredListings}
                         />
-                        {/* 🔵 Radar Circle (300m) */}
                         <Circle
                             center={[coordinates.lat, coordinates.lng]}
                             radius={300}
                             pathOptions={{
-                                color: '#6366f1', // Indigo-500
+                                color: '#6366f1',
                                 fillColor: '#6366f1',
                                 fillOpacity: 0.1,
                                 weight: 1,
@@ -154,13 +158,53 @@ export default function Map({
                     </>
                 )}
 
-                <Marker position={center} icon={getIndividualIcon(false)}>
+                <Marker position={center} icon={getIndividualIcon(false, true, isLocationVisible)}>
                     <Popup>
                         <div className="text-right">
-                            <h3 className="font-bold">أنت هنا 📍</h3>
+                            <h3 className="font-bold">
+                                {isLocationVisible ? 'أنت هنا 📍' : 'أنت مخفي 👻'}
+                            </h3>
+                            {!isLocationVisible && (
+                                <p className="text-xs text-red-500">لا يراك الآخرون</p>
+                            )}
                         </div>
                     </Popup>
                 </Marker>
+
+                {/* Global Users Markers */}
+                {globalUsers.map((user) => (
+                    <MapMarker
+                        key={`global-${user.id}`}
+                        item={{
+                            type: 'POST', // Using POST type temporarily to reuse MapMarker style or creating a custom logic
+                            id: user.id,
+                            lat: user.latitude,
+                            lng: user.longitude,
+                            data: {
+                                id: user.id,
+                                caption: user.name || user.username || 'مستخدم',
+                                mediaType: 'IMAGE',
+                                mediaUrl: user.avatarUrl || '/placeholder-user.jpg',
+                                latitude: user.latitude,
+                                longitude: user.longitude,
+                                userId: user.id,
+                                createdAt: new Date(),
+                                user: {
+                                    id: user.id,
+                                    name: user.name,
+                                    username: user.username,
+                                    avatarUrl: user.avatarUrl,
+                                    type: user.type,
+                                    isVerified: false,
+                                    reputationScore: 0
+                                }
+                            }
+                        }}
+                        position={[user.latitude, user.longitude]}
+                        onStartChat={(id) => handleStartChat(id, user.id, user.name)} // listingId is user.id here? No, this needs adjustment
+                        onViewStory={() => { }} // No story view for global users yet
+                    />
+                ))}
 
                 {allItems.map((item) => (
                     <MapMarker

@@ -10,8 +10,9 @@ import { CreateStoryModal } from '@/components/modals/CreateStoryModal'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { updateUserLocation } from '@/actions/user'
 import { BottomNav } from '@/components/layout/BottomNav'
-import { Plus, ShoppingBag, Video, MessageSquarePlus, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { SettingsDrawer } from '@/components/dashboard/SettingsDrawer'
 
 // Dynamically import Map to avoid SSR issues
 const Map = dynamic(() => import('@/components/map/Map'), {
@@ -32,25 +33,40 @@ export default function DashboardClient({
     const [isRequestOpen, setIsRequestOpen] = useState(false)
     const [isPostOpen, setIsPostOpen] = useState(false) // New Post Modal State
     const [isStoryOpen, setIsStoryOpen] = useState(false)
-    const [isFabOpen, setIsFabOpen] = useState(false)
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false) // ⚙️ Drawer Control
+    const [isLocationVisible, setIsLocationVisible] = useState(true) // 👻 Location Visibility State
     const [refreshTrigger, setRefreshTrigger] = useState(0)
     const router = useRouter()
     const lastLocationUpdate = useRef<number>(0)
 
     const handleRefresh = () => setRefreshTrigger(prev => prev + 1)
 
+    const toggleLocationVisibility = () => {
+        setIsLocationVisible(prev => !prev)
+    }
+
     const { coordinates } = useGeolocation()
 
     // Live Tracking: Throttled - update user location every 30s max
     useEffect(() => {
-        if (coordinates) {
+        if (coordinates && isLocationVisible) { // Only update if visible
             const now = Date.now()
             if (now - lastLocationUpdate.current > 30000) {
                 lastLocationUpdate.current = now
                 updateUserLocation(coordinates.lat, coordinates.lng)
             }
         }
-    }, [coordinates])
+    }, [coordinates, isLocationVisible])
+
+    // Unified Modal Handler (Used by both Drawer and FAB)
+    const handleOpenModal = (action: 'PRODUCT' | 'REQUEST' | 'POST' | 'STORY') => {
+        switch (action) {
+            case 'PRODUCT': setIsAddProductOpen(true); break;
+            case 'REQUEST': setIsRequestOpen(true); break;
+            case 'POST': setIsPostOpen(true); break;
+            case 'STORY': setIsStoryOpen(true); break;
+        }
+    }
 
     return (
         <div className="relative h-screen w-full overflow-hidden bg-zinc-950">
@@ -80,82 +96,52 @@ export default function DashboardClient({
                 />
             )}
 
+            {/* ⚙️ Unified Settings Drawer */}
+            <SettingsDrawer
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+                userName={userName}
+                userType={userType}
+                onOpenAction={handleOpenModal}
+                isLocationVisible={isLocationVisible}
+                onToggleLocation={toggleLocationVisibility}
+            />
+
             {/* 🌍 Full Screen Map */}
             <div className="absolute inset-0 z-0">
                 <Map
                     currentUserId={userId}
                     userType={userType}
                     refreshTrigger={refreshTrigger}
+                    isLocationVisible={isLocationVisible}
                 />
             </div>
 
-            {/* 🧭 Floating Action Button (FAB) for Quick Actions */}
-            <div className="absolute bottom-24 right-5 z-40 flex flex-col items-center gap-3">
-                <AnimatePresence>
-                    {isFabOpen && (
-                        <>
-                            <motion.button
-                                initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, y: 20, scale: 0.8 }}
-                                transition={{ delay: 0.1 }}
-                                onClick={() => { setIsStoryOpen(true); setIsFabOpen(false) }}
-                                className="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center text-white shadow-lg border border-pink-400"
-                                title="نشر قصة"
-                            >
-                                <Video size={20} />
-                            </motion.button>
-                            <motion.button
-                                initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, y: 20, scale: 0.8 }}
-                                transition={{ delay: 0.05 }}
-                                // UPDATED: Open Post Modal instead of Request Modal
-                                onClick={() => { setIsPostOpen(true); setIsFabOpen(false) }}
-                                className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white shadow-lg border border-purple-500"
-                                title="منشور جديد"
-                            >
-                                <MessageSquarePlus size={20} />
-                            </motion.button>
-                            <motion.button
-                                initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, y: 20, scale: 0.8 }}
-                                onClick={() => { setIsAddProductOpen(true); setIsFabOpen(false) }}
-                                className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg border border-blue-500"
-                                title="إضافة منتج"
-                            >
-                                <ShoppingBag size={20} />
-                            </motion.button>
-                        </>
-                    )}
-                </AnimatePresence>
 
-                <button
-                    onClick={() => setIsFabOpen(!isFabOpen)}
-                    className={`w-14 h-14 rounded-full flex items-center justify-center text-white shadow-[0_0_20px_rgba(59,130,246,0.5)] border-2 border-white/20 transition-all active:scale-95 ${isFabOpen ? 'bg-red-500 rotate-45' : 'bg-indigo-600 hover:scale-105'
-                        }`}
-                >
-                    <Plus size={28} strokeWidth={2.5} />
-                </button>
-            </div>
 
             {/* 📱 Bottom Navigation */}
             <BottomNav />
 
-            {/* 🚪 Logout Button - Moved under the exact location control (top-right) */}
+            {/* 🍔 Menu Button (Replaces Logout) */}
             <div className="absolute top-24 right-4 z-50">
                 <button
-                    onClick={async () => {
-                        await import('@/actions/auth').then(mod => mod.logout())
-                    }}
-                    className="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-red-500/30 px-3 py-2 rounded-full text-xs font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors shadow-lg"
-                    title="تسجيل الخروج"
+                    onClick={() => setIsSettingsOpen(true)}
+                    className="w-10 h-10 bg-black/40 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors shadow-lg"
+                    title="القائمة"
                 >
-                    <LogOut size={16} />
-                    <span className="hidden sm:inline">خروج</span>
+                    <MenuIcon size={20} />
                 </button>
             </div>
         </div>
+    )
+}
+
+function MenuIcon({ size }: { size: number }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="4" x2="20" y1="12" y2="12" />
+            <line x1="4" x2="20" y1="6" y2="6" />
+            <line x1="4" x2="20" y1="18" y2="18" />
+        </svg>
     )
 }
