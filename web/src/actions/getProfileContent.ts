@@ -26,11 +26,9 @@ export async function getProfileContent(userId: string, type: ContentType, page:
                     mediaType: true,
                     caption: true,
                     createdAt: true,
-                    thumbnailUrl: true, // Add thumbnail support if schema has it (or fallback)
                     _count: {
                         select: {
-                            likes: true,
-                            comments: true
+                            interactions: true
                         }
                     }
                 }
@@ -42,10 +40,11 @@ export async function getProfileContent(userId: string, type: ContentType, page:
             return {
                 success: true,
                 data: posts.map(p => ({
-                    ...p,
-                    type: p.mediaType, // Standardize type
-                    likesCount: p._count.likes,
-                    commentsCount: p._count.comments
+                    id: p.id,
+                    mediaUrl: p.mediaUrl,
+                    mediaType: p.mediaType,
+                    caption: p.caption,
+                    type: p.mediaType,
                 })),
                 hasMore
             }
