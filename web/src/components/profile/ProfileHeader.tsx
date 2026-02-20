@@ -158,6 +158,11 @@ export function ProfileHeader({ user, stats, currentUserId }: ProfileHeaderProps
                     </div>
                 </div>
 
+                {/* Bio */}
+                {user.bio && (
+                    <p className="mt-3 text-sm text-zinc-400 leading-relaxed">{user.bio}</p>
+                )}
+
                 {/* Trust Score Ribbon */}
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}

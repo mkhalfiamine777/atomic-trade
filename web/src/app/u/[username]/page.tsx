@@ -147,6 +147,8 @@ export default async function UserProfilePage(props: {
                             username: user.username,
                             type: user.type as 'INDIVIDUAL' | 'SHOP',
                             avatarUrl: user.avatarUrl,
+                            bio: user.bio,
+                            shopCategory: user.shopCategory,
                             isVerified: user.isVerified,
                             reputationScore: user.reputationScore,
                             joinDate: user.createdAt
