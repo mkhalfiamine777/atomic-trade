@@ -50,6 +50,7 @@ model User {
   password  String
   name      String?
   avatarUrl String?
+  bio       String?  // User bio / description
   type      UserType @default(INDIVIDUAL)
   shopCategory String? // e.g. GROCERY, FASHION, TECH
   isVerified Boolean @default(false)
@@ -74,6 +75,10 @@ model User {
   posts SocialPost[]
   interactionsMade     Interaction[] @relation("Actor")
   interactionsReceived Interaction[] @relation("TargetUser")
+
+  // Follow Relations
+  followers Follow[] @relation("Following")
+  following Follow[] @relation("Followers")
 
   @@index([phone])
   @@index([username])
@@ -221,5 +226,19 @@ model Interaction {
   @@index([targetUserId])
   @@index([listingId])
   @@index([type])
+}
+
+// Follow System
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  follower    User     @relation("Followers", fields: [followerId], references: [id])
+  followingId String
+  following   User     @relation("Following", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }
 

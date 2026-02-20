@@ -17,7 +17,8 @@ interface Zone {
     bounds: [[number, number], [number, number], [number, number], [number, number]]
 }
 
-export function ZoneGridLayer({ currentUserId }: { currentUserId?: string | null }) {
+// Internal component to handle map logic safely
+function ZoneGridContent({ currentUserId }: { currentUserId?: string | null }) {
     const map = useMap()
     const [zones, setZones] = useState<Zone[]>([])
     const [hoveredZone, setHoveredZone] = useState<Zone | null>(null)
@@ -25,6 +26,8 @@ export function ZoneGridLayer({ currentUserId }: { currentUserId?: string | null
 
     // Calculate Grid and Fetch Data
     const updateGrid = useCallback(async () => {
+        if (!map) return
+
         const z = map.getZoom()
 
         if (z < 15) {
@@ -42,40 +45,39 @@ export function ZoneGridLayer({ currentUserId }: { currentUserId?: string | null
         const hashes = ngeohash.bboxes(sw.lat, sw.lng, ne.lat, ne.lng, precision)
 
         // Fetch real data for these hashes
-        const serverZones = await getZones(hashes)
-        const ownedMap = new Map(serverZones.map(z => [z.geoHash, z]))
+        try {
+            const serverZones = await getZones(hashes)
+            const ownedMap = new Map(serverZones.map(z => [z.geoHash, z]))
 
-        const newZones: Zone[] = hashes.map(hash => {
-            const bbox = ngeohash.decode_bbox(hash)
-            const polygon: [
-                [number, number],
-                [number, number],
-                [number, number],
-                [number, number]
-            ] = [
-                [bbox[0], bbox[1]], // SW
-                [bbox[2], bbox[1]], // NW
-                [bbox[2], bbox[3]], // NE
-                [bbox[0], bbox[3]] // SE
-            ]
+            const newZones: Zone[] = hashes.map(hash => {
+                const bbox = ngeohash.decode_bbox(hash)
+                const polygon: [[number, number], [number, number], [number, number], [number, number]] = [
+                    [bbox[0], bbox[1]], // SW
+                    [bbox[2], bbox[1]], // NW
+                    [bbox[2], bbox[3]], // NE
+                    [bbox[0], bbox[3]] // SE
+                ]
 
-            const dbZone = ownedMap.get(hash)
+                const dbZone = ownedMap.get(hash)
 
-            return {
-                id: hash,
-                geohash: hash,
-                ownerName: dbZone?.currentLord?.name || null,
-                ownerId: dbZone?.currentLordId || null,
-                taxRate: dbZone?.taxRate || 0,
-                price: 5000, // Fixed price for now
-                bounds: polygon
-            }
-        })
-
-        setZones(newZones)
+                return {
+                    id: hash,
+                    geohash: hash,
+                    ownerName: dbZone?.currentLord?.name || null,
+                    ownerId: dbZone?.currentLordId || null,
+                    taxRate: dbZone?.taxRate || 0,
+                    price: 5000,
+                    bounds: polygon
+                }
+            })
+            setZones(newZones)
+        } catch (error) {
+            console.error("Failed to fetch zones:", error)
+        }
     }, [map])
 
     useEffect(() => {
+        if (!map) return
         map.on('moveend', updateGrid)
         updateGrid() // Initial load
         return () => {
@@ -99,8 +101,7 @@ export function ZoneGridLayer({ currentUserId }: { currentUserId?: string | null
                 toast.error(result.error, { id: 'buy-zone' })
             } else {
                 toast.success(`🎉 مبروك! أصبحت سيد منطقة ${zone.geohash}`, { id: 'buy-zone' })
-                // Play sound or effect here?
-                updateGrid() // Refresh grid to show gold color
+                updateGrid() // Refresh grid
             }
         } catch (e) {
             toast.error('حدث خطأ غير متوقع', { id: 'buy-zone' })
@@ -117,20 +118,28 @@ export function ZoneGridLayer({ currentUserId }: { currentUserId?: string | null
                 const isOwned = !!zone.ownerId
                 const isMine = zone.ownerId === currentUserId
 
-                // Color Logic
-                let color = '#64748b' // Slate (Free)
-                let fillColor = '#1e293b'
-                let opacity = 0.1
+                // 🎨 CYBERPUNK STYLING
+                let color = '#334155' // Slate 700 (Default Border)
+                let fillColor = '#0f172a' // Slate 900 (Default Fill)
+                let fillOpacity = 0.1
+                let className = 'transition-all duration-300 ease-in-out' // Base transition
 
-                if (isOwned) {
-                    color = '#fbbf24' // Gold (Owned)
-                    fillColor = '#fbbf24'
-                    opacity = 0.2
-                }
-                if (isMine) {
-                    color = '#10b981' // Emerald (My Land)
-                    fillColor = '#10b981'
-                    opacity = 0.3
+                if (isMine) { // My Land takes precedence
+                    color = '#10b981' // Emerald 500 (Mine)
+                    fillColor = '#064e3b' // Emerald 950
+                    fillOpacity = 0.5
+                    className += ' drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]'
+                } else if (isOwned) { // Owned
+                    color = '#f59e0b' // Amber 500 (Owned - Gold)
+                    fillColor = '#451a03' // Amber 950
+                    fillOpacity = 0.4
+                    className += ' hover:drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]'
+                } else {
+                    // Free Zone - Neon Cyan Hover
+                    color = '#0ea5e9' // Sky 500
+                    fillColor = '#082f49' // Sky 950
+                    fillOpacity = 0.05
+                    className += ' hover:drop-shadow-[0_0_5px_rgba(14,165,233,0.5)] hover:stroke-2'
                 }
 
                 return (
@@ -139,55 +148,63 @@ export function ZoneGridLayer({ currentUserId }: { currentUserId?: string | null
                         positions={zone.bounds}
                         pathOptions={{
                             color,
-                            weight: isOwned ? 2 : 1,
+                            weight: isOwned || isMine ? 2 : 1,
                             fillColor,
-                            fillOpacity: hoveredZone?.id === zone.id ? 0.4 : opacity,
-                            className: 'cursor-pointer transition-all duration-300'
+                            fillOpacity: hoveredZone?.id === zone.id ? 0.6 : fillOpacity,
+                            className: className
                         }}
                         eventHandlers={{
                             mouseover: e => {
                                 const layer = e.target
-                                layer.setStyle({ weight: 3, fillOpacity: 0.5 })
+                                layer.setStyle({ weight: 3, fillOpacity: 0.6 })
                                 setHoveredZone(zone)
                             },
                             mouseout: e => {
                                 const layer = e.target
-                                // Reset style
-                                // We need to re-apply the logic because we don't have scope access to 'isOwned' easily in event
-                                // But here in render scope we do.
                                 layer.setStyle({
-                                    weight: isOwned ? 2 : 1,
-                                    fillOpacity: isOwned ? 0.2 : 0.1
+                                    weight: isMine || isOwned ? 2 : 1,
+                                    fillOpacity: isMine ? 0.5 : isOwned ? 0.4 : 0.05
                                 })
                                 setHoveredZone(null)
                             }
                         }}
                     >
-                        <Popup autoPan={false} closeButton={false}>
-                            <div className="text-center min-w-[150px] p-1">
-                                <h4 className="font-bold text-lg mb-1">
+                        <Popup autoPan={false} closeButton={false} className="cyberpunk-popup">
+                            <div className="text-center min-w-[180px] bg-zinc-950/90 backdrop-blur-xl p-3 text-white border border-white/10 shadow-2xl rounded-xl ring-1 ring-white/5">
+                                {/* Header Badge */}
+                                <div className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-wider mb-2 border ${isMine
+                                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                    : isOwned
+                                        ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                                        : 'bg-sky-500/20 text-sky-400 border-sky-500/30'
+                                    }`}>
+                                    {isMine ? 'مملكتك الخاصة 🏰' : isOwned ? 'منطقة محتلة ⚔️' : 'منطقة حرة 💎'}
+                                </div>
+
+                                <div className="text-2xl font-black mb-1 tracking-tighter">
                                     {isMine
-                                        ? '🏰 مملكتي'
+                                        ? 'S E C T O R'
                                         : isOwned
-                                          ? `👑 إقطاعية ${zone.ownerName}`
-                                          : '🌑 منطقة حرة'}
-                                </h4>
-                                <div className="text-xs text-zinc-500 font-mono mb-3">
-                                    {zone.geohash}
+                                            ? `LORD: ${zone.ownerName?.toUpperCase()}`
+                                            : 'F R E E  L A N D'}
+                                </div>
+
+                                <div className="text-[10px] text-zinc-500 font-mono tracking-widest mb-4 border-b border-white/5 pb-2">
+                                    DATA_HASH: {zone.geohash}
                                 </div>
 
                                 {isOwned ? (
-                                    <div className="space-y-1 bg-zinc-50 p-2 rounded border">
-                                        <div className="flex justify-between text-xs">
-                                            <span>المالك:</span>
-                                            <span className="font-bold text-indigo-600">
+                                    <div className="space-y-2 bg-black/40 p-3 rounded-lg border border-white/5">
+                                        <div className="flex justify-between items-center text-xs">
+                                            <span className="text-zinc-400">المالك:</span>
+                                            <span className="font-bold text-amber-400 drop-shadow-sm">
                                                 {zone.ownerName}
                                             </span>
                                         </div>
-                                        <div className="flex justify-between text-xs">
-                                            <span>الضريبة:</span>
-                                            <span className="font-bold text-green-600">
-                                                {zone.taxRate}% 💰
+                                        <div className="flex justify-between items-center text-xs">
+                                            <span className="text-zinc-400">الضريبة:</span>
+                                            <span className="font-bold text-emerald-400 font-mono">
+                                                {zone.taxRate}% 💸
                                             </span>
                                         </div>
                                     </div>
@@ -195,11 +212,12 @@ export function ZoneGridLayer({ currentUserId }: { currentUserId?: string | null
                                     <button
                                         onClick={() => handlePurchase(zone)}
                                         disabled={loading}
-                                        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-bold py-2 rounded shadow-lg transform hover:scale-105 transition-all flex items-center justify-center gap-2"
+                                        className="w-full group relative overflow-hidden rounded-lg bg-indigo-600 px-4 py-2 font-bold text-white shadow-[0_0_20px_rgba(79,70,229,0.4)] transition-all hover:scale-105 hover:bg-indigo-500 hover:shadow-[0_0_30px_rgba(79,70,229,0.6)]"
                                     >
-                                        {loading
-                                            ? 'جاري التملك...'
-                                            : `شراء بـ ${zone.price} درهم 💎`}
+                                        <span className="relative z-10 flex items-center justify-center gap-2">
+                                            {loading ? 'PROCESSING...' : `DEPLOY CLAIM 💎 ${zone.price}`}
+                                        </span>
+                                        <div className="absolute inset-0 z-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
                                     </button>
                                 )}
                             </div>
@@ -209,4 +227,9 @@ export function ZoneGridLayer({ currentUserId }: { currentUserId?: string | null
             })}
         </>
     )
+}
+
+export function ZoneGridLayer({ currentUserId }: { currentUserId?: string | null }) {
+    // We just render the content. The MapContainer check is done by where this is placed in Map.tsx
+    return <ZoneGridContent currentUserId={currentUserId} />
 }

@@ -16,6 +16,7 @@ export interface UserProfile {
     isVerified: boolean
     reputationScore: number
     shopCategory?: string | null
+    bio?: string | null
     joinDate?: Date
     createdAt?: Date
     latitude?: number | null

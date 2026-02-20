@@ -1,13 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { EditProfileModal } from './EditProfileModal'
 import { TrustBadge } from '../trust/TrustBadge'
 import { InteractionBar } from './InteractionBar'
-import { BadgeCheck, Store, Building2, User as UserIcon, Star, Edit2, MapPin, MessageCircle, ShoppingCart, ChevronRight, Sparkles } from 'lucide-react'
+import { BadgeCheck, Store, Building2, User as UserIcon, Star, Edit2, MapPin, MessageCircle, ShoppingCart, ChevronRight, Sparkles, UserPlus, UserCheck, UserMinus, Loader2, Users } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { UserProfile } from '@/types'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { toggleFollow, getFollowStatus, getFollowCounts } from '@/actions/follow'
+import { startConversation } from '@/actions/chat'
 
 interface ProfileHeaderProps {
     user: UserProfile
@@ -23,6 +26,45 @@ interface ProfileHeaderProps {
 export function ProfileHeader({ user, stats, currentUserId }: ProfileHeaderProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const isOwner = currentUserId === user.id
+
+    // Follow State
+    const [isFollowing, setIsFollowing] = useState(false)
+    const [isFollowLoading, setIsFollowLoading] = useState(false)
+    const [isHoveringFollow, setIsHoveringFollow] = useState(false)
+    const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 })
+
+    useEffect(() => {
+        if (!isOwner && currentUserId) {
+            getFollowStatus(user.id).then(res => setIsFollowing(res.isFollowing))
+        }
+        getFollowCounts(user.id).then(res => setFollowCounts(res))
+    }, [user.id, currentUserId, isOwner])
+
+    const handleToggleFollow = async () => {
+        setIsFollowLoading(true)
+        const res = await toggleFollow(user.id)
+        if (res.success) {
+            setIsFollowing(res.isFollowing ?? false)
+            setFollowCounts(prev => ({
+                ...prev,
+                followers: prev.followers + (res.isFollowing ? 1 : -1)
+            }))
+        }
+        setIsFollowLoading(false)
+    }
+
+    // Message State
+    const router = useRouter()
+    const [isMessageLoading, setIsMessageLoading] = useState(false)
+
+    const handleMessage = async () => {
+        setIsMessageLoading(true)
+        const res = await startConversation(null, user.id)
+        if (res.conversationId) {
+            router.push(`/messages?id=${res.conversationId}`)
+        }
+        setIsMessageLoading(false)
+    }
 
     const userTypeConfig = {
         SHOP: { icon: Store, label: 'متجر', color: 'text-pink-400', bg: 'bg-pink-500/10 border-pink-500/20', glow: 'shadow-pink-500/20' },
@@ -136,8 +178,10 @@ export function ProfileHeader({ user, stats, currentUserId }: ProfileHeaderProps
                 </motion.div>
 
                 {/* Stats Grid */}
-                <div className="mt-4 grid grid-cols-4 gap-2">
+                <div className="mt-4 grid grid-cols-3 sm:grid-cols-6 gap-2">
                     {[
+                        { value: followCounts.followers, label: 'متابع', color: 'text-cyan-400' },
+                        { value: followCounts.following, label: 'يتابع', color: 'text-purple-400' },
                         { value: stats.posts, label: 'منشور', color: 'text-white' },
                         { value: stats.products, label: 'منتج', color: 'text-emerald-400' },
                         { value: stats.likes, label: 'إعجاب', color: 'text-blue-400' },
@@ -173,12 +217,56 @@ export function ProfileHeader({ user, stats, currentUserId }: ProfileHeaderProps
                     ) : (
                         <>
                             {currentUserId && (
-                                <div className="flex-1 flex gap-2">
-                                    <InteractionBar
-                                        targetUserId={user.id}
-                                        currentUserId={currentUserId}
-                                    />
-                                </div>
+                                <>
+                                    {/* Follow/Unfollow Button */}
+                                    <button
+                                        onClick={handleToggleFollow}
+                                        onMouseEnter={() => setIsHoveringFollow(true)}
+                                        onMouseLeave={() => setIsHoveringFollow(false)}
+                                        disabled={isFollowLoading}
+                                        className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all border flex items-center justify-center gap-2 ${isFollowLoading
+                                            ? 'bg-white/5 border-white/10 text-zinc-400 cursor-wait'
+                                            : isFollowing
+                                                ? isHoveringFollow
+                                                    ? 'bg-red-500/20 border-red-500/30 text-red-400 hover:bg-red-500/30'
+                                                    : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400'
+                                                : 'bg-cyan-500/20 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 hover:shadow-lg hover:shadow-cyan-500/10'
+                                            }`}
+                                    >
+                                        {isFollowLoading ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : isFollowing ? (
+                                            isHoveringFollow ? (
+                                                <><UserMinus className="w-4 h-4" /> إلغاء المتابعة</>
+                                            ) : (
+                                                <><UserCheck className="w-4 h-4" /> متابَع</>
+                                            )
+                                        ) : (
+                                            <><UserPlus className="w-4 h-4" /> متابعة</>
+                                        )}
+                                    </button>
+
+                                    {/* Message Button */}
+                                    <button
+                                        onClick={handleMessage}
+                                        disabled={isMessageLoading}
+                                        className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 px-4 py-2.5 rounded-xl font-bold text-sm transition-all border border-purple-500/20 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-purple-500/10"
+                                    >
+                                        {isMessageLoading ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <><MessageCircle className="w-4 h-4" /> رسالة</>
+                                        )}
+                                    </button>
+
+                                    {/* Interaction Bar */}
+                                    <div className="flex gap-2">
+                                        <InteractionBar
+                                            targetUserId={user.id}
+                                            currentUserId={currentUserId}
+                                        />
+                                    </div>
+                                </>
                             )}
                             <Link
                                 href={`/dashboard?focus=${user.id}`}

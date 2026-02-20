@@ -35,6 +35,7 @@ export default function DashboardClient({
     const [isStoryOpen, setIsStoryOpen] = useState(false)
     const [isSettingsOpen, setIsSettingsOpen] = useState(false) // ⚙️ Drawer Control
     const [isLocationVisible, setIsLocationVisible] = useState(true) // 👻 Location Visibility State
+    const [showZoneGrid, setShowZoneGrid] = useState(false) // 🏰 Zone Grid Visibility State
     const [refreshTrigger, setRefreshTrigger] = useState(0)
     const router = useRouter()
     const lastLocationUpdate = useRef<number>(0)
@@ -43,6 +44,10 @@ export default function DashboardClient({
 
     const toggleLocationVisibility = () => {
         setIsLocationVisible(prev => !prev)
+    }
+
+    const toggleZoneGrid = () => {
+        setShowZoneGrid(prev => !prev)
     }
 
     const { coordinates } = useGeolocation()
@@ -105,6 +110,8 @@ export default function DashboardClient({
                 onOpenAction={handleOpenModal}
                 isLocationVisible={isLocationVisible}
                 onToggleLocation={toggleLocationVisibility}
+                showZoneGrid={showZoneGrid}
+                onToggleZoneGrid={toggleZoneGrid}
             />
 
             {/* 🌍 Full Screen Map */}
@@ -114,6 +121,7 @@ export default function DashboardClient({
                     userType={userType}
                     refreshTrigger={refreshTrigger}
                     isLocationVisible={isLocationVisible}
+                    showZoneGrid={showZoneGrid}
                 />
             </div>
 

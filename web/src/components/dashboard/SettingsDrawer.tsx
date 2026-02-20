@@ -13,7 +13,9 @@ import {
     Bell,
     Wallet,
     Eye,
-    EyeOff
+    EyeOff,
+    Swords,
+    Shield
 } from 'lucide-react'
 import { logout } from '@/actions/auth'
 import { useRouter } from 'next/navigation'
@@ -26,6 +28,8 @@ interface SettingsDrawerProps {
     onOpenAction: (action: 'PRODUCT' | 'REQUEST' | 'POST' | 'STORY') => void
     isLocationVisible?: boolean
     onToggleLocation?: () => void
+    showZoneGrid?: boolean
+    onToggleZoneGrid?: () => void
 }
 
 export function SettingsDrawer({
@@ -35,7 +39,9 @@ export function SettingsDrawer({
     userType,
     onOpenAction,
     isLocationVisible = true,
-    onToggleLocation
+    onToggleLocation,
+    showZoneGrid = false,
+    onToggleZoneGrid
 }: SettingsDrawerProps) {
     const router = useRouter()
 
@@ -137,6 +143,26 @@ export function SettingsDrawer({
                                         <motion.div
                                             className="w-3 h-3 bg-white rounded-full shadow-sm"
                                             animate={{ x: isLocationVisible ? 12 : 0 }}
+                                        />
+                                    </div>
+                                </button>
+
+                                {/* 🏰 Zone Grid Toggle */}
+                                <button
+                                    onClick={onToggleZoneGrid}
+                                    className={`flex items-center justify-between w-full p-3 rounded-xl transition-colors ${showZoneGrid ? 'bg-cyan-500/10 text-cyan-400' : 'hover:bg-white/5 text-zinc-300 hover:text-white'
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        {showZoneGrid ? <Swords size={18} /> : <Shield size={18} />}
+                                        <span className="text-sm font-medium">
+                                            {showZoneGrid ? 'وضع السيطرة ⚔️' : 'إظهار المناطق'}
+                                        </span>
+                                    </div>
+                                    <div className={`w-8 h-5 rounded-full p-1 transition-colors ${showZoneGrid ? 'bg-cyan-600' : 'bg-zinc-700'}`}>
+                                        <motion.div
+                                            className="w-3 h-3 bg-white rounded-full shadow-sm"
+                                            animate={{ x: showZoneGrid ? 12 : 0 }}
                                         />
                                     </div>
                                 </button>

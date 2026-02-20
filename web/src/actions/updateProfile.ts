@@ -3,9 +3,33 @@
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
-
-// ... imports
 import { Prisma, UserType } from '@prisma/client'
+import bcrypt from 'bcryptjs'
+
+// Allowed image domains for avatarUrl validation
+const ALLOWED_IMAGE_DOMAINS = [
+    'utfs.io',           // uploadthing
+    'ufs.sh',            // uploadthing v2
+    'uploadthing.com',
+    'res.cloudinary.com',
+    'lh3.googleusercontent.com',
+    'avatars.githubusercontent.com',
+    'i.imgur.com',
+    'images.unsplash.com',
+]
+
+function isValidAvatarUrl(url: string): boolean {
+    if (!url) return true // empty is ok
+    try {
+        const parsed = new URL(url)
+        if (!['http:', 'https:'].includes(parsed.protocol)) return false
+        // Check domain whitelist
+        const domain = parsed.hostname
+        return ALLOWED_IMAGE_DOMAINS.some(d => domain === d || domain.endsWith('.' + d))
+    } catch {
+        return false
+    }
+}
 
 export async function updateProfile(formData: FormData) {
     try {
@@ -19,12 +43,15 @@ export async function updateProfile(formData: FormData) {
         const name = formData.get('name') as string
         const username = formData.get('username') as string
         const avatarUrl = formData.get('avatarUrl') as string
-        const type = formData.get('type') as UserType // INDIVIDUAL or SHOP
+        const bio = formData.get('bio') as string | null
+        const type = formData.get('type') as UserType
         const shopCategory = formData.get('shopCategory') as string | null
+        const currentPassword = formData.get('currentPassword') as string | null
+        const newPassword = formData.get('newPassword') as string | null
 
         // Validate basic inputs
         if (!name || name.trim().length < 2) {
-            return { success: false, error: 'Name is too short (min 2 chars)' }
+            return { success: false, error: 'الاسم قصير جداً (حرفان على الأقل)' }
         }
 
         // Validate Username
@@ -35,6 +62,32 @@ export async function updateProfile(formData: FormData) {
             }
         }
 
+        // Validate Bio length
+        if (bio && bio.length > 200) {
+            return { success: false, error: 'النبذة التعريفية طويلة جداً (200 حرف كحد أقصى)' }
+        }
+
+        // Validate Avatar URL security
+        if (avatarUrl && !isValidAvatarUrl(avatarUrl)) {
+            return { success: false, error: 'رابط الصورة غير مسموح به. استخدم زر الرفع أو رابط من مصدر معتمد.' }
+        }
+
+        // Handle password change
+        let hashedPassword: string | undefined
+        if (currentPassword && newPassword) {
+            if (newPassword.length < 6) {
+                return { success: false, error: 'كلمة المرور الجديدة قصيرة جداً (6 أحرف على الأقل)' }
+            }
+            const user = await db.user.findUnique({ where: { id: userId }, select: { password: true } })
+            if (!user) return { success: false, error: 'المستخدم غير موجود' }
+
+            const isPasswordValid = await bcrypt.compare(currentPassword, user.password)
+            if (!isPasswordValid) {
+                return { success: false, error: 'كلمة المرور الحالية غير صحيحة' }
+            }
+            hashedPassword = await bcrypt.hash(newPassword, 12)
+        }
+
         // Update User
         try {
             await db.user.update({
@@ -42,9 +95,11 @@ export async function updateProfile(formData: FormData) {
                 data: {
                     name: name.trim(),
                     username: username ? username.toLowerCase() : undefined,
-                    avatarUrl: avatarUrl || undefined, // Only update if provided
+                    avatarUrl: avatarUrl || undefined,
+                    bio: bio !== null ? bio.trim() : undefined,
                     type: type || undefined,
-                    shopCategory: shopCategory || undefined
+                    shopCategory: shopCategory || undefined,
+                    ...(hashedPassword ? { password: hashedPassword } : {})
                 }
             })
         } catch (e) {
@@ -61,6 +116,6 @@ export async function updateProfile(formData: FormData) {
 
     } catch (error) {
         console.error('Error updating profile:', error)
-        return { success: false, error: 'Failed to update profile' }
+        return { success: false, error: 'فشل تحديث الملف الشخصي' }
     }
 }

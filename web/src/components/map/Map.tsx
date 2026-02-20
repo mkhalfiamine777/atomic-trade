@@ -21,17 +21,20 @@ import { LocationUser, Listing, Story, Post } from "@/types"
 import { MapControls, RecenterButton } from './MapControls'
 import { MapMarker, MapItem } from './MapMarker'
 import { getAllActiveUsers } from '@/actions/map'
+import { ZoneGridLayer } from './ZoneGridLayer'
 
 export default function Map({
     currentUserId,
     userType = 'INDIVIDUAL',
     refreshTrigger = 0,
-    isLocationVisible = true
+    isLocationVisible = true,
+    showZoneGrid = false
 }: {
     currentUserId?: string | null
     userType?: string
     refreshTrigger?: number
     isLocationVisible?: boolean
+    showZoneGrid?: boolean
 }) {
     const router = useRouter()
     const { coordinates, loading, error } = useGeolocation()
@@ -215,6 +218,9 @@ export default function Map({
                         onViewStory={(story) => setSelectedStory(story)}
                     />
                 ))}
+
+                {/* 🏰 Zone Grid Layer (Conditional) */}
+                {showZoneGrid && <ZoneGridLayer currentUserId={currentUserId} />}
 
             </MapContainer>
 

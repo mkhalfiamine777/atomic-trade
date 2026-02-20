@@ -32,12 +32,39 @@
 
 ## 📜 3. سجل الإنجازات (Achievement Log)
 
-### 📅 18-02-2026 — الجلسة 9 (Active: Zone Grid Implementation)
-*   **Current Focus:** تنفيذ نظام Zones (Schema + Logic + UI).
-*   **Planned:**
-    *   إنشاء `ZoneMaster` Model في Prisma.
-    *   تطوير `ZoneService` لحساب GeoHash.
-    *   عرض الشبكة (Grid Overlay) على الخريطة.
+### 📅 20-02-2026 — الجلسة 10 (Zone Grid Activation & Styling)
+*   **الإنجاز: 10.4 تفعيل تقسيم المناطق (Zone Grid Activation):**
+    *   تثبيت `ngeohash` وربطه بـ `ZoneGridLayer.tsx` لعرض الشبكة الجغرافية بدقة.
+    *   تفعيل منطق `ZoneMaster` (Prisma) وجلب البيانات الحقيقية (المالك، الضريبة).
+    *   إصلاح خطأ `useLeafletContext` عبر إعادة هيكلة المكون داخل `MapContainer`.
+*   **الإنجاز: 🕹️ التحكم والتفاعل (Control & Interaction):**
+    *   إضافة زر **Toggle** (🛡️/⚔️) في `SettingsDrawer` للتحكم في ظهور الشبكة.
+    *   ربط الحالة (`showZoneGrid`) بـ `Map.tsx` لعرض الطبقة عند الطلب فقط.
+*   **الإنجاز: 🎨 تصميم النيون (Cyberpunk Styling):**
+    *   تطبيق لوحة ألوان متوهجة: **Emerald** (مملكتي)، **Amber** (محتلة)، **Cyan** (حرة).
+    *   إضافة تأثيرات بصرية متقدمة: `drop-shadow` للحدود، و `backdrop-blur` للنوافذ المنبثقة.
+    *   تصميم **Popup** مستقبلي شفاف (Glassmorphism) مع زر شراء متوهج.
+*   **الإنجاز: 🔧 التحضير للمحتوى (Content Prep):**
+    *   تحديث `getProfileContent.ts` لدعم عدّاد التفاعلات (`_count.likes`, `_count.comments`).
+    *   تنظيف التكرار وحذف الملفات الزائدة.
+*   **التحقق:** الخريطة تعمل بسلالة، التصميم مبهر، والبيانات Backend جاهزة للخطوة القادمة.
+
+### 📅 18-02-2026 — الجلسة 9 (Active: Core Vision & Profile Redesign)
+*   **الإنجاز: 📜 الوثيقة التأسيسية (Core Vision Integration):**
+    *   استخراج الرؤية الكاملة من 99 وثيقة في `core_vision_report.md`.
+    *   ربط الوثيقة ببروتوكول الذكاء الاصطناعي (`AI_mkhalfiAmine.md`) وبداية الجلسة (`session_start`).
+*   **الإنجاز: 🎥 توحيد الـ Feed (Unified Exploration):**
+    *   دمج الفيديو، الصور، والقصص في `UnifiedFeed`.
+    *   تطوير `ImageViewer.tsx` لعرض الصور والقصص بتصميم غامر.
+    *   تحديث خوارزمية `getMixedFeed` بخلط عشوائي حقيقي (Fisher-Yates) ودعم `MapStory`.
+*   **الإنجاز: 👤 واجهة الملف الشخصي (Premium Profile):**
+    *   إعادة تصميم `ProfileHeader.tsx` بتصميم Glassmorphism + Neon احترافي.
+    *   إضافة مؤشرات بصرية لنوع المستخدم (فرد/متجر/شركة) وشريط الثقة المتحرك.
+    *   تطبيق `StickyTabs` للتنقل السلس (محتوى، منتجات، طلبات).
+*   **الإنجاز: 🔧 إصلاحات الجودة والأمان (Session Audit):**
+    *   إصلاح 5 أخطاء حرجة (Prisma Models, Types, Imports).
+    *   تنظيف الكود واعتماد أنواع صريحة لضمان الاستقرار.
+*   **التحقق:** Build ناجح (0 أخطاء) والنشر على Railway ✅.
 
 ### 📅 17-02-2026 — الجلسة 8 (Finalizing Phase 10)
 *   **الإنجاز: 10.4 Zone Grid Implementation:**
