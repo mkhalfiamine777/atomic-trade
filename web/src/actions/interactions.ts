@@ -128,21 +128,21 @@ export async function addComment(targetId: string, content: string) {
     }
 }
 
-export async function interactWithUser(targetUserId: string, actorUserId: string, type: 'LIKE' | 'LOVE') {
+export async function interactWithUser(targetUserId: string, type: 'LIKE' | 'LOVE') {
     try {
         const cookieStore = await cookies()
         const userId = cookieStore.get('user_id')?.value
-        if (!userId || userId !== actorUserId) return { success: false, error: 'Unauthorized' }
+        if (!userId) return { success: false, error: 'Unauthorized' }
 
         const existing = await db.interaction.findFirst({
-            where: { userId: actorUserId, targetUserId, type }
+            where: { userId: userId, targetUserId, type }
         })
         if (existing) {
             await db.interaction.delete({ where: { id: existing.id } })
             return { success: true, action: 'removed' }
         }
         await db.interaction.create({
-            data: { type, userId: actorUserId, targetUserId }
+            data: { type, userId: userId, targetUserId }
         })
         return { success: true, action: 'added' }
     } catch (error) {
@@ -151,21 +151,21 @@ export async function interactWithUser(targetUserId: string, actorUserId: string
     }
 }
 
-export async function interactWithListing(listingId: string, actorUserId: string, type: 'LIKE' | 'LOVE') {
+export async function interactWithListing(listingId: string, type: 'LIKE' | 'LOVE') {
     try {
         const cookieStore = await cookies()
         const userId = cookieStore.get('user_id')?.value
-        if (!userId || userId !== actorUserId) return { success: false, error: 'Unauthorized' }
+        if (!userId) return { success: false, error: 'Unauthorized' }
 
         const existing = await db.interaction.findFirst({
-            where: { userId: actorUserId, listingId, type }
+            where: { userId: userId, listingId, type }
         })
         if (existing) {
             await db.interaction.delete({ where: { id: existing.id } })
             return { success: true, action: 'removed' }
         }
         await db.interaction.create({
-            data: { type, userId: actorUserId, listingId }
+            data: { type, userId: userId, listingId }
         })
         return { success: true, action: 'added' }
     } catch (error) {

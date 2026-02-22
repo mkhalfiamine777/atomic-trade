@@ -92,6 +92,7 @@ model Listing {
   images      String
   type        ListingType @default(PRODUCT)
   category    String?  // e.g. FOOD, ELECTRONICS
+  subcategory String?  // Standardized identifier from catalog
   latitude    Float
   longitude   Float
   sellerId    String

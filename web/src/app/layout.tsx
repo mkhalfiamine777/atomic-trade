@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { Toaster } from 'sonner'
 import SocketStatus from '@/components/debug/SocketStatus'
 import { SocketProvider } from '@/providers/SocketProvider'
+import { SearchMenu } from '@/components/ui/SearchMenu'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -36,9 +37,10 @@ export default function RootLayout({
                 suppressHydrationWarning
             >
                 <SocketProvider>
+                    <SearchMenu />
                     {children}
                     <SocketStatus />
-                    <Toaster position="top-right" richColors />
+                    <Toaster position="top-left" richColors />
                 </SocketProvider>
             </body>
         </html>

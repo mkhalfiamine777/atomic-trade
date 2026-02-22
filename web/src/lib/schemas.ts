@@ -21,6 +21,7 @@ export const createListingSchema = z.object({
     price: z.coerce.number().min(0, { message: "السعر يجب أن يكون رقماً موجباً" }),
     type: z.nativeEnum(ListingType),
     category: z.string().min(1, { message: "التصنيف مطلوب" }),
+    subcategory: z.string().optional(),
     imageUrl: z.string().optional(), // URL from Uploadthing
     latitude: z.coerce.number().optional(),
     longitude: z.coerce.number().optional(),

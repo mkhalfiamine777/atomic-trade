@@ -25,6 +25,9 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
                 isVerified: true,
                 type: true,
                 shopCategory: true,
+                bio: true,
+                latitude: true,
+                longitude: true,
             }
         })
 

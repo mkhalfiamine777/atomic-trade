@@ -35,7 +35,10 @@ export async function updateUserLocation(lat: number, lng: number) {
 
             // Move active stories
             await db.mapStory.updateMany({
-                where: { userId: userId },
+                where: {
+                    userId: userId,
+                    expiresAt: { gt: new Date() }
+                },
                 data: { latitude: lat, longitude: lng }
             })
         }

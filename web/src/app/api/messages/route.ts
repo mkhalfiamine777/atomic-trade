@@ -67,13 +67,6 @@ export async function GET(req: Request) {
                 const id1 = targetConversationId.substring(5, 41);
                 const id2 = targetConversationId.substring(42, 78);
 
-                const existing = await prisma.conversation.findFirst({
-                    where: {
-                        AND: [{ participant1Id: id1 }, { participant2Id: id2 }] // Order matters in scheme? OR logic needed
-                    }
-                });
-                // Our schema relations don't enforce order strictly in search without OR usually, but let's check
-                // actually standard pattern is:
                 const real = await prisma.conversation.findFirst({
                     where: {
                         OR: [

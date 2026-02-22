@@ -27,10 +27,20 @@ app.prepare().then(() => {
     io.on('connection', (socket) => {
         console.log(`🟢 Socket connected: ${socket.id}`)
 
+        // ── Auth Check (Simple cookie extraction) ────────────────
+        const cookiesAttr = socket.handshake.headers.cookie;
+        const userId = cookiesAttr?.split(';').find(c => c.trim().startsWith('user_id='))?.split('=')[1];
+
         // ── Join chat room ──────────────────────────────────
         socket.on('join_room', (roomId: string) => {
+            // Security: Only allow if it's a valid roomId and user is authenticated
+            // In a full implementation, we'd verify the user is a participant of the conversation roomId
+            if (!userId) {
+                console.warn(`⚠️ Unauthenticated socket ${socket.id} tried to join room ${roomId}`);
+                return;
+            }
             socket.join(roomId)
-            console.log(`📌 ${socket.id} joined room: ${roomId}`)
+            console.log(`📌 ${socket.id} (User: ${userId}) joined room: ${roomId}`)
         })
 
         // ── Send message → broadcast to room ────────────────

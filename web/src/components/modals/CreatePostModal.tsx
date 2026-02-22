@@ -44,10 +44,10 @@ export function CreatePostModal({ isOpen, onClose, userId, onSuccess }: CreatePo
 
         // Pass location to server action
         const result = await createPost(
-            userId,
             caption,
             mediaUrl,
             'POST',
+            'IMAGE',
             coordinates.lat,
             coordinates.lng
         )

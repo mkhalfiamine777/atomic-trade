@@ -22,6 +22,7 @@ export async function createListing(formData: FormData) {
         description: formData.get('description'),
         type: formData.get('type') || ListingType.PRODUCT,
         category: formData.get('category'),
+        subcategory: formData.get('subcategory'),
         imageUrl: formData.get('imageUrl'),
         latitude: formData.get('lat'),
         longitude: formData.get('lng'),
@@ -34,7 +35,7 @@ export async function createListing(formData: FormData) {
         return { error: errors.title?.[0] || errors.price?.[0] || "بيانات غير صالحة" }
     }
 
-    const { title, price, description, type, category, imageUrl, latitude, longitude } = validatedFields.data
+    const { title, price, description, type, category, subcategory, imageUrl, latitude, longitude } = validatedFields.data
 
     // 3. Logic: Logic requires image for Product but not Request
     if (type === ListingType.PRODUCT && !imageUrl) {
@@ -48,7 +49,7 @@ export async function createListing(formData: FormData) {
 
     try {
         // 4. Create Listing in DB
-        await db.listing.create({
+        const newListing = await db.listing.create({
             data: {
                 title,
                 price,
@@ -56,13 +57,34 @@ export async function createListing(formData: FormData) {
                 images: imageUrl || '', // Saved URL
                 type,
                 category: category,
+                subcategory: subcategory,
                 latitude,
                 longitude,
                 sellerId: userId
             }
         })
 
-        // 5. Update UI
+        // 5. Smart Matching Engine 🎯
+        if (category && subcategory) {
+            const counterpartType = type === ListingType.PRODUCT ? ListingType.REQUEST : ListingType.PRODUCT;
+            const matches = await db.listing.findMany({
+                where: {
+                    category: category,
+                    subcategory: subcategory,
+                    type: counterpartType,
+                    isSold: false,
+                    sellerId: { not: userId } // Don't match with own listings
+                },
+                select: { id: true, sellerId: true }
+            });
+
+            if (matches.length > 0) {
+                console.log(`[Matching Engine] 🎯 Found ${matches.length} matches for ${category} -> ${subcategory}!`);
+                // TODO: Emit socket events to notify the matched users.
+            }
+        }
+
+        // 6. Update UI
         revalidatePath('/dashboard')
         return { success: true }
     } catch (error: unknown) {

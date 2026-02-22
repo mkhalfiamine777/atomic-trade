@@ -96,7 +96,7 @@ function ZoneGridContent({ currentUserId }: { currentUserId?: string | null }) {
         toast.loading('جاري شراء المنطقة...', { id: 'buy-zone' })
 
         try {
-            const result = await purchaseZone(zone.geohash, currentUserId)
+            const result = await purchaseZone(zone.geohash)
             if (result.error) {
                 toast.error(result.error, { id: 'buy-zone' })
             } else {

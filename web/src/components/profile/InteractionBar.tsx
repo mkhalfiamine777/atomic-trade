@@ -39,7 +39,7 @@ export function InteractionBar({
         // If profile interaction
         if (targetUserId && currentUserId) {
             setIsLoading(true)
-            const result = await interactWithUser(targetUserId, currentUserId, 'LIKE')
+            const result = await interactWithUser(targetUserId, 'LIKE')
             setIsLoading(false)
             if (result.success) {
                 setLikes(prev => prev + 1)
@@ -51,7 +51,7 @@ export function InteractionBar({
         // If listing interaction
         if (listingId && currentUserId) {
             setIsLoading(true)
-            const result = await interactWithListing(listingId, currentUserId, 'LIKE')
+            const result = await interactWithListing(listingId, 'LIKE')
             setIsLoading(false)
             if (result.success) {
                 if (result.action === 'added') {
@@ -77,7 +77,7 @@ export function InteractionBar({
         // If profile interaction
         if (targetUserId && currentUserId) {
             setIsLoading(true)
-            const result = await interactWithUser(targetUserId, currentUserId, 'LOVE')
+            const result = await interactWithUser(targetUserId, 'LOVE')
             setIsLoading(false)
             if (result.success) {
                 setLoves(prev => prev + 1)
@@ -90,7 +90,7 @@ export function InteractionBar({
         // If listing interaction
         if (listingId && currentUserId) {
             setIsLoading(true)
-            const result = await interactWithListing(listingId, currentUserId, 'LOVE')
+            const result = await interactWithListing(listingId, 'LOVE')
             setIsLoading(false)
             if (result.success) {
                 if (result.action === 'added') {

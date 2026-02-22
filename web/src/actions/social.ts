@@ -1,19 +1,28 @@
 'use server'
 
+import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { MediaType } from '@prisma/client'
 
 export async function createPost(
-    userId: string,
     caption: string,
     mediaUrl: string,
     type: 'POST' | 'OFFER' = 'POST',
+    mediaType: 'IMAGE' | 'VIDEO' = 'IMAGE',
     latitude?: number,
     longitude?: number
 ) {
     try {
-        if (!userId) throw new Error('User ID is required')
-        if (!mediaUrl) throw new Error('Media URL is required')
+        const cookieStore = await cookies()
+        const userId = cookieStore.get('user_id')?.value
+
+        if (!userId) {
+            return { success: false, error: 'Unauthorized: Please login' }
+        }
+        if (!mediaUrl) {
+            return { success: false, error: 'Media URL is required' }
+        }
 
         const post = await db.socialPost.create({
             data: {
@@ -21,13 +30,18 @@ export async function createPost(
                 caption,
                 mediaUrl,
                 type,
-                mediaType: 'IMAGE', // Defaulting to Image for MVP
+                mediaType: mediaType as MediaType,
                 latitude,
                 longitude
             }
         })
 
-        revalidatePath(`/u/${userId}`)
+        // Fetch username for correct revalidation path
+        const user = await db.user.findUnique({ where: { id: userId }, select: { username: true } })
+        if (user?.username) {
+            revalidatePath(`/u/${user.username}`)
+        }
+        revalidatePath('/dashboard')
         return { success: true, post }
     } catch (error) {
         console.error('Error creating post:', error)
@@ -47,7 +61,9 @@ export async function getMapPosts() {
             include: {
                 user: {
                     select: {
+                        id: true,
                         name: true,
+                        username: true,
                         avatarUrl: true,
                         reputationScore: true,
                         isVerified: true,

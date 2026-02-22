@@ -47,10 +47,10 @@ export function CreatePostButton({ userId }: { userId: string }) {
 
         // Pass location to server action
         const result = await createPost(
-            userId,
             caption,
             mediaUrl,
             'POST',
+            'IMAGE',
             location?.lat,
             location?.lng
         )

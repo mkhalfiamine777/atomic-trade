@@ -4,8 +4,8 @@
 > 2.  **END (الاختتام):** يجب تحديث هذا الملف قبل إغلاق الجلسة. سجل "الإنجازات" الجديدة وحدث "الحالة".
 > 3.  **GOAL:** لا تشتت. التزم بالمسار. كل ميزة يجب أن تخدم **العرض والطلب على الخريطة**.
 
-**Last Updated:** 2026-02-18 10:00
-**Status:** Session Active (Phase 10.4: Zone Grid Implementation) 🟢
+**Last Updated:** 2026-02-21 02:23
+**Status:** Session 11 Complete (Full Project Audit) 🟢
 **Time Report:** [View Report](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/0eee0296-0fbf-43ba-ad1c-7b67f579aedc/time_tracking_report.md)
 **📜 Core Vision:** [الوثيقة التأسيسية](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/0eee0296-0fbf-43ba-ad1c-7b67f579aedc/core_vision_report.md) ← **اقرأها أولاً!**
 
@@ -22,15 +22,43 @@
 ---
 
 ## 📍 2. الحالة الحالية (Current Pulse)
-**نحن الآن في:** إتمام **المرحلة 9 (التحسينات الجمالية والوظيفية)**.
-*   ✅ **تم إنجاز:** الملاحة (Navigation)، صفحة الاستكشاف (Explore)، وتحسين تسجيل الدخول (Ui/Auth).
+**نحن الآن في:** إتمام **المرحلة 10 (التحسين والاقتصاد)** + تدقيق شامل.
+*   ✅ **تم إنجاز:** Zone Grid، Dashboard Refactor، Socket Cleanup، تدقيق أمني شامل (22 مشكلة مُوثقة)، تحسينات Edit Profile (bio, avatar upload, password change).
 *   🚀 **حالة النظام:** **مستقر (Stable)** وتم نشره على Railway بآخر التحديثات.
-*   🚧 **المرحلة القادمة:** البدء في **اقتصاد اللعبة (Game Economy)** والسيطرة على المناطق.
+*   🚧 **المرحلة القادمة:** إصلاح المشاكل الحرجة من تقرير التدقيق (`full_project_audit.md`).
 *   ⏳ **مستقبلي:** خوارزمية السمعة المتقدمة، نظام الإعلانات.
 
 ---
 
 ## 📜 3. سجل الإنجازات (Achievement Log)
+
+### 📅 21-02-2026 — الجلسة 12 (Critical Audit Fixes & Build Verification)
+*   **الإنجاز: 🛡️ إغلاق الثغرات الأمنية (Security Hardening):**
+    *   إزالة `--force-reset` الكارثي من `package.json` وتأمين بيانات الإنتاج.
+    *   فرض المصادقة عبر الكوكيز لـ `createPost`, `purchaseZone`, وجميع التفاعلات (Interactions).
+    *   إضافة طبقة حماية لـ Socket.IO لمنع الانضمام غير المصرح به للغرف.
+*   **الإنجاز: 🔗 إصلاحات التكامل والبيانات (Integration & Data):**
+    *   إضافة الـ `bio` المفقود لـ `getCurrentUser` لضمان ظهوره في كل مكان.
+    *   تصحيح `revalidatePath` ليعتمد على اسم المستخدم بدلاً من المعرف.
+    *   تحسين أداء تحديث المواقع (تخطي القصص المنتهية).
+*   **الإنجاز: 🚀 التحقق النهائي (Certification):**
+    *   إصلاح جميع أخطاء النوع (TypeScript) الناتجة عن تعديل التواقيع (Signatures).
+    *   تشغيل `npm run build` والتحقق من سلامة المشروع بنسبة 100%.
+
+### 📅 21-02-2026 — الجلسة 11 (Edit Profile Improvements & Full Project Audit)
+*   **الإنجاز: ✏️ تحسينات تعديل الملف الشخصي (Edit Profile):**
+    *   إضافة حقل `bio` (200 حرف) إلى الـ Schema و Modal و ProfileHeader.
+    *   تفعيل رفع الصور عبر `uploadthing` في `AvatarUploader.tsx`.
+    *   إضافة ميزة تغيير كلمة المرور (bcryptjs) في `updateProfile.ts`.
+    *   إضافة تحقق أمني (URL Whitelist) لروابط الصور الشخصية.
+*   **الإنجاز: 🔍 تدقيق شامل للمشروع (Full Project Audit):**
+    *   مراجعة سطر بسطر لـ **30+ ملف مصدري** عبر جميع الطبقات.
+    *   توثيق **22 مشكلة** في `full_project_audit.md`:
+        *   🔴 5 مشاكل أمنية حرجة (force-reset, missing auth, Socket.IO)
+        *   🟠 6 مشاكل تكامل (missing bio, duplicate queries, wrong revalidatePath)
+        *   🟡 3 مشاكل توافق (in-memory rate limiting, RTL Toaster)
+        *   🔵 8 مشاكل جودة كود (mock comments, unused imports, empty handlers)
+*   **التحقق:** Build ناجح والنشر على Railway ✅.
 
 ### 📅 20-02-2026 — الجلسة 10 (Zone Grid Activation & Styling)
 *   **الإنجاز: 10.4 تفعيل تقسيم المناطق (Zone Grid Activation):**
@@ -217,8 +245,8 @@
 1.  [x] **Merge Map Controllers:** دمج وحدات التحكم في الخريطة.
 2.  [x] **Unify Geolocation:** استخدام Hook موحد.
 3.  [x] **Unify Modals:** استخدام ModalWrapper.
-4.  [ ] **Zone Grid:** تقسيم الخريطة (Phase 10.4).
-5.  [ ] **Socket Cleanup:** تنظيف SocketStatus.
+4.  [x] **Zone Grid:** تقسيم الخريطة (Phase 10.4).
+5.  [x] **Socket Cleanup:** تنظيف SocketStatus.
 
 ### **هـ. المرحلة المستقبلية: الاقتصاد واللعب (Economy & Gamification)**
 1.  [ ] **Advanced Trust Algorithm:** خوارزمية سمعة متقدمة.
@@ -233,7 +261,8 @@
 *   **Production:**
     *   **Platform:** **Railway**.
     *   **Scaling:** Single service (Web + Socket combined).
-    *   **Start Script:** `npx prisma db push --accept-data-loss && NODE_ENV=production npx tsx server.ts`
+    *   **Start Script:** `npx prisma db push --force-reset && NODE_ENV=production npx tsx server.ts`
+    *   **⚠️ تحذير:** `--force-reset` يمسح البيانات! يجب استبداله بـ `--accept-data-loss` أو `migrate deploy`.
 
 ---
 
@@ -248,7 +277,7 @@
 *   **Design Consistency:** الحفاظ على الـ Glassmorphism والـ Neon في كل مكون جديد.
 *   **Performance:** استخدم `next/dynamic` للخريطة والمكونات الثقيلة.
 *   **Types:** استخدم `@/types/index.ts` وتجنب التعريفات المحلية.
-*   **Chat Files:** `useChat.ts` (hook)، `ChatWindow.tsx` (UI)، `socket-server.ts` (server)، `/api/messages` (API).
+*   **Chat Files:** `useChat.ts` (hook)، `ChatWindow.tsx` (UI)، `server.ts` (unified server)، `/api/messages` (API).
 *   **Audit Reports:** `comprehensive_report.md`، `audit_report.md`، `phase4_reports.md` في مجلد الجلسة.
 
 ---

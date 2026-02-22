@@ -1,7 +1,6 @@
 'use server'
 
 import { cookies } from 'next/headers'
-import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 
 import { getOrCreateConversation } from '@/services/conversationService'

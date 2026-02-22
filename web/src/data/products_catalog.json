@@ -1,0 +1,238 @@
+{
+    "ELECTRONICS": {
+        "label": "الإلكترونيات",
+        "icon": "📱",
+        "subcategories": [
+            {
+                "id": "mobile_phones",
+                "label": "هواتف ذكية"
+            },
+            {
+                "id": "laptops_pc",
+                "label": "حواسيب ومكتبيات"
+            },
+            {
+                "id": "tablets",
+                "label": "أجهزة لوحية (Tablets)"
+            },
+            {
+                "id": "smartwatches",
+                "label": "ساعات ذكية"
+            },
+            {
+                "id": "audio_gaming",
+                "label": "صوتيات وألعاب"
+            },
+            {
+                "id": "tv_appliances",
+                "label": "شاشات وأجهزة منزلية"
+            },
+            {
+                "id": "tech_accessories",
+                "label": "ملحقات وكابلات"
+            }
+        ]
+    },
+    "FASHION": {
+        "label": "أزياء وملابس",
+        "icon": "👕",
+        "subcategories": [
+            {
+                "id": "mens_clothing",
+                "label": "ملابس رجالية"
+            },
+            {
+                "id": "womens_clothing",
+                "label": "ملابس نسائية"
+            },
+            {
+                "id": "kids_clothing",
+                "label": "ملابس أطفال"
+            },
+            {
+                "id": "shoes_sneakers",
+                "label": "أحذية وأحذية رياضية"
+            },
+            {
+                "id": "bags_wallets",
+                "label": "حقائب ومحافظ"
+            },
+            {
+                "id": "jewelry_watches",
+                "label": "مجوهرات وساعات"
+            }
+        ]
+    },
+    "FOOD": {
+        "label": "طعام ومقاهي",
+        "icon": "🍔",
+        "subcategories": [
+            {
+                "id": "fast_food",
+                "label": "وجبات سريعة"
+            },
+            {
+                "id": "traditional_food",
+                "label": "أكل تقليدي"
+            },
+            {
+                "id": "sweets_bakery",
+                "label": "حلويات ومخابز"
+            },
+            {
+                "id": "coffee_drinks",
+                "label": "قهوة ومشروبات"
+            },
+            {
+                "id": "healthy_diet",
+                "label": "أكل صحي ودايت"
+            }
+        ]
+    },
+    "GROCERY": {
+        "label": "بقالة ومواد غذائية",
+        "icon": "🛒",
+        "subcategories": [
+            {
+                "id": "fresh_produce",
+                "label": "خضار وفواكه"
+            },
+            {
+                "id": "meat_poultry",
+                "label": "لحوم ودواجن"
+            },
+            {
+                "id": "seafood",
+                "label": "أسماك وفواكه بحر"
+            },
+            {
+                "id": "dairy_eggs",
+                "label": "ألبان وأجبان"
+            },
+            {
+                "id": "pantry_spices",
+                "label": "توابل ومؤن"
+            },
+            {
+                "id": "cleaning_supplies",
+                "label": "مواد تنظيف"
+            }
+        ]
+    },
+    "SERVICES": {
+        "label": "خدمات وصيانة",
+        "icon": "🛠️",
+        "subcategories": [
+            {
+                "id": "tech_repair",
+                "label": "إصلاح إلكترونيات"
+            },
+            {
+                "id": "home_maintenance",
+                "label": "صيانة منزلية (سباكة، كهرباء)"
+            },
+            {
+                "id": "auto_repair",
+                "label": "ميكانيكا السيارات"
+            },
+            {
+                "id": "cleaning_services",
+                "label": "خدمات تنظيف"
+            },
+            {
+                "id": "beauty_salon",
+                "label": "صالون وحلاقة"
+            },
+            {
+                "id": "freelance_digital",
+                "label": "خدمات رقمية وتصميم"
+            },
+            {
+                "id": "delivery_transport",
+                "label": "توصيل ونقل"
+            }
+        ]
+    },
+    "REAL_ESTATE": {
+        "label": "عقارات وإيجارات",
+        "icon": "🏠",
+        "subcategories": [
+            {
+                "id": "apartment_rent",
+                "label": "شقق للإيجار"
+            },
+            {
+                "id": "apartment_sale",
+                "label": "شقق للبيع"
+            },
+            {
+                "id": "house_villa",
+                "label": "منازل وفيلات"
+            },
+            {
+                "id": "commercial_space",
+                "label": "محلات تجارية ومكاتب"
+            },
+            {
+                "id": "land",
+                "label": "أراضي"
+            },
+            {
+                "id": "room_share",
+                "label": "سكن مشترك"
+            }
+        ]
+    },
+    "VEHICLES": {
+        "label": "سيارات ومركبات",
+        "icon": "🚗",
+        "subcategories": [
+            {
+                "id": "cars_sedan",
+                "label": "سيارات (Sedan/SUV)"
+            },
+            {
+                "id": "motorcycles",
+                "label": "دراجات نارية"
+            },
+            {
+                "id": "bicycles",
+                "label": "دراجات هوائية"
+            },
+            {
+                "id": "commercial_vehicles",
+                "label": "مركبات تجارية ونقل"
+            },
+            {
+                "id": "auto_parts",
+                "label": "قطع غيار واكسسوارات"
+            }
+        ]
+    },
+    "HOME_DECOR": {
+        "label": "أثاث وديكور",
+        "icon": "🛋️",
+        "subcategories": [
+            {
+                "id": "living_room",
+                "label": "أثاث صالة"
+            },
+            {
+                "id": "bedroom",
+                "label": "أثاث غرف نوم"
+            },
+            {
+                "id": "kitchen_dining",
+                "label": "أثاث مطبخ وسفرة"
+            },
+            {
+                "id": "decor_art",
+                "label": "ديكور وتحف"
+            },
+            {
+                "id": "garden_outdoor",
+                "label": "جلسات خارجية وحدائق"
+            }
+        ]
+    }
+}

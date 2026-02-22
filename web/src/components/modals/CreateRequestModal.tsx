@@ -8,6 +8,7 @@ import { useGeolocation } from '@/hooks/useGeolocation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { CascadingProductSelect } from '@/components/ui/CascadingProductSelect'
 
 interface Props {
     isOpen: boolean
@@ -55,29 +56,16 @@ export function CreateRequestModal({ isOpen, onClose }: Props) {
             </p>
 
             <form action={handleSubmit} className="space-y-4 text-right" dir="rtl">
-                <div>
-                    <label className="block text-sm text-zinc-400 mb-1">ماذا تريد؟</label>
+                <CascadingProductSelect />
+
+                <div className="pt-2">
+                    <label className="block text-sm text-zinc-400 mb-1">تفاصيل إضافية (مطلوبة)</label>
                     <Input
                         name="title"
                         required
-                        className="focus:border-purple-500"
-                        placeholder="مثلاً: سمك طري، تلفاز مستعمل..."
+                        className="focus-visible:ring-purple-500"
+                        placeholder="مثلاً: أريد تلفاز مستعمل مقاس 42 بوصة"
                     />
-                </div>
-
-                <div>
-                    <label className="block text-sm text-zinc-400 mb-1">
-                        تصنيف الطلب
-                    </label>
-                    <select
-                        name="category"
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-lg h-10 px-3 focus:outline-none focus:border-purple-500 text-zinc-100"
-                    >
-                        <option value="GROCERY">🛒 مواد غذائية</option>
-                        <option value="FASHION">👕 ملابس</option>
-                        <option value="ELECTRONICS">📱 إلكترونيات</option>
-                        <option value="SERVICES">🔧 خدمات / صيانة</option>
-                    </select>
                 </div>
 
                 {/* Hidden Price for Requests (Optional offering price) */}

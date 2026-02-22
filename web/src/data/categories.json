@@ -1,0 +1,80 @@
+[
+    {
+        "id": "mobile",
+        "label": "هواتف ذكية",
+        "icon": "📱",
+        "category": "الإلكترونيات"
+    },
+    {
+        "id": "laptop",
+        "label": "حواسيب محمولة",
+        "icon": "💻",
+        "category": "الإلكترونيات"
+    },
+    {
+        "id": "accessories",
+        "label": "ملحقات إلكترونية",
+        "icon": "🎧",
+        "category": "الإلكترونيات"
+    },
+    {
+        "id": "screens",
+        "label": "شاشات وتلفزيونات",
+        "icon": "📺",
+        "category": "الإلكترونيات"
+    },
+    {
+        "id": "cameras",
+        "label": "كاميرات وتصوير",
+        "icon": "📸",
+        "category": "الإلكترونيات"
+    },
+    {
+        "id": "gaming",
+        "label": "أجهزة ألعاب",
+        "icon": "🎮",
+        "category": "الإلكترونيات"
+    },
+    {
+        "id": "smartwatch",
+        "label": "ساعات ذكية",
+        "icon": "⌚",
+        "category": "الإلكترونيات"
+    },
+    {
+        "id": "clothes",
+        "label": "أزياء وملابس",
+        "icon": "👕",
+        "category": "الموضة"
+    },
+    {
+        "id": "shoes",
+        "label": "أحذية رياضية وطبية",
+        "icon": "👟",
+        "category": "الموضة"
+    },
+    {
+        "id": "food",
+        "label": "مأكولات ومقاهي",
+        "icon": "🍔",
+        "category": "طعام وشراب"
+    },
+    {
+        "id": "grocery",
+        "label": "بقالة ومواد غذائية",
+        "icon": "🛒",
+        "category": "طعام وشراب"
+    },
+    {
+        "id": "services",
+        "label": "خدمات أعمال وصيانة",
+        "icon": "🛠️",
+        "category": "الخدمات"
+    },
+    {
+        "id": "realestate",
+        "label": "عقارات وإيجارات",
+        "icon": "🏠",
+        "category": "عقارات"
+    }
+]

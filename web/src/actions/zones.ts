@@ -1,9 +1,13 @@
 'use server'
 
+import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 
-export async function purchaseZone(geohash: string, userId: string) {
+export async function purchaseZone(geohash: string) {
+    const cookieStore = await cookies()
+    const userId = cookieStore.get('user_id')?.value
+
     if (!userId) {
         return { error: 'يجب عليك تسجيل الدخول أولاً' }
     }

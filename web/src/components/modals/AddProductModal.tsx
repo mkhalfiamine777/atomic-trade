@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useMediaUpload } from '@/hooks/useMediaUpload'
+import { CascadingProductSelect } from '@/components/ui/CascadingProductSelect'
 
 interface Props {
     isOpen: boolean
@@ -82,12 +83,15 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
             zIndex={9999}
         >
             <form onSubmit={handleSubmit} className="space-y-4 text-right" dir="rtl">
-                <div>
-                    <label className="block text-sm text-zinc-400 mb-1">اسم المنتج</label>
+                <CascadingProductSelect />
+
+                <div className="pt-2">
+                    <label className="block text-sm text-zinc-400 mb-1">تفاصيل إضافية (مطلوبة)</label>
                     <Input
                         name="title"
                         required
-                        placeholder="مثلاً: زيت زيتون بكر"
+                        placeholder="مثلاً: آيفون 15 بروماكس 256GB أزرق"
+                        className="focus-visible:ring-emerald-500"
                     />
                 </div>
 

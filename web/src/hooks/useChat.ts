@@ -24,7 +24,7 @@ export const useChat = (conversationId: string | null, userId: string | null) =>
         const fetchMessages = async () => {
             setIsLoading(true);
             try {
-                const res = await fetch(`/api/messages?conversationId=${conversationId}&userId=${userId}`);
+                const res = await fetch(`/api/messages?conversationId=${conversationId}`);
                 if (!res.ok) throw new Error("Failed to load messages");
                 const data = await res.json();
                 setMessages(data);
