@@ -204,6 +204,16 @@
 *   **الإنجاز:** إنشاء `getCurrentUser.ts` server action للمصادقة الحقيقية.
 *   **الإنجاز:** **تنظيف شامل:** حذف ملفات الاختبار، إزالة Debug Toolbar، تنظيف console.logs.
 
+### 📅 22-02-2026 — جلسة التطوير العصري (Smart Search & Product Matching)
+*   **الإنجاز:** إنشاء **بحث ذكي (Command Menu)** باستخدام `cmdk` مع تصميم Glassmorphism + اختصار `Ctrl+K`.
+*   **الإنجاز:** إنشاء **كتالوج منتجات هرمي عالمي** (`products_catalog.json`) يحتوي 8 فئات و40+ تصنيف فرعي.
+*   **الإنجاز:** بناء مكون **قوائم متتالية ذكية** (`CascadingProductSelect.tsx`) — فئة ← تصنيف ← تفاصيل.
+*   **الإنجاز:** تحديث **نافذة "إضافة منتج"** و **نافذة "اطلب ما تحتاج"** بالمكون الجديد.
+*   **الإنجاز:** بناء **محرك المطابقة الذكية (Matching Engine)** في `market.ts` — يبحث عن مطابقات بين العرض والطلب (نفس الفئة + التصنيف).
+*   **الإنجاز:** إضافة حقل `subcategory` لجدول `Listing` في Prisma ونشره على قاعدة البيانات.
+*   **الإنجاز:** تحديث **خارطة التطوير** (`TASK_TATWIR_3SRII.md`) بأقسام جديدة (القسم 6: Smart Matching + القسم 7: Admin Panel).
+*   **الإنجاز:** رفع ونشر التحديثات على **GitHub + Railway**.
+
 ### 📅 12-02-2026 — الجلسة 1 (Living Map Integration & Trust Economy)
 *   **الإنجاز:** تفعيل **Geo-tagging** للمنشورات الاجتماعية (Social Posts) وعرضها على الخريطة.
 *   **الإنجاز:** تطوير **CreatePostModal** وربطه بالقائمة العائمة (FAB).
@@ -248,8 +258,16 @@
 4.  [x] **Zone Grid:** تقسيم الخريطة (Phase 10.4).
 5.  [x] **Socket Cleanup:** تنظيف SocketStatus.
 
-### **هـ. المرحلة المستقبلية: الاقتصاد واللعب (Economy & Gamification)**
-1.  [ ] **Advanced Trust Algorithm:** خوارزمية سمعة متقدمة.
+### **و. المرحلة 11: البحث الذكي والمطابقة (Smart Search & Matching) - ✅ Completed**
+1.  [x] **Command Menu:** بحث ذكي بـ `cmdk` + Glassmorphism.
+2.  [x] **Product Catalog:** كتالوج هرمي موحد (8 فئات، 40+ تصنيف).
+3.  [x] **Cascading Dropdowns:** قوائم متتالية ذكية في نوافذ الإنشاء.
+4.  [x] **Matching Engine:** محرك بحث عن مطابقات بائع/مشتري.
+
+### **ز. المرحلة المستقبلية: لوحة تحكم إدارية + اقتصاد متقدم**
+1.  [ ] **Admin Panel:** لوحة إدارية لإدارة الفئات والتصنيفات.
+2.  [ ] **Socket.io Notifications:** إشعارات فورية عند المطابقة.
+3.  [ ] **Advanced Trust Algorithm:** خوارزمية سمعة متقدمة.
 
 ---
 
