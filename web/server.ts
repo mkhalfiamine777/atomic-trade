@@ -1,6 +1,7 @@
 import { createServer } from 'http'
 import next from 'next'
 import { Server } from 'socket.io'
+import { setIO } from './src/lib/socketEngine'
 
 const dev = process.env.NODE_ENV !== 'production'
 const hostname = '0.0.0.0' // Force binding to 0.0.0.0 for Railway
@@ -24,12 +25,21 @@ app.prepare().then(() => {
         },
     })
 
+    // Register IO globally for Server Actions access
+    setIO(io)
+
     io.on('connection', (socket) => {
         console.log(`🟢 Socket connected: ${socket.id}`)
 
         // ── Auth Check (Simple cookie extraction) ────────────────
         const cookiesAttr = socket.handshake.headers.cookie;
         const userId = cookiesAttr?.split(';').find(c => c.trim().startsWith('user_id='))?.split('=')[1];
+
+        // ── Auto-join user's personal notification room ─────
+        if (userId) {
+            socket.join(`user:${userId}`)
+            console.log(`🔔 ${socket.id} joined notification room: user:${userId}`)
+        }
 
         // ── Join chat room ──────────────────────────────────
         socket.on('join_room', (roomId: string) => {

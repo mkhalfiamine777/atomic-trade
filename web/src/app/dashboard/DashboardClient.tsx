@@ -13,6 +13,7 @@ import { BottomNav } from '@/components/layout/BottomNav'
 import { LogOut } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { SettingsDrawer } from '@/components/dashboard/SettingsDrawer'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 
 // Dynamically import Map to avoid SSR issues
 const Map = dynamic(() => import('@/components/map/Map'), {
@@ -130,8 +131,9 @@ export default function DashboardClient({
             {/* 📱 Bottom Navigation */}
             <BottomNav />
 
-            {/* 🍔 Menu Button (Replaces Logout) */}
-            <div className="absolute top-24 right-4 z-50">
+            {/* 🔔 Notifications & 🍔 Menu */}
+            <div className="absolute top-24 right-4 z-50 flex flex-col gap-3">
+                <NotificationBell />
                 <button
                     onClick={() => setIsSettingsOpen(true)}
                     className="w-10 h-10 bg-black/40 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors shadow-lg"

@@ -73,14 +73,50 @@ export async function createListing(formData: FormData) {
                     subcategory: subcategory,
                     type: counterpartType,
                     isSold: false,
-                    sellerId: { not: userId } // Don't match with own listings
+                    sellerId: { not: userId }
                 },
-                select: { id: true, sellerId: true }
+                select: { id: true, title: true, sellerId: true }
             });
 
             if (matches.length > 0) {
                 console.log(`[Matching Engine] 🎯 Found ${matches.length} matches for ${category} -> ${subcategory}!`);
-                // TODO: Emit socket events to notify the matched users.
+
+                // Emit Socket.io notifications
+                const { getIO } = await import('@/lib/socketEngine');
+                const io = getIO();
+
+                if (io) {
+                    const isProduct = type === ListingType.PRODUCT;
+
+                    // A. Notify the CREATOR of the new listing about existing matches
+                    io.to(`user:${userId}`).emit('match_found', {
+                        type: isProduct ? 'buyers_found' : 'sellers_found',
+                        message: isProduct
+                            ? `🎯 ${matches.length} شخص يبحث عن "${title}" بالقرب منك!`
+                            : `🎯 ${matches.length} بائع يعرض "${title}" بالقرب منك!`,
+                        matchCount: matches.length,
+                        category,
+                        subcategory,
+                        listingId: newListing.id,
+                        timestamp: new Date().toISOString()
+                    });
+
+                    // B. Notify EACH matched counterpart about the new listing
+                    for (const match of matches) {
+                        io.to(`user:${match.sellerId}`).emit('match_found', {
+                            type: isProduct ? 'new_product' : 'new_request',
+                            message: isProduct
+                                ? `🛍️ بائع جديد يعرض "${title}" — قد يناسب طلبك!`
+                                : `📣 شخص يبحث عن "${match.title}" — لديك ما يريد!`,
+                            category,
+                            subcategory,
+                            listingId: isProduct ? newListing.id : match.id,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+
+                    console.log(`[Matching Engine] 📨 Sent ${matches.length + 1} notifications`);
+                }
             }
         }
 
