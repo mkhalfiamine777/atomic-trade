@@ -307,7 +307,28 @@
 *   **Audit Reports:** `comprehensive_report.md`، `audit_report.md`، `phase4_reports.md` في مجلد الجلسة.
 
 ---
+
+## 📚 7. مكتبة التقارير الاستراتيجية (Strategic Reports Library)
+
+| التصنيف | التقرير الأساسي | الوصف والغرض |
+| :--- | :--- | :--- |
+| **التخطيط الشامل** | `Project_Overview_AR.md` | نظرة عامة شاملة على أهداف المشروع ورؤيته. |
+| **البنية التحتية** | `Project_Architectural_Report_AR.md` | تفصيل هندسة النظام (Next.js + Socket.io + Prisma). |
+| **هيكل الملفات** | `Project_Files_Report_AR.md` | خارطة طريق لجميع ملفات المشروع ووظائفها. |
+| **التطوير النشط** | `active_tasks/TASK_TATWIR_3SRII.md` | تتبع حي للمهام والميزات النوعية قيد التنفيذ. |
+| **التدقيق الفني** | `session_reports/Expert_Project_Audit.md` | مراجعة خبيرة للكود والأمن والأداء. |
+| **خارطة الطريق** | `session_reports/Master_Roadmap.md` | الجدول الزمني والمراحل الكبرى للمشروع. |
+| **الهندسة الاجتماعية** | `session_reports/Social_Architecture.md` | فلسفة عمل الـ Feed والشات والسمعة. |
+| **قواعد البيانات** | `session_reports/Database_Engineering_Report.md` | تحليل Schema والعلاقات وتحسين الاستعلامات. |
+| **المنشورات الحية** | `session_reports/Implementation_Plan_Live_Stories.md` | خطة تنفيذ ميزة الستوريز والموقع الجغرافي. |
+| **التجارة الذكية** | `session_reports/Session_Report_2026_02_22.md` | توثيق محرك المطابقة والبحث الذكي. |
+| **الإشعارات** | `session_reports/Session_Report_2026_02_23.md` | توثيق نظام Socket.io والـ Notification Bell. |
+
+**⚠️ نصيحة:** ارجع لهذه التقارير عند الرغبة في فهم "لماذا" تم اتخاذ قرار تصميمي معين في الكود. 🎯
+
+---
 **⚠️ تعليمات للمساعد (AI Instructions):**
 1.  اقرأ هذا الملف **في بداية كل جلسة** لتحديث السياق.
 2.  قم بتحديث قسم "سجل الإنجازات" و"الحالة الحالية" **في نهاية كل جلسة**.
 3.  لا تبدأ أي مهمة جديدة قبل إنهاء المهمة الحالية في "خارطة الطريق النشطة".
+4.  قم بتحديث "مكتبة التقارير" عند إنشاء أي تقرير استراتيجي جديد.
