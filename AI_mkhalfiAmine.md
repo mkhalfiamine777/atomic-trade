@@ -204,6 +204,14 @@
 *   **الإنجاز:** إنشاء `getCurrentUser.ts` server action للمصادقة الحقيقية.
 *   **الإنجاز:** **تنظيف شامل:** حذف ملفات الاختبار، إزالة Debug Toolbar، تنظيف console.logs.
 
+### 📅 23-02-2026 — جلسة الإشعارات الفورية (Real-time Notifications)
+*   **الإنجاز:** إنشاء **جسر Socket.io العالمي** (`socketEngine.ts`) لمشاركة السيرفر مع الـ Server Actions.
+*   **الإنجاز:** تحديث `server.ts` لربط المستخدمين **بغرف خاصة** (`user:id`) عند الاتصال لتمكين الإشعارات الموجهة.
+*   **الإنجاز:** تطوير **جرس إشعارات ذكي (NotificationBell)** في الداشبورد مع عداد (Badge) وقائمة منسدلة.
+*   **الإنجاز:** ربط **محرك المطابقة (Matching Engine)** بالـ Sockets لإرسال تنبيهات فورية ثنائية الاتجاه (للبائع والمشتري).
+*   **الإنجاز:** تفعيل وتحديث **قاعدة بيانات Docker** والتأكد من استقرار السيرفر محلياً وعالمياً.
+*   **الإنجاز:** رفع جميع التغييرات على **GitHub** وتفعيل النشر في **Railway**.
+
 ### 📅 22-02-2026 — جلسة التطوير العصري (Smart Search & Product Matching)
 *   **الإنجاز:** إنشاء **بحث ذكي (Command Menu)** باستخدام `cmdk` مع تصميم Glassmorphism + اختصار `Ctrl+K`.
 *   **الإنجاز:** إنشاء **كتالوج منتجات هرمي عالمي** (`products_catalog.json`) يحتوي 8 فئات و40+ تصنيف فرعي.
@@ -258,15 +266,15 @@
 4.  [x] **Zone Grid:** تقسيم الخريطة (Phase 10.4).
 5.  [x] **Socket Cleanup:** تنظيف SocketStatus.
 
-### **و. المرحلة 11: البحث الذكي والمطابقة (Smart Search & Matching) - ✅ Completed**
+### **و. المرحلة 11: البحث الذكي والمطابقة والإشعارات (Smart Features) - ✅ Completed**
 1.  [x] **Command Menu:** بحث ذكي بـ `cmdk` + Glassmorphism.
 2.  [x] **Product Catalog:** كتالوج هرمي موحد (8 فئات، 40+ تصنيف).
-3.  [x] **Cascading Dropdowns:** قوائم متتالية ذكية في نوافذ الإنشاء.
-4.  [x] **Matching Engine:** محرك بحث عن مطابقات بائع/مشتري.
+3.  [x] **Matching Engine:** محرك بحث عن مطابقات بائع/مشتري.
+4.  [x] **Real-time Notifications:** جرس إشعارات بـ Socket.io + Badge.
 
 ### **ز. المرحلة المستقبلية: لوحة تحكم إدارية + اقتصاد متقدم**
 1.  [ ] **Admin Panel:** لوحة إدارية لإدارة الفئات والتصنيفات.
-2.  [ ] **Socket.io Notifications:** إشعارات فورية عند المطابقة.
+2.  [ ] **Category Migration:** نقل الكتالوج من JSON إلى PostgreSQL.
 3.  [ ] **Advanced Trust Algorithm:** خوارزمية سمعة متقدمة.
 
 ---
