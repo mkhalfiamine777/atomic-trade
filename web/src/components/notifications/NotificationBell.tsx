@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { useSocket } from '@/hooks/useSocket'
 import { Bell, X, ShoppingBag, Megaphone, Target } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -18,12 +19,26 @@ interface MatchNotification {
 
 export function NotificationBell() {
     const { socket } = useSocket()
+    const router = useRouter()
     const [notifications, setNotifications] = useState<MatchNotification[]>([])
     const [isOpen, setIsOpen] = useState(false)
     const [hasNewFlash, setHasNewFlash] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
 
     const unreadCount = notifications.filter(n => !n.read).length
+
+    const handleNotificationClick = (notif: MatchNotification) => {
+        // Mark as read
+        setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true } : n))
+        setIsOpen(false)
+
+        // Navigate to the specific listing that caused the match
+        if (notif.listingId) {
+            // In this app, viewing a listing happens via the dashboard query parameters
+            // or specialized pages. We will point to dashboard focus.
+            router.push(`/dashboard?focus=${notif.listingId}`)
+        }
+    }
 
     // Listen for match_found events
     useEffect(() => {
@@ -103,10 +118,10 @@ export function NotificationBell() {
             <button
                 onClick={() => { setIsOpen(!isOpen); if (!isOpen) markAllRead() }}
                 className={`relative p-2.5 rounded-full transition-all ${hasNewFlash
-                        ? 'bg-emerald-500/20 text-emerald-400 animate-bounce'
-                        : unreadCount > 0
-                            ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
-                            : 'hover:bg-white/5 text-zinc-400 hover:text-white'
+                    ? 'bg-emerald-500/20 text-emerald-400 animate-bounce'
+                    : unreadCount > 0
+                        ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                        : 'hover:bg-white/5 text-zinc-400 hover:text-white'
                     }`}
                 title="الإشعارات"
             >
@@ -169,6 +184,7 @@ export function NotificationBell() {
                                 notifications.map(notif => (
                                     <div
                                         key={notif.id}
+                                        onClick={() => handleNotificationClick(notif)}
                                         className={`flex items-start gap-3 p-3 border-b border-white/5 transition-colors hover:bg-white/5 cursor-pointer ${!notif.read ? 'bg-emerald-500/5' : ''
                                             }`}
                                     >

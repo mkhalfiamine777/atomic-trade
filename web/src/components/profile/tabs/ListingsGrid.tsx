@@ -24,7 +24,7 @@ export function ListingsGrid({ items, type }: ListingsGridProps) {
                         <div className="w-full h-full flex items-center justify-center text-zinc-600 group-hover:scale-105 transition-transform duration-500">
                             {item.images ? (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img src={item.images} alt={item.title} className="w-full h-full object-cover" />
+                                <img src={item.images.split(',')[0]} alt={item.title} className="w-full h-full object-cover" />
                             ) : (
                                 type === 'PRODUCT' ? <ShoppingBag /> : <Megaphone />
                             )}

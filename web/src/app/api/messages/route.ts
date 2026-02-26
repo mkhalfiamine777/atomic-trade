@@ -41,47 +41,14 @@ export async function GET(req: Request) {
         // 2. Get Messages for a Specific Conversation
         let targetConversationId = conversationId;
 
-        // Handle temporary IDs (conv-ID1-ID2)
+        // If the client passes a temporary ID, we ignore looking up messages
+        // because the conversation doesn't exist yet, so there are no messages to fetch.
         if (targetConversationId && targetConversationId.startsWith("conv-")) {
-            const parts = targetConversationId.replace("conv-", "").split("-");
-            // Basic validation: we expect at least 2 parts (2 UUIDs might be split by more dashes if not careful, but UUIDs have dashes!)
-            // Re-think: UUIDs have dashes. conv-UUID1-UUID2.
-            // UUID has 4 dashes. So total 9 dashes + "conv".
-            // Simpler: Use the provided userId, find the other ID from the string.
-            // But string parsing with extra dashes is risky.
-            // Better: Just search for a conversation involving userId and the "other" ID if we can isolate it.
-            // Alternative: Since we only need this for the "Mock" setup, let's assume the ID is NOT valid and try to find a conversation for this user that MIGHT match?
-            // Actually, we can just search for ANY conversation involving these participants if we knew them.
-            // Let's rely on the POST to return the REAL ID, and the client "should" switch to it. 
-            // BUT initial load will be empty. That is fine for now. 
-            // If the user sends a message, they get the real ID.
-
-            // For now, if it's a temp ID, we probably won't find it in DB.
-            // Let's TRY to resolve it if possible, otherwise let it fail gracefully (return empty).
-            // logic: find first conversation between the 2 users implied?
-            // The string is `conv-SORTED_ID_1-SORTED_ID_2`. 
-            // UUID is 36 chars.
-            // ID1 = substring(5, 41)
-            // ID2 = substring(42, 78)
-            if (targetConversationId.length >= 78) {
-                const id1 = targetConversationId.substring(5, 41);
-                const id2 = targetConversationId.substring(42, 78);
-
-                const real = await prisma.conversation.findFirst({
-                    where: {
-                        OR: [
-                            { AND: [{ participant1Id: id1 }, { participant2Id: id2 }] },
-                            { AND: [{ participant1Id: id2 }, { participant2Id: id1 }] }
-                        ]
-                    }
-                });
-                if (real) targetConversationId = real.id;
-            }
+            return NextResponse.json([]); // Return empty messages list natively
         }
 
-
         // 🛡️ Security Check: Verify User is a Participant
-        if (targetConversationId && !targetConversationId.startsWith("conv-")) {
+        if (targetConversationId) {
             const conversation = await prisma.conversation.findUnique({
                 where: { id: targetConversationId },
                 select: { participant1Id: true, participant2Id: true }
@@ -132,15 +99,21 @@ export async function POST(req: Request) {
 
         let activeConversationId = conversationId;
 
-        // Handle temporary client-side IDs
+        // If the client passes a temporary ID, it means the conversation hasn't been created yet.
+        // We nullify it so the server creates a real one.
         if (activeConversationId && activeConversationId.startsWith("conv-")) {
             activeConversationId = null;
         }
 
-        // If no conversation exists, create one or find existing using the shared service
+        // If no valid conversation exists, create one using our secure service
         if (!activeConversationId && receiverId) {
-            const { conversationId } = await getOrCreateConversation(senderId, receiverId, null) // API DMs usually don't have listing context yet
-            activeConversationId = conversationId
+            const { conversationId } = await getOrCreateConversation(senderId, receiverId, null);
+            activeConversationId = conversationId;
+        }
+
+        // Failsafe: if we still don't have an ID, we cannot proceed
+        if (!activeConversationId) {
+            return NextResponse.json({ error: "Could not resolve or create conversation" }, { status: 400 });
         }
 
         // Create the message

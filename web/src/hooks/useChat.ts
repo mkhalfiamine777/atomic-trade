@@ -5,13 +5,22 @@ import { toast } from "sonner"; // Assuming sonner is used for notifications
 
 import { Message } from "@/types";
 
-export const useChat = (conversationId: string | null, userId: string | null) => {
+export const useChat = (initialConversationId: string | null, userId: string | null) => {
     const { socket, isConnected } = useSocket();
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
+    // Track the active room ID. Starts as initial (maybe temporary 'conv-'), 
+    // but upgrades to real DB UUID after first message.
+    const [activeRoomId, setActiveRoomId] = useState<string | null>(initialConversationId);
+
     // Ref for optimistic updates to avoid dependency cycles / stale closures
     const messagesRef = useRef<Message[]>([]);
+
+    // Sync if initial ID changes from parent
+    useEffect(() => {
+        setActiveRoomId(initialConversationId);
+    }, [initialConversationId]);
 
     useEffect(() => {
         messagesRef.current = messages;
@@ -19,15 +28,24 @@ export const useChat = (conversationId: string | null, userId: string | null) =>
 
     // 1. Fetch initial messages when conversation opens
     useEffect(() => {
-        if (!conversationId) return;
+        if (!initialConversationId) return;
 
         const fetchMessages = async () => {
             setIsLoading(true);
             try {
-                const res = await fetch(`/api/messages?conversationId=${conversationId}`);
+                const res = await fetch(`/api/messages?conversationId=${initialConversationId}`);
                 if (!res.ok) throw new Error("Failed to load messages");
                 const data = await res.json();
+
+                // If it was a real existing DB ID, data will have elements and activeRoomId is correct.
+                // If data is empty and we sent a temp ID, we just start fresh.
                 setMessages(data);
+
+                // If we get messages back and notice they belong to a real conversation ID, 
+                // we should upgrade our active room to it immediately if we were using a temp one.
+                if (data.length > 0 && initialConversationId?.startsWith("conv-")) {
+                    setActiveRoomId(data[0].conversationId);
+                }
             } catch (error) {
                 console.error(error);
                 toast.error("Error loading chat history");
@@ -37,14 +55,14 @@ export const useChat = (conversationId: string | null, userId: string | null) =>
         };
 
         fetchMessages();
-    }, [conversationId, userId]);
+    }, [initialConversationId, userId]);
 
-    // 2. Handle Socket Events
+    // 2. Handle Socket Events - Bind to Active Room ID
     useEffect(() => {
-        if (!socket || !conversationId) return;
+        if (!socket || !activeRoomId) return;
 
-        // Join the conversation room
-        socket.emit("join_room", conversationId);
+        // Join the active conversation room
+        socket.emit("join_room", activeRoomId);
 
         const handleReceiveMessage = (newMessage: Message) => {
             // Only add if it belongs to this conversation (double check)
@@ -67,11 +85,12 @@ export const useChat = (conversationId: string | null, userId: string | null) =>
         return () => {
             socket.off("receive_message", handleReceiveMessage);
             socket.off("typing", handleTyping);
-            // Optional: leave room
+            // Leave room when changing rooms
+            socket.emit("leave_room", activeRoomId);
         };
-    }, [socket, conversationId]);
+    }, [socket, activeRoomId]);
 
-    const sendMessage = async (content: string, conversationId: string, receiverId: string) => {
+    const sendMessage = async (content: string, _ignoredParam: string, receiverId: string) => {
         if (!content.trim() || !userId) return;
 
         const tempId = Date.now().toString();
@@ -94,7 +113,7 @@ export const useChat = (conversationId: string | null, userId: string | null) =>
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    conversationId,
+                    conversationId: activeRoomId, // Use active, it might be null or real now
                     senderId: userId,
                     receiverId,
                     content
@@ -105,16 +124,19 @@ export const useChat = (conversationId: string | null, userId: string | null) =>
 
             const savedMessage = await res.json();
 
+            // Upgrade Room ID if we just created it on the server
+            if (activeRoomId?.startsWith("conv-")) {
+                setActiveRoomId(savedMessage.conversationId); // Now we join the REAL UUID room
+            }
+
             setMessages((prev) =>
                 prev.map(m => m.id === tempId ? savedMessage : m)
             );
 
-            // EMIT with the LOCAL conversationId (the room we joined), 
-            // otherwise the other user won't receive it because they are listening on the 'conv-' ID, 
-            // not the new database UUID.
+            // EMIT with the REAL database UUID we just got from the API
             socket?.emit("send_message", {
                 ...savedMessage,
-                conversationId: conversationId
+                conversationId: savedMessage.conversationId
             });
         } catch (error) {
             console.error(error);

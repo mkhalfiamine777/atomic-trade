@@ -23,19 +23,18 @@ import { MapMarker, MapItem } from './MapMarker'
 import { getAllActiveUsers } from '@/actions/map'
 import { ZoneGridLayer } from './ZoneGridLayer'
 
+import { useAppStore } from '@/store/useAppStore'
+
 export default function Map({
-    currentUserId,
-    userType = 'INDIVIDUAL',
     refreshTrigger = 0,
     isLocationVisible = true,
-    showZoneGrid = false
 }: {
-    currentUserId?: string | null
-    userType?: string
     refreshTrigger?: number
     isLocationVisible?: boolean
-    showZoneGrid?: boolean
 }) {
+    const { currentUser, showZoneGrid } = useAppStore()
+    const currentUserId = currentUser?.id
+    const userType = currentUser?.type || 'INDIVIDUAL'
     const router = useRouter()
     const { coordinates, loading, error } = useGeolocation()
     const [listings, setListings] = useState<Listing[]>([])
@@ -148,12 +147,12 @@ export default function Map({
                         />
                         <Circle
                             center={[coordinates.lat, coordinates.lng]}
-                            radius={300}
+                            radius={userType === 'SHOP' ? 5000 : 300}
                             pathOptions={{
-                                color: '#6366f1',
-                                fillColor: '#6366f1',
-                                fillOpacity: 0.1,
-                                weight: 1,
+                                color: userType === 'SHOP' ? '#ffd700' : '#39ff14',
+                                fillColor: userType === 'SHOP' ? '#ffd700' : '#39ff14',
+                                fillOpacity: userType === 'SHOP' ? 0.05 : 0.1, // Lighter opacity for the huge 5km circle
+                                weight: 2,
                                 dashArray: '5, 10'
                             }}
                         />

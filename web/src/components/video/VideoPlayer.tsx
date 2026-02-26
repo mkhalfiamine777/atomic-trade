@@ -27,6 +27,14 @@ export function VideoPlayer({
             videoRef.current?.play().catch(() => {
                 // Auto-play failed (usually due to browser policy)
                 setIsMuted(true) // Ensure muted to try again
+
+                // Retry playing after UI updates to muted state
+                setTimeout(() => {
+                    if (videoRef.current) {
+                        videoRef.current.muted = true
+                        videoRef.current.play().catch(e => console.warn("Autoplay completely blocked:", e))
+                    }
+                }, 100)
             })
             setIsPlaying(true)
         } else {

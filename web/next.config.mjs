@@ -18,6 +18,12 @@ const nextConfig = {
                 hostname: 'picsum.photos',
                 port: '',
                 pathname: '/**'
+            },
+            {
+                protocol: 'https',
+                hostname: 'jwbamcdz4e.ufs.sh',
+                port: '',
+                pathname: '/**'
             }
         ]
     },

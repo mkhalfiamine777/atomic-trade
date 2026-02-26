@@ -20,7 +20,7 @@ export default function GuestDashboardClient() {
         <div className="relative h-screen w-full overflow-hidden bg-zinc-950">
             {/* 🌍 Full Screen Map (Read-Only) */}
             <div className="absolute inset-0 z-0">
-                <Map currentUserId={null} />
+                <Map />
             </div>
 
             {/* 🧭 Guest Overlay Controls */}

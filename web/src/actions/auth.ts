@@ -119,3 +119,22 @@ export async function logout() {
     cookieStore.delete('user_id')
     redirect('/login')
 }
+
+// Get current logged-in user from session cookie
+export async function getUser() {
+    try {
+        const cookieStore = await cookies()
+        const userId = cookieStore.get('user_id')?.value
+
+        if (!userId) return null
+
+        const user = await db.user.findUnique({
+            where: { id: userId }
+        })
+
+        return user
+    } catch (error) {
+        console.error("Error getting user session:", error)
+        return null
+    }
+}

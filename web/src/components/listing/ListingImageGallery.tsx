@@ -12,17 +12,18 @@ interface ListingImageGalleryProps {
 
 export function ListingImageGallery({ images, title }: ListingImageGalleryProps) {
     const [selectedImage, setSelectedImage] = useState<string | null>(null)
+    const [activeIndex, setActiveIndex] = useState(0)
 
     return (
-        <>
+        <div className="flex flex-col gap-2">
             {/* Main Display - Click to Zoom */}
             <div
-                className="relative w-full aspect-square bg-zinc-900 overflow-hidden cursor-zoom-in group"
-                onClick={() => setSelectedImage(images[0])}
+                className="relative w-full aspect-square bg-zinc-900 overflow-hidden cursor-zoom-in group rounded-t-xl"
+                onClick={() => setSelectedImage(images[activeIndex])}
             >
                 <Image
-                    src={images[0]}
-                    alt={title}
+                    src={images[activeIndex]}
+                    alt={`${title} - image ${activeIndex + 1}`}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                     priority
@@ -32,7 +33,29 @@ export function ListingImageGallery({ images, title }: ListingImageGalleryProps)
                 <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <ZoomIn className="w-5 h-5 text-white" />
                 </div>
+
+                {/* Image Counter */}
+                {images.length > 1 && (
+                    <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-white">
+                        {activeIndex + 1} / {images.length}
+                    </div>
+                )}
             </div>
+
+            {/* Thumbnails row */}
+            {images.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto px-4 pb-2 snap-x hide-scrollbar">
+                    {images.map((img, idx) => (
+                        <button
+                            key={idx}
+                            onClick={() => setActiveIndex(idx)}
+                            className={`relative h-16 min-w-16 rounded-md overflow-hidden snap-center border-2 transition-all ${activeIndex === idx ? 'border-indigo-500 opacity-100' : 'border-transparent opacity-50 hover:opacity-100'}`}
+                        >
+                            <Image src={img} alt={`Thumbnail ${idx + 1}`} fill className="object-cover" />
+                        </button>
+                    ))}
+                </div>
+            )}
 
             {/* Fullscreen Viewer Modal */}
             <AnimatePresence>
@@ -79,6 +102,6 @@ export function ListingImageGallery({ images, title }: ListingImageGalleryProps)
                     </motion.div>
                 )}
             </AnimatePresence>
-        </>
+        </div>
     )
 }

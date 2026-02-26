@@ -32,6 +32,7 @@ export async function createListing(formData: FormData) {
 
     if (!validatedFields.success) {
         const errors = validatedFields.error.flatten().fieldErrors
+        console.error("❌ Validation Failed in createListing:", { rawData, errors })
         return { error: errors.title?.[0] || errors.price?.[0] || "بيانات غير صالحة" }
     }
 
@@ -64,60 +65,12 @@ export async function createListing(formData: FormData) {
             }
         })
 
-        // 5. Smart Matching Engine 🎯
+        // 5. Smart Matching Engine 🎯 (Extracted to Service)
         if (category && subcategory) {
-            const counterpartType = type === ListingType.PRODUCT ? ListingType.REQUEST : ListingType.PRODUCT;
-            const matches = await db.listing.findMany({
-                where: {
-                    category: category,
-                    subcategory: subcategory,
-                    type: counterpartType,
-                    isSold: false,
-                    sellerId: { not: userId }
-                },
-                select: { id: true, title: true, sellerId: true }
-            });
-
-            if (matches.length > 0) {
-                console.log(`[Matching Engine] 🎯 Found ${matches.length} matches for ${category} -> ${subcategory}!`);
-
-                // Emit Socket.io notifications
-                const { getIO } = await import('@/lib/socketEngine');
-                const io = getIO();
-
-                if (io) {
-                    const isProduct = type === ListingType.PRODUCT;
-
-                    // A. Notify the CREATOR of the new listing about existing matches
-                    io.to(`user:${userId}`).emit('match_found', {
-                        type: isProduct ? 'buyers_found' : 'sellers_found',
-                        message: isProduct
-                            ? `🎯 ${matches.length} شخص يبحث عن "${title}" بالقرب منك!`
-                            : `🎯 ${matches.length} بائع يعرض "${title}" بالقرب منك!`,
-                        matchCount: matches.length,
-                        category,
-                        subcategory,
-                        listingId: newListing.id,
-                        timestamp: new Date().toISOString()
-                    });
-
-                    // B. Notify EACH matched counterpart about the new listing
-                    for (const match of matches) {
-                        io.to(`user:${match.sellerId}`).emit('match_found', {
-                            type: isProduct ? 'new_product' : 'new_request',
-                            message: isProduct
-                                ? `🛍️ بائع جديد يعرض "${title}" — قد يناسب طلبك!`
-                                : `📣 شخص يبحث عن "${match.title}" — لديك ما يريد!`,
-                            category,
-                            subcategory,
-                            listingId: isProduct ? newListing.id : match.id,
-                            timestamp: new Date().toISOString()
-                        });
-                    }
-
-                    console.log(`[Matching Engine] 📨 Sent ${matches.length + 1} notifications`);
-                }
-            }
+            import('@/services/matchingService').then(({ runMatchingEngine }) => {
+                // Run matching in the background, don't await so it doesn't block the response
+                runMatchingEngine(newListing.id, userId, title, type, category, subcategory);
+            }).catch(e => console.error("Failed to dynamically import matching service", e));
         }
 
         // 6. Update UI
@@ -129,7 +82,7 @@ export async function createListing(formData: FormData) {
             stack: error.stack
         } : { message: String(error) }
         console.error('Market Error Details:', errDetails)
-        return { error: 'فشل إنشاء العرض' }
+        return { error: 'فشل إنشاء العرض: ' + errDetails.message }
     }
 }
 

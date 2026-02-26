@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
+import { RatingModal } from "@/components/modals/RatingModal"
+import { Star } from "lucide-react"
 
 interface ChatWindowProps {
     conversationId: string
@@ -25,6 +27,7 @@ interface ChatWindowProps {
 export default function ChatWindow({ conversationId, currentUserId, otherUser, onBack }: ChatWindowProps) {
     const { messages, sendMessage, isLoading, isConnected } = useChat(conversationId, currentUserId)
     const [content, setContent] = useState("")
+    const [isRatingOpen, setIsRatingOpen] = useState(false)
     const scrollRef = useRef<HTMLDivElement>(null)
 
     // Auto-scroll to bottom on new message
@@ -60,6 +63,17 @@ export default function ChatWindow({ conversationId, currentUserId, otherUser, o
                         <span className="text-xs text-muted-foreground">{isConnected ? "Online" : "Connecting..."}</span>
                     </div>
                 </div>
+
+                {/* Rating Button */}
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-auto gap-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border-indigo-500/20"
+                    onClick={() => setIsRatingOpen(true)}
+                >
+                    <Star className="w-4 h-4" />
+                    <span className="hidden sm:inline">تقييم وإنهاء</span>
+                </Button>
             </div>
 
             {/* Messages */}
@@ -110,6 +124,16 @@ export default function ChatWindow({ conversationId, currentUserId, otherUser, o
                     </Button>
                 </form>
             </div>
+
+            {/* Rating Modal */}
+            <RatingModal
+                isOpen={isRatingOpen}
+                onClose={() => setIsRatingOpen(false)}
+                targetUserId={otherUser.id}
+                targetUserName={otherUser.name}
+                listingId={conversationId} // Using conversationId as context if listing is unknown
+                listingTitle={"محادثة مع " + otherUser.name}
+            />
         </div>
     )
 }

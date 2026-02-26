@@ -5,6 +5,8 @@ import { toast } from 'sonner'
 import { ThumbsUp, Heart, MessageCircle } from 'lucide-react'
 import { interactWithUser, interactWithListing } from '@/actions/interactions'
 
+import { useAppStore } from '@/store/useAppStore'
+
 interface Props {
     // For posts/generic usage
     initialLikes?: number
@@ -13,7 +15,6 @@ interface Props {
     onInteract?: (type: 'LIKE' | 'LOVE' | 'COMMENT') => void
     // For profile interactions
     targetUserId?: string
-    currentUserId?: string
     // For listing interaction
     listingId?: string
 }
@@ -24,9 +25,10 @@ export function InteractionBar({
     commentsCount = 0,
     onInteract,
     targetUserId,
-    currentUserId,
     listingId
 }: Props) {
+    const { currentUser } = useAppStore()
+    const currentUserId = currentUser?.id
     const [likes, setLikes] = useState(initialLikes)
     const [loves, setLoves] = useState(initialLoves)
     const [hasLiked, setHasLiked] = useState(false)

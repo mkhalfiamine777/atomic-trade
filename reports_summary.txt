@@ -1,0 +1,86 @@
+
+Total Reports Analyzed: 101
+
+--- Top 30 Keywords ---
+2026: 96
+railway: 84
+server: 84
+string: 81
+typescript: 72
+components: 68
+stories: 67
+prisma: 66
+page: 64
+next: 61
+dashboard: 61
+live: 58
+user: 53
+feed: 53
+socket: 52
+actions: 42
+number: 40
+json: 39
+void: 38
+video: 36
+schema: 34
+neon: 33
+post: 33
+social: 30
+node: 29
+type: 28
+true: 28
+session_reports: 27
+boolean: 27
+data: 26
+
+--- Random 50 Headers Extracted ---
+📋 التقرير الموحد لخطط التنفيذ
+✅ التحقق (Verification)
+1. الرؤية والاستراتيجية (Project Vision) 👁️
+🛡️ استراتيجية الأمان (Revert Policy)
+2. التحليل الهندسي (Engineering Analysis)
+الهدف
+🚀 الخلاصة
+🏗️ نظرة عامة
+نظرة عامة على المنطق
+تقرير الجلسة التقني والهندسي - مشروع التجارة الاجتماعية
+خطة التنفيذ - منصة التجارة الاجتماعية "الربح أولاً"
+2. المسار الزمني المتكامل (Integrated Timeline)
+5. حالة المشروع الحالية
+2. تحليل "عدم التفعيل"
+🎯 الهدف
+تغييرات الواجهة الأمامية
+1.1 أمان "سوق الطلبات" (Reverse Market Safety) 🛡️
+1. شريط التصفية العائم (Transparent Filter Bar) 🔍
+🏁 النتيجة النهائية
+3. ملخص الملفات الحالية (Current Project Structure) 📂
+1. المخطط العام للنظام (High-Level Architecture) 🏗️
+2. خارطة الطريق (Steps)
+2. الهيكلية الجديدة (New Architecture)
+1. الملخص التقني
+🎯 الهدف
+📊 تقرير مراجعة المشروع (Project Review Report)
+استراتيجية الانتقال
+🛠️ تفاصيل التنفيذ
+1. الأزرار
+🛠️ الآلية التقنية (Technical Approach)
+4. التوصيات التالية (Next Steps) 🚀
+8. StoryViewer.tsx
+المرحلة 2: الغزو (يوم الإطلاق) - "احتلال الحي" 🚩
+3. منطق الخادم (Server Actions & Logic)
+8. POST `/api/live/start`
+🧩 تقرير المكونات الستة عشر (16 Components)
+📁 الملفات المُنشأة / المُعدَّلة اليوم
+⏰ وقت الجلسة
+الخطوات القادمة المقترحة 🚀
+🛠️ التقنيات
+خارطة الطريق الشاملة (Master Project Roadmap) 🗺️
+📋 خطة تنفيذ: تنبيه الـ 300 متر (Geofencing Alert) 🚨
+3. رسالة للمستخدم
+📊 ملخص الإضافات
+📂 تغييرات الملفات
+📂 الملفات التي تم حفظها وتحديثها (Ready for Backup):
+المرحلة 3: الانتشار الفيروسي (بعد 3 أشهر) - "الديناميكيات الاجتماعية" 🦠
+1. التغييرات المطلوبة (Proposed Changes)
+🔐 المصادقة
+3. الحلول والتوصيات (Solutions & Recommendations)

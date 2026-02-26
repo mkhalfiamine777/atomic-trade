@@ -6,18 +6,20 @@ import { toast } from 'sonner'
 import { ClientUploadedFileData } from 'uploadthing/types'
 
 interface UseMediaUploadOptions {
-    endpoint?: "mediaPost" | "imageUploader" // Add other endpoints as needed from core.ts
+    endpoint?: "mediaPost" | "avatarUpload" | "productImages" // Added productImages
     maxSize?: number // in MB
+    maxFiles?: number // Limit multiple files
     onUploadComplete?: (res: ClientUploadedFileData<any>[]) => void
 }
 
 export function useMediaUpload({
     endpoint = "mediaPost",
     maxSize = 250,
+    maxFiles = 1,
     onUploadComplete
 }: UseMediaUploadOptions = {}) {
-    const [file, setFile] = useState<File | null>(null)
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    const [files, setFiles] = useState<File[]>([])
+    const [previewUrls, setPreviewUrls] = useState<string[]>([])
     const [uploading, setUploading] = useState(false)
     const [progress, setProgress] = useState(0)
     const [isVideo, setIsVideo] = useState(false)
@@ -42,29 +44,49 @@ export function useMediaUpload({
         }
     })
 
-    const handleFileSelect = (selectedFile: File) => {
-        if (maxSize && selectedFile.size > maxSize * 1024 * 1024) {
-            toast.error(`الملف كبير جداً. الحد الأقصى هو ${maxSize} ميجابايت`)
-            return
-        }
-        setFile(selectedFile)
-        setIsVideo(selectedFile.type.startsWith('video/'))
+    const handleFileSelect = (selectedFilesList: FileList | File[]) => {
+        const selectedArr = Array.from(selectedFilesList);
 
-        const objectUrl = URL.createObjectURL(selectedFile)
-        setPreviewUrl(objectUrl)
+        if (maxSize) {
+            const oversized = selectedArr.find(f => f.size > maxSize * 1024 * 1024);
+            if (oversized) {
+                toast.error(`الملف ${oversized.name} كبير جداً. الحد الأقصى هو ${maxSize} ميجابايت.`);
+                return;
+            }
+        }
+
+        if (files.length + selectedArr.length > maxFiles) {
+            toast.error(`لا يمكنك رفع أكثر من ${maxFiles} ملفات.`);
+            return;
+        }
+
+        setFiles(prev => [...prev, ...selectedArr]);
+
+        // Single video check optimization
+        if (selectedArr.length === 1 && selectedArr[0].type.startsWith('video/')) {
+            setIsVideo(true);
+        }
+
+        const newUrls = selectedArr.map(f => URL.createObjectURL(f));
+        setPreviewUrls(prev => [...prev, ...newUrls]);
     }
 
-    const removeFile = () => {
-        setFile(null)
-        setPreviewUrl(null)
-        setIsVideo(false)
+    const removeFile = (index: number = 0) => {
+        setFiles(prev => prev.filter((_, i) => i !== index));
+        setPreviewUrls(prev => {
+            const latest = [...prev];
+            URL.revokeObjectURL(latest[index]);
+            latest.splice(index, 1);
+            return latest;
+        });
+        if (files.length <= 1) setIsVideo(false);
     }
 
     const startUpload = async () => {
-        if (!file) return null
+        if (files.length === 0) return null
         setUploading(true)
         try {
-            const res = await uploadThingStart([file])
+            const res = await uploadThingStart(files)
             return res
         } catch (e) {
             setUploading(false)
@@ -72,22 +94,24 @@ export function useMediaUpload({
         }
     }
 
-    // Input Change Handler Wrapper
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files?.[0]) {
-            handleFileSelect(e.target.files[0])
+        if (e.target.files?.length) {
+            handleFileSelect(e.target.files)
         }
     }
 
     useEffect(() => {
         return () => {
-            if (previewUrl) URL.revokeObjectURL(previewUrl)
+            previewUrls.forEach(url => URL.revokeObjectURL(url));
         }
-    }, [previewUrl])
+    }, [previewUrls])
 
+    // Notice we return BOTH `file`/`previewUrl` (for old endpoints) AND `files`/`previewUrls` (for Multi-modals).
     return {
-        file,
-        previewUrl,
+        file: files[0] || null,
+        files,
+        previewUrl: previewUrls[0] || null,
+        previewUrls,
         isVideo,
         uploading,
         progress,

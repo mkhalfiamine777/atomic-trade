@@ -40,9 +40,8 @@ export default async function ListingDetailPage(props: { params: Promise<{ id: s
         return notFound()
     }
 
-    // Parse images (assuming simple string URL for now based on seed, but robust for future JSON array)
-    // In our seed, 'images' is a single string URL. Let's treat it as an array of 1 for now.
-    const images = [listing.images]
+    // Parse images (comma-separated string URLs)
+    const images = listing.images ? listing.images.split(',') : []
 
     return (
         <main className="min-h-screen bg-zinc-900 flex justify-center">

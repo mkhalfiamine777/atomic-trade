@@ -12,6 +12,8 @@ import { useRouter } from 'next/navigation'
 import { toggleFollow, getFollowStatus, getFollowCounts } from '@/actions/follow'
 import { startConversation } from '@/actions/chat'
 
+import { useAppStore } from '@/store/useAppStore'
+
 interface ProfileHeaderProps {
     user: UserProfile
     stats: {
@@ -20,10 +22,11 @@ interface ProfileHeaderProps {
         posts: number
         products: number
     }
-    currentUserId?: string
 }
 
-export function ProfileHeader({ user, stats, currentUserId }: ProfileHeaderProps) {
+export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
+    const { currentUser } = useAppStore()
+    const currentUserId = currentUser?.id
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const isOwner = currentUserId === user.id
 
@@ -268,7 +271,6 @@ export function ProfileHeader({ user, stats, currentUserId }: ProfileHeaderProps
                                     <div className="flex gap-2">
                                         <InteractionBar
                                             targetUserId={user.id}
-                                            currentUserId={currentUserId}
                                         />
                                     </div>
                                 </>

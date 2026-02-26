@@ -9,6 +9,7 @@ import { getMixedFeed, type FeedItemDTO } from '@/actions/feed'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
     const containerRef = useRef<HTMLDivElement>(null)
@@ -17,6 +18,7 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
     const [loading, setLoading] = useState(true)
     const [page, setPage] = useState(1)
     const [hasMore, setHasMore] = useState(true)
+    const loaderRef = useRef<HTMLDivElement>(null)
 
     // Preload Next Item Strategy (Video or Image)
     useEffect(() => {
@@ -67,16 +69,22 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
         loadItems()
     }, [loadItems])
 
-    // Simple infinite scroll handler
-    const handleScroll = () => {
-        if (!containerRef.current) return;
-        const { scrollTop, clientHeight, scrollHeight } = containerRef.current;
+    // Infinite Scroll Intersection Observer for fetching more
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const target = entries[0]
+                if (target.isIntersecting && hasMore && !loading) {
+                    setPage(prev => prev + 1)
+                }
+            },
+            { root: containerRef.current, threshold: 0.1 }
+        )
 
-        // If we are near bottom
-        if (scrollHeight - scrollTop <= clientHeight * 2 && hasMore && !loading) {
-            setPage(prev => prev + 1)
-        }
-    }
+        if (loaderRef.current) observer.observe(loaderRef.current)
+
+        return () => observer.disconnect()
+    }, [hasMore, loading])
 
     // Handle Scroll Snapping Intersection
     useEffect(() => {
@@ -119,7 +127,6 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
     return (
         <div
             ref={containerRef}
-            onScroll={handleScroll}
             className="h-[calc(100vh-64px)] w-full overflow-y-scroll snap-y snap-mandatory bg-black"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // Hide scrollbar
         >
@@ -203,11 +210,43 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
                 </div>
             ))}
 
+            {/* Skeleton Loading State / Infinite Scroll Sentinel */}
+            {hasMore && feedItems.length > 0 && (
+                <div ref={loaderRef} className="feed-item relative w-full h-full snap-start flex items-center justify-center bg-zinc-900 border-b border-zinc-800">
+                    <div className="relative w-full h-full max-w-md mx-auto bg-black p-4 flex flex-col justify-end pb-20">
+                        {/* Fake Video Actions */}
+                        <div className="absolute right-4 bottom-20 flex flex-col gap-6 items-center z-20">
+                            <Skeleton className="w-12 h-12 rounded-full border-2 border-zinc-800" />
+                            <div className="space-y-4">
+                                <Skeleton className="w-10 h-10 rounded-full" />
+                                <Skeleton className="w-10 h-10 rounded-full" />
+                                <Skeleton className="w-10 h-10 rounded-full" />
+                            </div>
+                        </div>
+                        {/* Fake Description Overlay */}
+                        <div className="absolute bottom-0 left-0 right-0 p-4 pb-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none z-10 w-full">
+                            <div className="flex flex-col items-end w-full pr-16 space-y-3">
+                                <Skeleton className="w-1/3 h-5 rounded ml-auto" />
+                                <Skeleton className="w-2/3 h-4 rounded ml-auto" />
+                                <Skeleton className="w-1/2 h-4 rounded ml-auto" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Empty State */}
             {!loading && feedItems.length === 0 && (
-                <div className="h-full w-full flex flex-col items-center justify-center text-white space-y-4">
+                <div className="h-full w-full flex flex-col items-center justify-center text-white space-y-4 snap-start">
                     <p className="text-xl font-bold">لا يوجد محتوى بعد 😔</p>
                     <p className="text-zinc-400">كن أول من ينشر!</p>
+                </div>
+            )}
+
+            {/* End of Feed */}
+            {!hasMore && feedItems.length > 0 && (
+                <div className="feed-item snap-start w-full h-32 flex flex-col items-center justify-center text-zinc-500">
+                    <p className="font-bold">🏁 وصلت إلى النهاية</p>
                 </div>
             )}
         </div>

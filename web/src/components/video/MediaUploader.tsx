@@ -59,7 +59,7 @@ export function MediaUploader({
 
     // Wrapper to reset video state
     const handleFileSelect = (selectedFile: File) => {
-        hookHandleFileSelect(selectedFile)
+        hookHandleFileSelect([selectedFile])
         setDuration(0)
         setTrimRange([0, 0])
     }

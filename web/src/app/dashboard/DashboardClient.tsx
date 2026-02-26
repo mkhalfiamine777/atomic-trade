@@ -15,6 +15,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { SettingsDrawer } from '@/components/dashboard/SettingsDrawer'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 
+import { useAppStore } from '@/store/useAppStore'
+
 // Dynamically import Map to avoid SSR issues
 const Map = dynamic(() => import('@/components/map/Map'), {
     ssr: false,
@@ -35,21 +37,33 @@ export default function DashboardClient({
     const [isPostOpen, setIsPostOpen] = useState(false) // New Post Modal State
     const [isStoryOpen, setIsStoryOpen] = useState(false)
     const [isSettingsOpen, setIsSettingsOpen] = useState(false) // ⚙️ Drawer Control
+
+    // Local UI states
     const [isLocationVisible, setIsLocationVisible] = useState(true) // 👻 Location Visibility State
-    const [showZoneGrid, setShowZoneGrid] = useState(false) // 🏰 Zone Grid Visibility State
+    const toggleLocationVisibility = () => setIsLocationVisible(prev => !prev)
+
+    const { setCurrentUser, showZoneGrid, toggleZoneGrid } = useAppStore()
+
+    // Initialize the user in the global store on mount
+    useEffect(() => {
+        if (userId) {
+            setCurrentUser({
+                id: userId,
+                name: userName || 'مستخدم',
+                type: userType,
+                username: null,
+                avatarUrl: null,
+                reputationScore: 0,
+                isVerified: false
+            })
+        }
+    }, [userId, userName, userType, setCurrentUser])
+
     const [refreshTrigger, setRefreshTrigger] = useState(0)
     const router = useRouter()
     const lastLocationUpdate = useRef<number>(0)
 
     const handleRefresh = () => setRefreshTrigger(prev => prev + 1)
-
-    const toggleLocationVisibility = () => {
-        setIsLocationVisible(prev => !prev)
-    }
-
-    const toggleZoneGrid = () => {
-        setShowZoneGrid(prev => !prev)
-    }
 
     const { coordinates } = useGeolocation()
 
@@ -118,11 +132,8 @@ export default function DashboardClient({
             {/* 🌍 Full Screen Map */}
             <div className="absolute inset-0 z-0">
                 <Map
-                    currentUserId={userId}
-                    userType={userType}
                     refreshTrigger={refreshTrigger}
                     isLocationVisible={isLocationVisible}
-                    showZoneGrid={showZoneGrid}
                 />
             </div>
 

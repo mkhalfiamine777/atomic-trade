@@ -1,9 +1,22 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
 
-const rateLimit = new Map<string, { count: number; lastReset: number }>()
+// Initialize Redis only if tokens are provided
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN
 
-export function middleware(request: NextRequest) {
+const ratelimit = (redisUrl && redisToken)
+    ? new Ratelimit({
+        redis: new Redis({ url: redisUrl, token: redisToken }),
+        // 10 requests per 10 seconds per IP
+        limiter: Ratelimit.slidingWindow(10, '10 s'),
+        analytics: true,
+    })
+    : null;
+
+export async function middleware(request: NextRequest) {
     const userId = request.cookies.get('user_id')?.value
     const { pathname } = request.nextUrl
 
@@ -16,27 +29,26 @@ export function middleware(request: NextRequest) {
         route => pathname === route || pathname.startsWith('/u/')
     )
 
-    const ip = request.headers.get('x-forwarded-for') || '127.0.0.1'
-
-    // Rate Limiting for Auth Routes (Login/Signup - POST only)
-    if ((pathname === '/login' || pathname === '/signup') && request.method === 'POST') {
-        const LIMIT = 5 // 5 attempts per window
-        const WINDOW = 60 * 1000 // 1 minute
-
-        const current = rateLimit.get(ip) || { count: 0, lastReset: Date.now() }
-
-        if (Date.now() - current.lastReset > WINDOW) {
-            // Reset window
-            current.count = 1
-            current.lastReset = Date.now()
-        } else {
-            current.count++
-        }
-
-        rateLimit.set(ip, current)
-
-        if (current.count > LIMIT) {
-            return new NextResponse('Too Many Requests', { status: 429 })
+    // 🛡️ Upstash Redis Rate Limiting
+    // Apply rate limiting specifically to APIs and Sensitive routes (login, signup)
+    if (ratelimit && (pathname.startsWith('/api/') || pathname === '/login' || pathname === '/signup')) {
+        const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+        try {
+            const { success, pending, limit, reset, remaining } = await ratelimit.limit(`ratelimit_${ip}`);
+            if (!success) {
+                console.warn(`🚨 Rate Limit Exceeded for IP: ${ip} on path ${pathname}`);
+                return NextResponse.json({ error: 'Too many requests. Please try again later.' }, {
+                    status: 429,
+                    headers: {
+                        'X-RateLimit-Limit': limit.toString(),
+                        'X-RateLimit-Remaining': remaining.toString(),
+                        'X-RateLimit-Reset': reset.toString(),
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Rate Limit Check Failed:', error);
+            // Allow request to proceed if Redis fails to avoid blocking legitimate users during outages
         }
     }
 

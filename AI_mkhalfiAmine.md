@@ -4,9 +4,9 @@
 > 2.  **END (الاختتام):** يجب تحديث هذا الملف قبل إغلاق الجلسة. سجل "الإنجازات" الجديدة وحدث "الحالة".
 > 3.  **GOAL:** لا تشتت. التزم بالمسار. كل ميزة يجب أن تخدم **العرض والطلب على الخريطة**.
 
-**Last Updated:** 2026-02-21 02:23
-**Status:** Session 11 Complete (Full Project Audit) 🟢
-**Time Report:** [View Report](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/0eee0296-0fbf-43ba-ad1c-7b67f579aedc/time_tracking_report.md)
+**Last Updated:** 2026-02-26 17:20
+**Status:** Session 15 Complete (Phase 5: Visuals, Explore Map & Admin Dashboard) 🟢
+**Time Report:** [View Report](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/cbcde559-0035-44e2-ae2e-51b1c66aa2ac/time_tracking_report.md)
 **📜 Core Vision:** [الوثيقة التأسيسية](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/0eee0296-0fbf-43ba-ad1c-7b67f579aedc/core_vision_report.md) ← **اقرأها أولاً!**
 
 ---
@@ -22,15 +22,46 @@
 ---
 
 ## 📍 2. الحالة الحالية (Current Pulse)
-**نحن الآن في:** إتمام **المرحلة 10 (التحسين والاقتصاد)** + تدقيق شامل.
-*   ✅ **تم إنجاز:** Zone Grid، Dashboard Refactor، Socket Cleanup، تدقيق أمني شامل (22 مشكلة مُوثقة)، تحسينات Edit Profile (bio, avatar upload, password change).
-*   🚀 **حالة النظام:** **مستقر (Stable)** وتم نشره على Railway بآخر التحديثات.
-*   🚧 **المرحلة القادمة:** إصلاح المشاكل الحرجة من تقرير التدقيق (`full_project_audit.md`).
-*   ⏳ **مستقبلي:** خوارزمية السمعة المتقدمة، نظام الإعلانات.
+**نحن الآن في:** إتمام **الجلسة 15** وبداية **الجلسة 16**.
+*   ✅ **تم إنجاز (المرحلة 5 بالكامل):** 
+    1. تحسين واجهات العروض والبطاقات للمنتجات والخدمات (Reverse Market Engine).
+    2. إنشاء صفحة "الاستكشاف" التفاعلية (`/explore`) للبحث عبر الخريطة.
+    3. بناء الكتالوج الديناميكي (Prisma SQL) ولوحة تحكم الإدارة الشاملة (Admin Panel).
+*   🚀 **حالة النظام:** **مستقر (Stable) وآمن** بدرجة عالية، جاهز للإنتاج (Production-Ready).
+*   🚧 **المرحلة القادمة:** الإطلاق النهائي، تحسين اقتصاد السيطرة (Zone Master Tax)، وأنظمة الإعلانات.
 
 ---
 
 ## 📜 3. سجل الإنجازات (Achievement Log)
+
+### 📅 26-02-2026 — الجلسة 15 (Phase 5: Visuals, Explore Map & Admin Dashboard)
+*   **الإنجاز: 💎 محرك السوق العكسي (Reverse Market Engine):**
+    *   تصميم واجهة Profile لعرض `طلبات الشراء` كمورد أساسي للسوق.
+    *   إصلاح عرض الصور المتعددة وتوظيف `next/image` للأداء.
+    *   إصلاح تشغيل الفيديوهات التلقائي وتفعيل `IntersectionObserver`.
+*   **الإنجاز: 🗺️ صفحة الاستكشاف (Interactive Explore):**
+    *   بناء مسار `/explore` يجمع بين الخريطة التفاعلية والبطاقات الذكية.
+    *   ربط محددات الخريطة (`Markers`) بقائمة العروض لتفاعل متزامن.
+    *   مزامنة السطوع المكاني والحالة مع `URL query parameters`.
+*   **الإنجاز: 🛡️ لوحة الإدارة والكتالوج (Admin & Categories):**
+    *   نقل الكتالوج من `JSON` ثابت إلى طاولات `Category & Subcategory` في `PostgreSQL`.
+    *   بناء صفحة `admin/categories/` للمسؤولين لإضافة فئات ديناميكياً.
+    *   بناء صفحة `admin/users/` تعرض جميع المستخدمين (إحصائيات، توثيق الشارة الزرقاء، وتصفير السمعة للمخالفين).
+    *   تأمين لوحة الإدارة عبر متغير البيئة `ADMIN_PHONES` للإنتاج (Production).
+*   **التحقق:** Build ناجح `0 Errors`.
+
+
+### 📅 26-02-2026 — الجلسة 14 (Security, Socket Privacy & Chat Refactoring)
+*   **الإنجاز: 🛡️ أمان الإنتاج والبيانات (Production Security):**
+    *   إنقاذ قاعدة البيانات بمحو أمر `--accept-data-loss` واستبداله بـ `migrate deploy` في `package.json`.
+*   **الإنجاز: 🔒 خصوصية غرف الدردشة (Socket Privacy):**
+    *   إضافة فحص صارم عبر `Prisma` داخل حدث `join_room` بـ `server.ts` للتأكد المطلق من أن القارئ هو أحد المجاورين الفعليين للمحادثة.
+*   **الإنجاز: ⚡ الحماية من إغراق الطلبات (Rate Limiting Prep):**
+    *   استكمال كود `@upstash/ratelimit` في `middleware.ts` وتجهيز `src/lib/redis.ts` للعمل بصمت حتى إضافة مفاتيح API الخاصة بـ Upstash.
+*   **الإنجاز: 💬 تنظيف محرك المحادثات (Chat Engine Routing):**
+    *   حذف المعرفات المؤقتة Temporary IDs (`conv-ID1-ID2`) بالكامل. 
+    *   توجيه التفاعل المباشر وربط الإشعارات برقم المحادثة الحقيقي في قاعدة البيانات `conversationId`.
+*   **التحقق:** Build ناجح `0 Errors`.
 
 ### 📅 21-02-2026 — الجلسة 12 (Critical Audit Fixes & Build Verification)
 *   **الإنجاز: 🛡️ إغلاق الثغرات الأمنية (Security Hardening):**
@@ -273,9 +304,10 @@
 4.  [x] **Real-time Notifications:** جرس إشعارات بـ Socket.io + Badge.
 
 ### **ز. المرحلة المستقبلية: لوحة تحكم إدارية + اقتصاد متقدم**
-1.  [ ] **Admin Panel:** لوحة إدارية لإدارة الفئات والتصنيفات.
-2.  [ ] **Category Migration:** نقل الكتالوج من JSON إلى PostgreSQL.
-3.  [ ] **Advanced Trust Algorithm:** خوارزمية سمعة متقدمة.
+1.  [x] **Admin Panel:** لوحة إدارية لإدارة المستخدمين والمراقبة (`/admin/users`).
+2.  [x] **Category Migration:** نقل الكتالوج من JSON إلى PostgreSQL ولوحة إدارية (`/admin/categories`).
+3.  [ ] **Zone Economy & Tax:** تطبيق ضرائب الشراء وإضافتها لحساب الحاكم (Zone Master).
+4.  [ ] **Advanced Reputation Algorithm:** معادلة سمعة معقدة تدمج سرعة الرد ونسب الرضى.
 
 ---
 

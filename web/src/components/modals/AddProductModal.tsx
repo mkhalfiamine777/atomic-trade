@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useMediaUpload } from '@/hooks/useMediaUpload'
 import { CascadingProductSelect } from '@/components/ui/CascadingProductSelect'
+import { X } from 'lucide-react'
 
 interface Props {
     isOpen: boolean
@@ -22,11 +23,14 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
     const [loading, setLoading] = useState(false)
 
     const {
-        file,
+        files,
+        previewUrls,
+        removeFile,
         startUpload,
         onInputChange
     } = useMediaUpload({
-        endpoint: "mediaPost"
+        endpoint: "productImages",
+        maxFiles: 4
     })
 
     async function handleSubmit(e: React.FormEvent) {
@@ -44,10 +48,12 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
         try {
             let imageUrl = ''
 
-            if (file) {
+            if (files.length > 0) {
                 const uploadRes = await startUpload()
-                if (uploadRes && uploadRes[0]) {
-                    imageUrl = uploadRes[0].url
+                console.log("🟢 [DEBUG] Raw UploadThing Response:", uploadRes)
+                if (uploadRes && uploadRes.length > 0) {
+                    // Combine all uploaded URLs separated by commas
+                    imageUrl = uploadRes.map(res => res.url).join(',')
                 }
             }
 
@@ -56,8 +62,12 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
             formData.append('lng', coordinates.lng.toString())
             if (imageUrl) formData.append('imageUrl', imageUrl)
 
+            console.log("Submitting formData with imageUrls:", imageUrl)
+
             // Server Action
             const result = await createListing(formData)
+
+            console.log("Action result:", result)
 
             if (result.error) {
                 toast.error(result.error)
@@ -103,9 +113,26 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
                         name="file"
                         type="file"
                         accept="image/*"
+                        multiple
                         onChange={onInputChange}
                         className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2 text-sm text-zinc-300 file:bg-primary file:text-black file:border-0 file:rounded-md file:px-4 file:py-1 file:ml-4 file:font-bold hover:file:opacity-90 transition-all cursor-pointer"
                     />
+                    {previewUrls.length > 0 && (
+                        <div className="grid grid-cols-4 gap-2 mt-2">
+                            {previewUrls.map((url, idx) => (
+                                <div key={url} className="relative aspect-square rounded-md overflow-hidden border border-zinc-800 group">
+                                    <img src={url} alt={`preview ${idx}`} className="object-cover w-full h-full" />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeFile(idx)}
+                                        className="absolute top-1 right-1 bg-black/60 hover:bg-red-500/90 p-1 rounded-full backdrop-blur-sm transition-colors opacity-0 group-hover:opacity-100"
+                                    >
+                                        <X className="w-3 h-3 text-white" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <div>

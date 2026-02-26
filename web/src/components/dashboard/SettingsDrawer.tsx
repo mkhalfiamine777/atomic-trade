@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { logout } from '@/actions/auth'
 import { useRouter } from 'next/navigation'
+import { useAppStore } from '@/store/useAppStore'
 
 interface SettingsDrawerProps {
     isOpen: boolean
@@ -38,12 +39,11 @@ export function SettingsDrawer({
     userName,
     userType,
     onOpenAction,
-    isLocationVisible = true,
+    isLocationVisible,
     onToggleLocation,
-    showZoneGrid = false,
-    onToggleZoneGrid
 }: SettingsDrawerProps) {
     const router = useRouter()
+    const { showZoneGrid, toggleZoneGrid } = useAppStore()
 
     const handleLogout = async () => {
         await logout()
@@ -149,7 +149,7 @@ export function SettingsDrawer({
 
                                 {/* 🏰 Zone Grid Toggle */}
                                 <button
-                                    onClick={onToggleZoneGrid}
+                                    onClick={toggleZoneGrid}
                                     className={`flex items-center justify-between w-full p-3 rounded-xl transition-colors ${showZoneGrid ? 'bg-cyan-500/10 text-cyan-400' : 'hover:bg-white/5 text-zinc-300 hover:text-white'
                                         }`}
                                 >

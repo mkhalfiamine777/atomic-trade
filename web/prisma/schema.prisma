@@ -39,9 +39,28 @@ enum InteractionType {
   LIKE
   LOVE
   COMMENT
+  RATING // Added for Advanced Trust AI (Post-Transaction Reviews)
 }
 
 // --- Models ---
+
+model Category {
+  id            String        @id @default(uuid())
+  name          String        @unique // e.g. "Electronics"
+  icon          String?       // Any associated icon/emoji
+  subcategories Subcategory[]
+  createdAt     DateTime      @default(now())
+}
+
+model Subcategory {
+  id          String   @id @default(uuid())
+  name        String   // e.g. "Smartphones"
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@index([categoryId])
+}
 
 model User {
   id        String   @id @default(uuid())
@@ -204,6 +223,7 @@ model Interaction {
   id        String          @id @default(uuid())
   type      InteractionType
   content   String?  // For comments
+  rating    Int?     // For star ratings (1-5)
   
   // Actor (Who did it)
   userId    String

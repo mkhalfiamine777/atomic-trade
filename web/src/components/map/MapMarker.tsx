@@ -29,7 +29,13 @@ export function MapMarker({ item, position, onStartChat, onViewStory }: MapMarke
             <Marker key={listing.id} position={position} icon={listing.type === 'PRODUCT' ? getShopIcon(false, true) : getRequestIcon()}>
                 <Popup className="compact-popup">
                     <div className="text-right min-w-[150px]">
-                        <h3 className="font-bold text-sm">{listing.title}</h3>
+                        {listing.images && (
+                            <img
+                                src={listing.images.split(',')[0]}
+                                alt={listing.title}
+                                className="w-full h-24 object-cover rounded-md mb-2"
+                            />
+                        )}
                         <h3 className="font-bold text-sm">{listing.title}</h3>
                         {listing.seller?.username ? (
                             <Link href={`/u/${listing.seller.username}`} className="text-xs text-blue-500 hover:underline block mb-2">

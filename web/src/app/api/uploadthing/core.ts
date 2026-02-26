@@ -28,6 +28,18 @@ export const ourFileRouter = {
             console.log("Avatar uploaded for userId:", metadata.userId);
             return { url: file.ufsUrl };
         }),
+
+    // Multi-Image Upload for Products
+    productImages: f({ image: { maxFileSize: "4MB", maxFileCount: 4 } })
+        .middleware(async ({ req }) => {
+            const user = (await cookies()).get("user_id")?.value;
+            if (!user) throw new Error("Unauthorized");
+            return { userId: user };
+        })
+        .onUploadComplete(async ({ metadata, file }) => {
+            console.log("Product image uploaded for userId:", metadata.userId);
+            return { url: file.ufsUrl };
+        }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

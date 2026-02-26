@@ -159,7 +159,6 @@ export default async function UserProfilePage(props: {
                             posts: posts.length,
                             products: products.length
                         }}
-                        currentUserId={currentUserId}
                     />
 
                     <div className="px-2 sm:px-4">

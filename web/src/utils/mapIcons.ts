@@ -70,7 +70,7 @@ export const getIndividualIcon = (hasStories: boolean, isOnline: boolean = true,
     if (!isVisible) {
         return L.divIcon({
             className: '',
-            html: `<div class="w-6 h-6 rounded-full red-neon-active shadow-lg flex items-center justify-center text-white text-xs font-bold">👤</div>`,
+            html: `<div class="w-6 h-6 rounded-full red-neon-active shadow-lg flex items-center justify-center text-white text-xs font-bold animate-bounce">👤</div>`,
             iconSize: [24, 24],
             iconAnchor: [12, 12],
             popupAnchor: [0, -12]
@@ -81,7 +81,7 @@ export const getIndividualIcon = (hasStories: boolean, isOnline: boolean = true,
     if (isOnline) {
         return L.divIcon({
             className: '',
-            html: `<div class="w-6 h-6 rounded-full neon-active shadow-lg flex items-center justify-center text-white text-xs font-bold">👤</div>`,
+            html: `<div class="w-6 h-6 rounded-full neon-active shadow-lg flex items-center justify-center text-white text-xs font-bold animate-bounce">👤</div>`,
             iconSize: [24, 24],
             iconAnchor: [12, 12],
             popupAnchor: [0, -12]
@@ -91,7 +91,7 @@ export const getIndividualIcon = (hasStories: boolean, isOnline: boolean = true,
     // If Offline -> Faded Static Disc (No Pulse)
     return L.divIcon({
         className: '',
-        html: `<div class="w-6 h-6 rounded-full bg-slate-400 shadow-sm flex items-center justify-center text-white text-xs font-bold border-2 border-slate-300 opacity-80">👤</div>`,
+        html: `<div class="w-6 h-6 rounded-full bg-slate-400 shadow-sm flex items-center justify-center text-white text-xs font-bold border-2 border-slate-300 opacity-80 animate-bounce">👤</div>`,
         iconSize: [24, 24],
         iconAnchor: [12, 12],
         popupAnchor: [0, -12]
