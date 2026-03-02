@@ -85,28 +85,52 @@ export default function Map({
         return false
     })
 
+    // Function to scatter overlapping markers deterministically based on their ID
+    const getJitteredCoords = (id: string, originalLat: number, originalLng: number) => {
+        let hash = 0;
+        for (let i = 0; i < id.length; i++) {
+            hash = id.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const angle = Math.abs(hash) % 360 * (Math.PI / 180);
+        // Radius between 0.00015 and 0.00035 degrees (approx 15-35 meters)
+        const radius = 0.00015 + (Math.abs(hash) % 100) / 500000;
+        return {
+            lat: originalLat + Math.sin(angle) * radius,
+            lng: originalLng + Math.cos(angle) * radius
+        };
+    }
+
     const allItems: MapItem[] = [
-        ...filteredListings.map(l => ({
-            type: 'LISTING' as const,
-            data: l,
-            lat: l.latitude,
-            lng: l.longitude,
-            id: l.id
-        })),
-        ...filteredStories.map(s => ({
-            type: 'STORY' as const,
-            data: s,
-            lat: s.latitude,
-            lng: s.longitude,
-            id: s.id
-        })),
-        ...posts.map(p => ({
-            type: 'POST' as const,
-            data: p,
-            lat: p.latitude,
-            lng: p.longitude,
-            id: p.id
-        }))
+        ...filteredListings.map(l => {
+            const j = getJitteredCoords(l.id, l.latitude, l.longitude)
+            return {
+                type: 'LISTING' as const,
+                data: l,
+                lat: j.lat,
+                lng: j.lng,
+                id: l.id
+            }
+        }),
+        ...filteredStories.map(s => {
+            const j = getJitteredCoords(s.id, s.latitude, s.longitude)
+            return {
+                type: 'STORY' as const,
+                data: s,
+                lat: j.lat,
+                lng: j.lng,
+                id: s.id
+            }
+        }),
+        ...posts.map(p => {
+            const j = getJitteredCoords(p.id, p.latitude, p.longitude)
+            return {
+                type: 'POST' as const,
+                data: p,
+                lat: j.lat,
+                lng: j.lng,
+                id: p.id
+            }
+        })
     ]
 
     async function handleStartChat(listingId: string, sellerId: string, sellerName?: string | null) {
@@ -223,7 +247,12 @@ export default function Map({
 
             </MapContainer>
 
-            <MapFilterBar selectedFilters={selectedFilters} onToggle={toggleFilter} />
+            <MapFilterBar
+                selectedFilters={selectedFilters}
+                onToggle={toggleFilter}
+                userAvatar={currentUser?.avatarUrl}
+                userName={currentUser?.name}
+            />
 
             <StoryViewer
                 isOpen={!!selectedStory}

@@ -17,12 +17,12 @@ export const signupSchema = z.object({
 export const createListingSchema = z.object({
     title: z.string().min(3, { message: "العنوان يجب أن يكون 3 أحرف على الأقل" })
         .max(100, { message: "العنوان طويل جداً (الحد الأقصى 100 حرف)" }),
-    description: z.string().optional(),
+    description: z.string().nullish(),
     price: z.coerce.number().min(0, { message: "السعر يجب أن يكون رقماً موجباً" }),
     type: z.nativeEnum(ListingType),
     category: z.string().min(1, { message: "التصنيف مطلوب" }),
-    subcategory: z.string().optional(),
-    imageUrl: z.string().optional(), // URL from Uploadthing
-    latitude: z.coerce.number().optional(),
-    longitude: z.coerce.number().optional(),
+    subcategory: z.string().nullish(),
+    imageUrl: z.string().nullish(), // URL from Uploadthing
+    latitude: z.coerce.number().nullish(),
+    longitude: z.coerce.number().nullish(),
 });
