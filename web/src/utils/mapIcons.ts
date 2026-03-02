@@ -1,5 +1,8 @@
 import L from 'leaflet'
 
+const getBadgeHtml = (count?: number) => {
+    return (count && count > 1) ? `<div class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-md z-50">${count}</div>` : '';
+}
 // 🔥 Unified Pin Logic (DRY Principle)
 export const getPinIcon = (
     colorStart: string,
@@ -18,62 +21,65 @@ export const getPinIcon = (
     })
 
 // 🏪 Shop: Gold Neon (Online Status)
-export const getShopIcon = (hasStories: boolean, isOnline: boolean = true) => {
+export const getShopIcon = (hasStories: boolean, isOnline: boolean = true, count?: number) => {
+    const badge = getBadgeHtml(count);
     // If Online -> Neon Gold Disc + Pulse
     if (isOnline) {
         return L.divIcon({
             className: '',
-            html: `<div class="w-6 h-6 rounded-full gold-neon-active shadow-lg flex items-center justify-center text-white text-xs font-bold">🏪</div>`,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12],
-            popupAnchor: [0, -12]
+            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full gold-neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold">🏪</div>${badge}</div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -16]
         })
     }
 
     // If Offline -> Faded Static Gold
     return L.divIcon({
         className: '',
-        html: `<div class="w-6 h-6 rounded-full bg-amber-200 shadow-sm flex items-center justify-center text-white text-xs font-bold border-2 border-amber-100 opacity-80">🏪</div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
-        popupAnchor: [0, -12]
+        html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full bg-amber-200 shadow-sm flex items-center justify-center text-white text-sm font-bold border-2 border-amber-100 opacity-80">🏪</div>${badge}</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16]
     })
 }
 
 // 🏢 Company: Purple Neon (Online Status)
-export const getCompanyIcon = (hasStories: boolean, isOnline: boolean = true) => {
+export const getCompanyIcon = (hasStories: boolean, isOnline: boolean = true, count?: number) => {
+    const badge = getBadgeHtml(count);
     // If Online -> Neon Purple Disc + Pulse
     if (isOnline) {
         return L.divIcon({
             className: '',
-            html: `<div class="w-6 h-6 rounded-full purple-neon-active shadow-lg flex items-center justify-center text-white text-xs font-bold">🏢</div>`,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12],
-            popupAnchor: [0, -12]
+            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full purple-neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold">🏢</div>${badge}</div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -16]
         })
     }
 
     // If Offline -> Faded Static Purple
     return L.divIcon({
         className: '',
-        html: `<div class="w-6 h-6 rounded-full bg-violet-200 shadow-sm flex items-center justify-center text-white text-xs font-bold border-2 border-violet-100 opacity-80">🏢</div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
-        popupAnchor: [0, -12]
+        html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full bg-violet-200 shadow-sm flex items-center justify-center text-white text-sm font-bold border-2 border-violet-100 opacity-80">🏢</div>${badge}</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16]
     })
 }
 
 // 👤 Individual: Blue
 // 👤 Individual: Blue Neon (Online Status)
-export const getIndividualIcon = (hasStories: boolean, isOnline: boolean = true, isVisible: boolean = true) => {
+export const getIndividualIcon = (hasStories: boolean, isOnline: boolean = true, isVisible: boolean = true, count?: number) => {
+    const badge = getBadgeHtml(count);
     // 🔴 Hidden Mode — Same icon, red color
     if (!isVisible) {
         return L.divIcon({
             className: '',
-            html: `<div class="w-6 h-6 rounded-full red-neon-active shadow-lg flex items-center justify-center text-white text-xs font-bold animate-bounce">👤</div>`,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12],
-            popupAnchor: [0, -12]
+            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full red-neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold animate-bounce">👤</div>${badge}</div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -16]
         })
     }
 
@@ -81,48 +87,54 @@ export const getIndividualIcon = (hasStories: boolean, isOnline: boolean = true,
     if (isOnline) {
         return L.divIcon({
             className: '',
-            html: `<div class="w-6 h-6 rounded-full neon-active shadow-lg flex items-center justify-center text-white text-xs font-bold animate-bounce">👤</div>`,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12],
-            popupAnchor: [0, -12]
+            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold animate-bounce">👤</div>${badge}</div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -16]
         })
     }
 
     // If Offline -> Faded Static Disc (No Pulse)
     return L.divIcon({
         className: '',
-        html: `<div class="w-6 h-6 rounded-full bg-slate-400 shadow-sm flex items-center justify-center text-white text-xs font-bold border-2 border-slate-300 opacity-80 animate-bounce">👤</div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
-        popupAnchor: [0, -12]
+        html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full bg-slate-400 shadow-sm flex items-center justify-center text-white text-sm font-bold border-2 border-slate-300 opacity-80 animate-bounce">👤</div>${badge}</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16]
     })
 }
 
 // 📣 Request Icon (Distinct Circular Shape)
 // 📣 Request Icon (Red Neon - Fast Pulse)
-export const getRequestIcon = () =>
-    L.divIcon({
+export const getRequestIcon = (count?: number) => {
+    const badge = getBadgeHtml(count);
+    return L.divIcon({
         className: '',
-        html: `<div class="w-8 h-8 rounded-full red-neon-active shadow-lg flex items-center justify-center text-sm font-bold border-2 border-white">📣</div>`,
+        html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full red-neon-active shadow-lg flex items-center justify-center text-sm font-bold border-2 border-white">📣</div>${badge}</div>`,
         iconSize: [32, 32],
         iconAnchor: [16, 16],
         popupAnchor: [0, -16]
     })
+}
 
 // 📸 Story Icon (Pink Neon Glow)
-export const getStoryIcon = (mediaUrl: string, mediaType: string) =>
-    L.divIcon({
+// 📸 Story Icon (Pink Neon Glow)
+export const getStoryIcon = (mediaUrl: string, mediaType: string, count?: number) => {
+    const badge = getBadgeHtml(count);
+    const borderColor = mediaType === 'VIDEO' ? 'border-pink-500' : 'border-cyan-400';
+    return L.divIcon({
         className: '',
-        html: `<div class="w-10 h-10 rounded-full overflow-hidden pink-neon-glow shadow-lg relative bg-black">
+        html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full overflow-hidden pink-neon-glow shadow-lg relative bg-black border-2 ${borderColor}">
             ${mediaType === 'VIDEO'
                 ? `<video src="${mediaUrl}" class="w-full h-full object-cover opacity-90" muted loop autoplay playsinline></video>`
                 : `<img src="${mediaUrl}" class="w-full h-full object-cover opacity-90" />`
             }
-          </div>`,
-        iconSize: [40, 40],
-        iconAnchor: [20, 20],
-        popupAnchor: [0, -20]
+          </div>${badge}</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16]
     })
+}
 
 // 🏴‍☠️ Loot Chest Icon (Treasure)
 // Adding this now as we prepare for the "ZoneMaster Loot" feature

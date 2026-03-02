@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { toast } from 'sonner'
 import { getDistance } from './useGeolocation'
-
+import { useNotificationStore } from '@/store/useNotificationStore'
 import { Coordinates, Listing } from "@/types";
 
 interface UseGeofencingProps {
@@ -38,21 +37,12 @@ export function useGeofencing({ userLocation, listings, radius = 300 }: UseGeofe
                 notifiedListings.current.add(listing.id)
 
                 // Trigger Alert
-                const icon = listing.type === 'REQUEST' ? '📣' : '🏪'
-                const typeName = listing.type === 'REQUEST' ? 'طلب' : 'متجر'
-
-                toast(`${icon} أنت قريب من ${typeName}!`, {
-                    description: `📍 ${listing.title} على بعد ${Math.round(distance)} متر فقط.`,
-                    duration: 5000,
-                    action: {
-                        label: 'عرض',
-                        onClick: () => {
-                            // This interaction is handled by the map generally, 
-                            // but we could add logic to center map if we had access to map instance here.
-                            // For now, it's just a notification.
-                        }
-                    }
-                })
+                useNotificationStore.getState().addNotification({
+                    type: listing.type === 'REQUEST' ? 'PROXIMITY_REQUEST' : 'PROXIMITY_PRODUCT',
+                    title: listing.type === 'REQUEST' ? '📣 طلب قريب!' : '🏪 متجر قريب!',
+                    message: `📍 "${listing.title}" على بعد ${Math.round(distance)} متر فقط.`,
+                    data: { listingId: listing.id }
+                });
             }
         })
     }, [userLocation, listings, radius])

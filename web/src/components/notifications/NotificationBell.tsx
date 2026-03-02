@@ -5,38 +5,30 @@ import { useRouter } from 'next/navigation'
 import { useSocket } from '@/hooks/useSocket'
 import { Bell, X, ShoppingBag, Megaphone, Target } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-
-interface MatchNotification {
-    id: string
-    type: 'buyers_found' | 'sellers_found' | 'new_product' | 'new_request'
-    message: string
-    category: string
-    subcategory: string
-    listingId: string
-    timestamp: string
-    read: boolean
-}
+import { useNotificationStore } from '@/store/useNotificationStore'
+import Link from 'next/link'
 
 export function NotificationBell() {
     const { socket } = useSocket()
     const router = useRouter()
-    const [notifications, setNotifications] = useState<MatchNotification[]>([])
+
+    // Use the global persistent notification store
+    const { notifications, addNotification, markAsRead, markAllAsRead, clearAll, dismissPopout } = useNotificationStore()
+
     const [isOpen, setIsOpen] = useState(false)
     const [hasNewFlash, setHasNewFlash] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
 
     const unreadCount = notifications.filter(n => !n.read).length
 
-    const handleNotificationClick = (notif: MatchNotification) => {
+    const handleNotificationClick = (notif: any) => {
         // Mark as read
-        setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true } : n))
+        markAsRead(notif.id)
         setIsOpen(false)
 
         // Navigate to the specific listing that caused the match
-        if (notif.listingId) {
-            // In this app, viewing a listing happens via the dashboard query parameters
-            // or specialized pages. We will point to dashboard focus.
-            router.push(`/dashboard?focus=${notif.listingId}`)
+        if (notif.data?.listingId) {
+            router.push(`/dashboard?focus=${notif.data.listingId}`)
         }
     }
 
@@ -44,21 +36,20 @@ export function NotificationBell() {
     useEffect(() => {
         if (!socket) return
 
-        const handleMatch = (data: Omit<MatchNotification, 'id' | 'read'>) => {
-            const newNotif: MatchNotification = {
-                ...data,
-                id: `notif-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-                read: false
-            }
-
-            setNotifications(prev => [newNotif, ...prev].slice(0, 20)) // Keep max 20
+        const handleMatch = (data: any) => {
+            addNotification({
+                type: 'MATCH_FOUND',
+                title: 'تطابق جديد!',
+                message: data.message,
+                data: data
+            })
             setHasNewFlash(true)
             setTimeout(() => setHasNewFlash(false), 2000)
         }
 
         socket.on('match_found', handleMatch)
         return () => { socket.off('match_found', handleMatch) }
-    }, [socket])
+    }, [socket, addNotification])
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -71,27 +62,17 @@ export function NotificationBell() {
         return () => document.removeEventListener('mousedown', handleClick)
     }, [])
 
-    const markAllRead = () => {
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-    }
 
-    const clearAll = () => {
-        setNotifications([])
-        setIsOpen(false)
-    }
 
     const getIcon = (type: string) => {
-        switch (type) {
-            case 'buyers_found': return <Target className="w-4 h-4 text-emerald-400" />
-            case 'sellers_found': return <ShoppingBag className="w-4 h-4 text-blue-400" />
-            case 'new_product': return <ShoppingBag className="w-4 h-4 text-amber-400" />
-            case 'new_request': return <Megaphone className="w-4 h-4 text-purple-400" />
-            default: return <Bell className="w-4 h-4 text-zinc-400" />
-        }
+        if (type.includes('PRODUCT') || type === 'sellers_found' || type === 'new_product') return <ShoppingBag className="w-5 h-5 text-emerald-500" />
+        if (type.includes('REQUEST') || type === 'new_request') return <Megaphone className="w-5 h-5 text-purple-400" />
+        if (type === 'buyers_found') return <Target className="w-5 h-5 text-blue-400" />
+        return <Bell className="w-5 h-5 text-zinc-400" />
     }
 
-    const formatTime = (ts: string) => {
-        const diff = Date.now() - new Date(ts).getTime()
+    const formatTime = (ts: number) => {
+        const diff = Date.now() - ts
         const mins = Math.floor(diff / 60000)
         if (mins < 1) return 'الآن'
         if (mins < 60) return `منذ ${mins} د`
@@ -99,6 +80,8 @@ export function NotificationBell() {
         if (hours < 24) return `منذ ${hours} س`
         return `منذ ${Math.floor(hours / 24)} ي`
     }
+
+    const popouts = notifications.filter(n => n.isPopout).slice(0, 3);
 
     // Don't render if no notifications ever received
     if (notifications.length === 0 && !isOpen) {
@@ -116,12 +99,12 @@ export function NotificationBell() {
         <div className="relative" ref={dropdownRef}>
             {/* Bell Button */}
             <button
-                onClick={() => { setIsOpen(!isOpen); if (!isOpen) markAllRead() }}
+                onClick={() => { setIsOpen(!isOpen); if (!isOpen) markAllAsRead() }}
                 className={`relative p-2.5 rounded-full transition-all ${hasNewFlash
                     ? 'bg-emerald-500/20 text-emerald-400 animate-bounce'
                     : unreadCount > 0
                         ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
-                        : 'hover:bg-white/5 text-zinc-400 hover:text-white'
+                        : 'bg-zinc-900/80 backdrop-blur border border-white/10 hover:bg-white/5 text-zinc-400 hover:text-white'
                     }`}
                 title="الإشعارات"
             >
@@ -134,13 +117,49 @@ export function NotificationBell() {
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             exit={{ scale: 0 }}
-                            className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-emerald-500 text-black text-[10px] font-bold rounded-full px-1 shadow-lg shadow-emerald-500/50"
+                            className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1 shadow-lg shadow-red-500/50 outline outline-2 outline-black"
                         >
                             {unreadCount > 9 ? '9+' : unreadCount}
                         </motion.span>
                     )}
                 </AnimatePresence>
             </button>
+
+            {/* 🔥 Elegant Popouts (sliding out from the Bell to the left) */}
+            <div className="absolute top-0 right-full mr-4 flex flex-col items-end gap-3 pointer-events-none z-[1000]">
+                <AnimatePresence>
+                    {popouts.map(popout => {
+                        const isPrimary = popout.type.includes('REQUEST');
+                        return (
+                            <motion.div
+                                key={`popout-${popout.id}`}
+                                initial={{ opacity: 0, x: 20, scale: 0.95 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9, x: 20 }}
+                                className={`pointer-events-auto flex items-center gap-3 backdrop-blur-xl pl-2 pr-4 py-2.5 rounded-[2rem] shadow-2xl border ${isPrimary
+                                        ? 'bg-gradient-to-r from-purple-900/90 to-fuchsia-900/90 border-purple-500/40 text-purple-50 shadow-purple-900/50'
+                                        : 'bg-[#d8f5ec]/95 border-emerald-400/50 text-emerald-900 shadow-emerald-900/20'
+                                    }`}
+                                dir="rtl"
+                            >
+                                <div className="flex flex-col">
+                                    <h4 className="font-bold text-sm tracking-tight">{popout.title}</h4>
+                                    <p className={`text-xs ${isPrimary ? 'text-purple-200' : 'text-emerald-700 font-medium'}`}>{popout.message}</p>
+                                </div>
+                                <div className={`shrink-0 p-1.5 rounded-full ${isPrimary ? 'bg-purple-800/50' : 'bg-emerald-500/20'}`}>
+                                    {getIcon(popout.type)}
+                                </div>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); dismissPopout(popout.id) }}
+                                    className={`ml-1 p-1 hover:scale-110 transition-transform rounded-full ${isPrimary ? 'text-purple-300 hover:text-white hover:bg-white/10' : 'text-emerald-600 hover:text-emerald-900 hover:bg-black/5'}`}
+                                >
+                                    <X size={16} />
+                                </button>
+                            </motion.div>
+                        )
+                    })}
+                </AnimatePresence>
+            </div>
 
             {/* Dropdown */}
             <AnimatePresence>
@@ -159,7 +178,7 @@ export function NotificationBell() {
                             <div className="flex items-center gap-2">
                                 {notifications.length > 0 && (
                                     <button
-                                        onClick={clearAll}
+                                        onClick={() => { clearAll(); setIsOpen(false); }}
                                         className="text-[10px] text-zinc-500 hover:text-red-400 transition-colors px-2 py-1 rounded-lg hover:bg-red-500/10"
                                     >
                                         مسح الكل
@@ -205,6 +224,13 @@ export function NotificationBell() {
                                     </div>
                                 ))
                             )}
+                        </div>
+
+                        {/* View All Link */}
+                        <div className="p-2 border-t border-white/10 bg-black/20">
+                            <Link href="/notifications" onClick={() => setIsOpen(false)} className="block w-full text-center py-2 text-xs font-bold text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-colors">
+                                عرض سجل الإشعارات الكامل
+                            </Link>
                         </div>
                     </motion.div>
                 )}

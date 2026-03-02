@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
-import { toast } from 'sonner'
 import { getDistance } from '@/hooks/useGeolocation'
 import { Listing } from '@/types'
+import { useNotificationStore } from '@/store/useNotificationStore'
 
 interface MapControlsProps {
     userLat: number
@@ -35,31 +35,21 @@ export function MapControls({ userLat, userLng, listings }: MapControlsProps) {
 
             // A. Product Alert (300m)
             if (listing.type === 'PRODUCT' && distance <= 300) {
-                toast.success(`🎉 أنت قريب من "${listing.title}"! (${Math.round(distance)}م)`, {
-                    id: `listing-${listing.id}`,
-                    duration: 5000
+                useNotificationStore.getState().addNotification({
+                    type: 'PROXIMITY_PRODUCT',
+                    title: `أنت قريب من "${listing.title}"!`,
+                    message: `على بعد ${Math.round(distance)}م فقط.`,
+                    data: { listingId: listing.id }
                 })
             }
 
             // B. Request Alert (5km) - Merged from MapControllerReverse
             if (listing.type === 'REQUEST' && distance <= 5000) {
-                toast('📣 فرصة بيع قريبة!', {
-                    id: `req-${listing.id}`,
-                    description: `شخص يبحث عن "${listing.title}" على بعد ${Math.round(distance)} متر.`,
-                    action: {
-                        label: 'عرض',
-                        onClick: () => {
-                            // In future: Center map on request
-                            map.flyTo([listing.latitude, listing.longitude], 16)
-                        }
-                    },
-                    duration: 8000,
-                    position: 'top-center',
-                    style: {
-                        background: 'linear-gradient(to right, #4c1d95, #7e22ce)',
-                        color: 'white',
-                        border: '1px solid #a855f7'
-                    }
+                useNotificationStore.getState().addNotification({
+                    type: 'PROXIMITY_REQUEST',
+                    title: '📣 فرصة بيع قريبة!',
+                    message: `شخص يبحث عن "${listing.title}" على بعد ${Math.round(distance)} متر.`,
+                    data: { listingId: listing.id }
                 })
             }
         })

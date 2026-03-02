@@ -25,7 +25,7 @@ export function BottomNav() {
             <motion.nav
                 initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                className="flex items-center justify-around bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-full px-2 py-3 shadow-2xl"
+                className="flex items-center justify-around bg-[#333333]/95 backdrop-blur-xl border border-white/5 rounded-[2rem] px-2 py-2 shadow-2xl h-[68px]"
             >
                 {navItems.map((item) => {
                     const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
@@ -35,21 +35,20 @@ export function BottomNav() {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "relative flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-300",
-                                isActive ? "text-white" : "text-zinc-500 hover:text-zinc-300"
+                                "relative flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all duration-300",
+                                isActive ? "text-white" : "text-zinc-400 hover:text-zinc-300"
                             )}
                         >
                             {isActive && (
                                 <motion.div
                                     layoutId="nav-pill"
-                                    className="absolute inset-0 bg-white/10 rounded-full"
+                                    className="absolute inset-0 bg-[#4a4a4c] rounded-full scale-90"
                                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                 />
                             )}
-                            <item.icon size={24} strokeWidth={isActive ? 2.5 : 2} />
-                            {/* <span className="text-[10px] mt-1 font-medium">{item.label}</span> */}
+                            <item.icon size={26} strokeWidth={isActive ? 2 : 1.5} className="z-10 relative" />
                             {isActive && (
-                                <span className="absolute -bottom-1 w-1 h-1 bg-primary rounded-full" />
+                                <span className="absolute bottom-[2px] w-1.5 h-1.5 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.8)] z-10" />
                             )}
                         </Link>
                     )

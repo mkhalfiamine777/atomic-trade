@@ -85,53 +85,67 @@ export default function Map({
         return false
     })
 
-    // Function to scatter overlapping markers deterministically based on their ID
-    const getJitteredCoords = (id: string, originalLat: number, originalLng: number) => {
-        let hash = 0;
-        for (let i = 0; i < id.length; i++) {
-            hash = id.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        const angle = Math.abs(hash) % 360 * (Math.PI / 180);
-        // Radius between 0.00015 and 0.00035 degrees (approx 15-35 meters)
-        const radius = 0.00015 + (Math.abs(hash) % 100) / 500000;
-        return {
-            lat: originalLat + Math.sin(angle) * radius,
-            lng: originalLng + Math.cos(angle) * radius
-        };
-    }
-
-    const allItems: MapItem[] = [
-        ...filteredListings.map(l => {
-            const j = getJitteredCoords(l.id, l.latitude, l.longitude)
-            return {
-                type: 'LISTING' as const,
-                data: l,
-                lat: j.lat,
-                lng: j.lng,
-                id: l.id
-            }
-        }),
-        ...filteredStories.map(s => {
-            const j = getJitteredCoords(s.id, s.latitude, s.longitude)
-            return {
-                type: 'STORY' as const,
-                data: s,
-                lat: j.lat,
-                lng: j.lng,
-                id: s.id
-            }
-        }),
-        ...posts.map(p => {
-            const j = getJitteredCoords(p.id, p.latitude, p.longitude)
-            return {
-                type: 'POST' as const,
-                data: p,
-                lat: j.lat,
-                lng: j.lng,
-                id: p.id
-            }
-        })
+    // Group items by coordinate to space them out perfectly horizontally if they overlap
+    const rawItems: MapItem[] = [
+        ...filteredListings.map(l => ({ type: 'LISTING' as const, data: l, lat: l.latitude, lng: l.longitude, id: l.id })),
+        ...filteredStories.map(s => ({ type: 'STORY' as const, data: s, lat: s.latitude, lng: s.longitude, id: s.id })),
+        ...posts.map(p => ({ type: 'POST' as const, data: p, lat: p.latitude, lng: p.longitude, id: p.id }))
     ]
+
+    const positionMap: Record<string, MapItem[]> = {};
+    rawItems.forEach(item => {
+        const key = `${item.lat},${item.lng}`;
+        if (!positionMap[key]) positionMap[key] = [];
+        positionMap[key].push(item);
+    });
+
+    const allItems: MapItem[] = [];
+    Object.values(positionMap).forEach((itemsAtPosition) => {
+        // First group by exact type so similar icons merge
+        const groups: Record<string, MapItem[]> = {};
+
+        itemsAtPosition.forEach(item => {
+            let subType = item.type as string;
+            if (item.type === 'LISTING') {
+                subType = `LISTING:${(item.data as any).type}`; // PRODUCT or REQUEST
+            } else if (item.type === 'STORY') {
+                subType = `STORY:${(item.data as any).mediaType}`; // VIDEO or IMAGE
+            }
+            if (!groups[subType]) groups[subType] = [];
+            groups[subType].push(item);
+        });
+
+        const consolidatedItems = Object.values(groups).map(group => {
+            const first = group[0];
+            return {
+                ...first,
+                count: group.length,
+                groupedData: group.map(g => g.data)
+            };
+        });
+
+        const total = consolidatedItems.length;
+        if (total === 1) {
+            allItems.push(consolidatedItems[0]);
+        } else {
+            // Distribute distinct horizontal categories cleanly beneath the main point
+            consolidatedItems.forEach((item, index) => {
+                const centerOffset = (total - 1) / 2;
+                // Offset vertically by 38 pixels to ensure it clears the main icon (size 32 + shadow)
+                // Offset horizontally by 36 pixels per item to form a perfect line
+                const offsetX = (index - centerOffset) * 36;
+                const offsetY = 38;
+
+                allItems.push({
+                    ...item,
+                    lat: item.lat, // Original lat
+                    lng: item.lng, // Original lng
+                    offsetX,
+                    offsetY
+                });
+            });
+        }
+    });
 
     async function handleStartChat(listingId: string, sellerId: string, sellerName?: string | null) {
         if (!currentUserId) {
@@ -250,8 +264,6 @@ export default function Map({
             <MapFilterBar
                 selectedFilters={selectedFilters}
                 onToggle={toggleFilter}
-                userAvatar={currentUser?.avatarUrl}
-                userName={currentUser?.name}
             />
 
             <StoryViewer
