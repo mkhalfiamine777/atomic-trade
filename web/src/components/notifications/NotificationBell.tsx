@@ -13,7 +13,7 @@ export function NotificationBell() {
     const router = useRouter()
 
     // Use the global persistent notification store
-    const { notifications, addNotification, markAsRead, markAllAsRead, clearAll, dismissPopout } = useNotificationStore()
+    const { notifications, addNotification, markAsRead, markAllAsRead, clearAll, dismissPopout, deleteNotification } = useNotificationStore()
 
     const [isOpen, setIsOpen] = useState(false)
     const [hasNewFlash, setHasNewFlash] = useState(false)
@@ -81,7 +81,18 @@ export function NotificationBell() {
         return `منذ ${Math.floor(hours / 24)} ي`
     }
 
-    const popouts = notifications.filter(n => n.isPopout).slice(0, 3);
+    const popouts = notifications.filter(n => n.isPopout).slice(0, 1);
+
+    // Auto-dismiss popouts after 6 seconds (also handles stale ones from localStorage)
+    useEffect(() => {
+        const activePopouts = notifications.filter(n => n.isPopout);
+        if (activePopouts.length === 0) return;
+
+        const timers = activePopouts.map(p =>
+            setTimeout(() => dismissPopout(p.id), 6000)
+        );
+        return () => timers.forEach(t => clearTimeout(t));
+    }, [notifications, dismissPopout]);
 
     // Don't render if no notifications ever received
     if (notifications.length === 0 && !isOpen) {
@@ -125,39 +136,33 @@ export function NotificationBell() {
                 </AnimatePresence>
             </button>
 
-            {/* 🔥 Elegant Popouts (sliding out from the Bell to the left) */}
-            <div className="absolute top-0 right-full mr-4 flex flex-col items-end gap-3 pointer-events-none z-[1000]">
+            {/* 🔥 Compact Pill Notification (slides beside the bell) */}
+            <div className="absolute top-1/2 -translate-y-1/2 right-full mr-2 flex flex-col items-end gap-2 pointer-events-none z-[1000]">
                 <AnimatePresence>
-                    {popouts.map(popout => {
-                        const isPrimary = popout.type.includes('REQUEST');
-                        return (
+                    {popouts.slice(0, 1).map(popout => (
+                        <motion.div
+                            key={`popout-${popout.id}`}
+                            initial={{ opacity: 0, y: -8, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+                            onClick={() => dismissPopout(popout.id)}
+                            className="pointer-events-auto cursor-pointer relative overflow-hidden flex items-center gap-2 bg-zinc-900/90 backdrop-blur-xl px-3 py-2 rounded-full shadow-lg border border-white/10 hover:border-white/20 transition-all max-w-[200px]"
+                            dir="rtl"
+                        >
+                            <div className={`shrink-0 w-2 h-2 rounded-full ${popout.type.includes('REQUEST') ? 'bg-purple-400 shadow-[0_0_6px_rgba(168,85,247,0.6)]' : 'bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.6)]'
+                                }`} />
+                            <span className="text-[11px] font-medium text-zinc-200 truncate">{popout.title}</span>
+                            {/* Auto-dismiss progress bar */}
                             <motion.div
-                                key={`popout-${popout.id}`}
-                                initial={{ opacity: 0, x: 20, scale: 0.95 }}
-                                animate={{ opacity: 1, x: 0, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9, x: 20 }}
-                                className={`pointer-events-auto flex items-center gap-3 backdrop-blur-xl pl-2 pr-4 py-2.5 rounded-[2rem] shadow-2xl border ${isPrimary
-                                        ? 'bg-gradient-to-r from-purple-900/90 to-fuchsia-900/90 border-purple-500/40 text-purple-50 shadow-purple-900/50'
-                                        : 'bg-[#d8f5ec]/95 border-emerald-400/50 text-emerald-900 shadow-emerald-900/20'
+                                initial={{ scaleX: 1 }}
+                                animate={{ scaleX: 0 }}
+                                transition={{ duration: 6, ease: 'linear' }}
+                                className={`absolute bottom-0 left-0 right-0 h-[2px] origin-right ${popout.type.includes('REQUEST') ? 'bg-purple-500/60' : 'bg-emerald-500/60'
                                     }`}
-                                dir="rtl"
-                            >
-                                <div className="flex flex-col">
-                                    <h4 className="font-bold text-sm tracking-tight">{popout.title}</h4>
-                                    <p className={`text-xs ${isPrimary ? 'text-purple-200' : 'text-emerald-700 font-medium'}`}>{popout.message}</p>
-                                </div>
-                                <div className={`shrink-0 p-1.5 rounded-full ${isPrimary ? 'bg-purple-800/50' : 'bg-emerald-500/20'}`}>
-                                    {getIcon(popout.type)}
-                                </div>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); dismissPopout(popout.id) }}
-                                    className={`ml-1 p-1 hover:scale-110 transition-transform rounded-full ${isPrimary ? 'text-purple-300 hover:text-white hover:bg-white/10' : 'text-emerald-600 hover:text-emerald-900 hover:bg-black/5'}`}
-                                >
-                                    <X size={16} />
-                                </button>
-                            </motion.div>
-                        )
-                    })}
+                            />
+                        </motion.div>
+                    ))}
                 </AnimatePresence>
             </div>
 
@@ -169,7 +174,7 @@ export function NotificationBell() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute left-0 top-full mt-2 w-80 max-h-96 overflow-hidden rounded-2xl bg-zinc-900/95 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50 z-[999]"
+                        className="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-hidden rounded-2xl bg-zinc-900/95 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50 z-[999]"
                         dir="rtl"
                     >
                         {/* Header */}
@@ -204,7 +209,7 @@ export function NotificationBell() {
                                     <div
                                         key={notif.id}
                                         onClick={() => handleNotificationClick(notif)}
-                                        className={`flex items-start gap-3 p-3 border-b border-white/5 transition-colors hover:bg-white/5 cursor-pointer ${!notif.read ? 'bg-emerald-500/5' : ''
+                                        className={`group/notif flex items-start gap-3 p-3 border-b border-white/5 transition-colors hover:bg-white/5 cursor-pointer ${!notif.read ? 'bg-emerald-500/5' : ''
                                             }`}
                                     >
                                         <div className="mt-1 p-1.5 rounded-lg bg-white/5">
@@ -221,6 +226,13 @@ export function NotificationBell() {
                                         {!notif.read && (
                                             <div className="w-2 h-2 rounded-full bg-emerald-500 mt-2 shrink-0" />
                                         )}
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); deleteNotification(notif.id); }}
+                                            className="p-1 rounded-full hover:bg-red-500/20 text-zinc-600 hover:text-red-400 transition-all opacity-0 group-hover/notif:opacity-100 shrink-0"
+                                            title="حذف"
+                                        >
+                                            <X size={12} />
+                                        </button>
                                     </div>
                                 ))
                             )}

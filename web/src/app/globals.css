@@ -73,6 +73,7 @@
 
     body {
         @apply bg-background text-foreground;
+        font-family: var(--font-cairo), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
         /* Firefox */
         scrollbar-width: thin;
         scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
@@ -327,4 +328,53 @@
     box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* 🔮 Glassmorphism Neon Map Popups */
+.leaflet-popup-content-wrapper {
+    background: rgba(15, 15, 20, 0.85) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(99, 102, 241, 0.3) !important;
+    border-radius: 16px !important;
+    box-shadow:
+        0 0 20px rgba(99, 102, 241, 0.15),
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    color: #e4e4e7 !important;
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.leaflet-popup-content {
+    margin: 0 !important;
+    width: auto !important;
+    font-family: var(--font-cairo), var(--font-inter), sans-serif !important;
+}
+
+.leaflet-popup-tip {
+    background: rgba(15, 15, 20, 0.85) !important;
+    border: 1px solid rgba(99, 102, 241, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.leaflet-popup-close-button {
+    color: rgba(161, 161, 170, 0.7) !important;
+    font-size: 20px !important;
+    width: 28px !important;
+    height: 28px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    top: 8px !important;
+    right: 8px !important;
+    z-index: 10;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.leaflet-popup-close-button:hover {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.1) !important;
 }

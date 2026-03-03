@@ -20,6 +20,7 @@ interface NotificationState {
     markAsRead: (id: string) => void;
     markAllAsRead: () => void;
     dismissPopout: (id: string) => void;
+    deleteNotification: (id: string) => void;
     clearAll: () => void;
 }
 
@@ -36,14 +37,21 @@ export const useNotificationStore = create<NotificationState>()(
                     isPopout: notif.isPopout ?? true // Default to popping out
                 };
 
-                // Prevent duplicate proximity alerts within the same minute
+                // Prevent duplicate proximity alerts within 10 minutes
                 if (notif.type.startsWith('PROXIMITY')) {
                     const isDuplicate = state.notifications.some(n =>
                         n.title === notif.title &&
                         n.message === notif.message &&
-                        Date.now() - n.timestamp < 60000
+                        Date.now() - n.timestamp < 600000 // 10 minutes
                     );
                     if (isDuplicate) return state;
+                }
+
+                // Auto-dismiss popout after 6 seconds
+                if (newNotif.isPopout) {
+                    setTimeout(() => {
+                        useNotificationStore.getState().dismissPopout(newNotif.id);
+                    }, 6000);
                 }
 
                 return {
@@ -63,6 +71,9 @@ export const useNotificationStore = create<NotificationState>()(
                 notifications: state.notifications.map(n =>
                     n.id === id ? { ...n, isPopout: false } : n
                 )
+            })),
+            deleteNotification: (id) => set((state) => ({
+                notifications: state.notifications.filter(n => n.id !== id)
             })),
             clearAll: () => set({ notifications: [] }),
         }),

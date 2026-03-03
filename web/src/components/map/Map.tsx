@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet'
 import { useRouter } from 'next/navigation'
 import 'leaflet/dist/leaflet.css'
@@ -45,6 +45,34 @@ export default function Map({
     const [isMounted, setIsMounted] = useState(false)
     const [selectedFilters, setSelectedFilters] = useState<FilterType[]>([])
     const [selectedListingForComments, setSelectedListingForComments] = useState<string | null>(null)
+
+    // User Cluster Visibility State
+    const [userClusterVisibility, setUserClusterVisibility] = useState<'auto' | 'pinned' | 'hidden'>('auto')
+    const [isUserClusterHovered, setIsUserClusterHovered] = useState(false)
+    const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+    useEffect(() => {
+        if (userClusterVisibility === 'auto') {
+            const timer = setTimeout(() => {
+                setUserClusterVisibility('hidden')
+            }, 30000) // 30 seconds auto-hide
+            return () => clearTimeout(timer)
+        }
+    }, [userClusterVisibility])
+
+    const handleMouseEnterCluster = () => {
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
+        setIsUserClusterHovered(true)
+    }
+
+    const handleMouseLeaveCluster = () => {
+        hoverTimeoutRef.current = setTimeout(() => {
+            setIsUserClusterHovered(false)
+        }, 500) // 500ms grace period so moving mouse to cluster doesn't hide it
+    }
+
+    const showUserCluster = userClusterVisibility === 'pinned' || userClusterVisibility === 'auto' || isUserClusterHovered
+
 
     useEffect(() => {
         setIsMounted(true)
@@ -198,61 +226,69 @@ export default function Map({
                     </>
                 )}
 
-                <Marker position={center} icon={getIndividualIcon(false, true, isLocationVisible)}>
+                <Marker
+                    position={center}
+                    icon={getIndividualIcon(false, true, isLocationVisible)}
+                    eventHandlers={{
+                        mouseover: handleMouseEnterCluster,
+                        mouseout: handleMouseLeaveCluster,
+                        click: () => setUserClusterVisibility(prev => prev === 'pinned' ? 'hidden' : 'pinned')
+                    }}
+                >
                     <Popup>
-                        <div className="text-right">
-                            <h3 className="font-bold">
-                                {isLocationVisible ? 'أنت هنا 📍' : 'أنت مخفي 👻'}
-                            </h3>
-                            {!isLocationVisible && (
-                                <p className="text-xs text-red-500">لا يراك الآخرون</p>
-                            )}
+                        <div className="text-right min-w-[180px] p-2" dir="rtl">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="text-lg">{isLocationVisible ? '📍' : '👻'}</span>
+                                <div>
+                                    <h3 className="font-bold text-sm text-white leading-tight">
+                                        {isLocationVisible ? 'أنت هنا' : 'أنت مخفي'}
+                                    </h3>
+                                    {!isLocationVisible && (
+                                        <p className="text-[11px] text-red-400">لا يراك الآخرون</p>
+                                    )}
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setUserClusterVisibility(prev => prev === 'pinned' ? 'hidden' : 'pinned')}
+                                className={`w-full text-[11px] font-medium py-1.5 px-3 rounded-lg border transition-all flex items-center justify-center gap-1.5 ${userClusterVisibility === 'pinned'
+                                    ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+                                    : 'bg-white/[0.06] text-zinc-300 border-white/10 hover:bg-white/10'
+                                    }`}
+                            >
+                                {userClusterVisibility === 'pinned' ? '📌 الرموز مُثبتة — إلغاء' : '📌 تثبيت الرموز'}
+                            </button>
                         </div>
                     </Popup>
                 </Marker>
 
                 {/* Global Users Markers */}
-                {globalUsers.map((user) => (
-                    <MapMarker
-                        key={`global-${user.id}`}
-                        item={{
-                            type: 'POST', // Using POST type temporarily to reuse MapMarker style or creating a custom logic
-                            id: user.id,
-                            lat: user.latitude,
-                            lng: user.longitude,
-                            data: {
+                {globalUsers
+                    .filter(user => user.id !== currentUserId) // Exclude current user
+                    .map((user) => (
+                        <MapMarker
+                            key={`user-${user.id}`}
+                            item={{
+                                type: 'USER',
                                 id: user.id,
-                                caption: user.name || user.username || 'مستخدم',
-                                mediaType: 'IMAGE',
-                                mediaUrl: user.avatarUrl || '/placeholder-user.jpg',
-                                latitude: user.latitude,
-                                longitude: user.longitude,
-                                userId: user.id,
-                                createdAt: new Date(),
-                                user: {
-                                    id: user.id,
-                                    name: user.name,
-                                    username: user.username,
-                                    avatarUrl: user.avatarUrl,
-                                    type: user.type,
-                                    isVerified: false,
-                                    reputationScore: 0
-                                }
-                            }
-                        }}
-                        position={[user.latitude, user.longitude]}
-                        onStartChat={(id) => handleStartChat(id, user.id, user.name)} // listingId is user.id here? No, this needs adjustment
-                        onViewStory={() => { }} // No story view for global users yet
-                    />
-                ))}
+                                lat: user.latitude,
+                                lng: user.longitude,
+                                data: user as any
+                            }}
+                            position={[user.latitude, user.longitude]}
+                            onStartChat={(_, sellerId, sellerName) => handleStartChat(user.id, sellerId, sellerName)}
+                            onViewStory={() => { }}
+                        />
+                    ))}
 
-                {allItems.map((item) => (
+                {showUserCluster && allItems.map((item) => (
                     <MapMarker
                         key={item.id}
                         item={item}
                         position={[item.lat, item.lng]}
                         onStartChat={handleStartChat}
                         onViewStory={(story) => setSelectedStory(story)}
+                        onMouseEnter={handleMouseEnterCluster}
+                        onMouseLeave={handleMouseLeaveCluster}
                     />
                 ))}
 

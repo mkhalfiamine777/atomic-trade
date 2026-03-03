@@ -8,7 +8,7 @@ import { useNotificationStore } from '@/store/useNotificationStore'
 
 export default function NotificationsPage() {
     const router = useRouter()
-    const { notifications, markAsRead, markAllAsRead, clearAll } = useNotificationStore()
+    const { notifications, markAsRead, markAllAsRead, clearAll, deleteNotification } = useNotificationStore()
     const [isMounted, setIsMounted] = useState(false)
 
     useEffect(() => {
@@ -136,8 +136,8 @@ export default function NotificationsPage() {
                                     transition={{ duration: 0.2, delay: Math.min(idx * 0.05, 0.3) }}
                                     onClick={() => handleNotificationClick(notif)}
                                     className={`relative overflow-hidden cursor-pointer group rounded-2xl p-4 transition-all duration-300 border ${!notif.read
-                                            ? 'bg-zinc-900 border-white/10 shadow-lg'
-                                            : 'bg-zinc-900/50 border-white/5 opacity-80 hover:opacity-100 hover:bg-zinc-900'
+                                        ? 'bg-zinc-900 border-white/10 shadow-lg'
+                                        : 'bg-zinc-900/50 border-white/5 opacity-80 hover:opacity-100 hover:bg-zinc-900'
                                         }`}
                                 >
                                     {/* Unread Indicator Line */}
@@ -156,9 +156,18 @@ export default function NotificationsPage() {
                                                 <h3 className={`font-bold truncate ${!notif.read ? 'text-zinc-100' : 'text-zinc-300'}`}>
                                                     {notif.title}
                                                 </h3>
-                                                <span className="text-xs text-zinc-500 shrink-0 font-medium whitespace-nowrap">
-                                                    {formatDateTime(notif.timestamp)}
-                                                </span>
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    <span className="text-xs text-zinc-500 font-medium whitespace-nowrap">
+                                                        {formatDateTime(notif.timestamp)}
+                                                    </span>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); deleteNotification(notif.id); }}
+                                                        className="p-1 rounded-full hover:bg-red-500/10 text-zinc-600 hover:text-red-400 transition-all opacity-0 group-hover:opacity-100"
+                                                        title="حذف"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
                                             </div>
                                             <p className={`text-sm leading-relaxed ${!notif.read ? 'text-zinc-300' : 'text-zinc-500'}`}>
                                                 {notif.message}

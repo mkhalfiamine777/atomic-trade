@@ -153,7 +153,7 @@ export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
                                     @{user.username}
                                 </span>
                             )}
-                            <span className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${typeInfo.bg} ${typeInfo.color}`}>
+                            <span className={`flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md border ${typeInfo.bg} ${typeInfo.color}`}>
                                 <TypeIcon className="w-3 h-3" />
                                 {typeInfo.label}
                             </span>
@@ -205,7 +205,7 @@ export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
                             <div className={`text-lg sm:text-xl font-black ${stat.color} group-hover:scale-110 transition-transform`}>
                                 {stat.value}
                             </div>
-                            <div className="text-[9px] sm:text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                            <div className="text-[9px] sm:text-[10px] text-zinc-500 font-bold">
                                 {stat.label}
                             </div>
                         </motion.div>

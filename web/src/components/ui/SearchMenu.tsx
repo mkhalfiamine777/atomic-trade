@@ -25,7 +25,7 @@ export function SearchMenu() {
         <>
             <button
                 onClick={() => setOpen(true)}
-                className="fixed top-4 left-4 z-50 flex items-center gap-2 px-4 py-2 text-sm text-emerald-400 bg-black/40 border border-emerald-500/30 rounded-xl backdrop-blur-md shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:bg-black/60 transition-all duration-300"
+                className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 text-sm text-emerald-400 bg-black/40 border border-emerald-500/30 rounded-xl backdrop-blur-md shadow-[0_0_15px_rgba(16,185,129,0.2)] hover:bg-black/60 transition-all duration-300"
             >
                 <Search className="w-4 h-4" />
                 <span className="hidden md:inline">بحث ذكي عن المنتجات...</span>

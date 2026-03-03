@@ -2,12 +2,12 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import L from 'leaflet'
 import { Marker, Popup } from 'react-leaflet'
-import { getShopIcon, getRequestIcon } from '@/utils/mapIcons'
-import { Listing, Story, Post } from "@/types"
-import { ChevronRight, ChevronLeft, Store, User as UserIcon } from 'lucide-react'
+import { getShopIcon, getRequestIcon, getIndividualIcon, getCompanyIcon } from '@/utils/mapIcons'
+import { Listing, Story, Post, LocationUser } from "@/types"
+import { ChevronRight, ChevronLeft, Store, User as UserIcon, MessageCircle, Building2 } from 'lucide-react'
 
 export type MapItem = {
-    type: 'LISTING' | 'STORY' | 'POST'
+    type: 'LISTING' | 'STORY' | 'POST' | 'USER'
     data: Listing | Story | Post
     lat: number
     lng: number
@@ -46,9 +46,11 @@ interface MapMarkerProps {
     position: [number, number]
     onStartChat: (listingId: string, sellerId: string, sellerName?: string | null) => void
     onViewStory?: (story: Story) => void
+    onMouseEnter?: () => void
+    onMouseLeave?: () => void
 }
 
-export function MapMarker({ item, position, onStartChat, onViewStory }: MapMarkerProps) {
+export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnter, onMouseLeave }: MapMarkerProps) {
     const [currentIndex, setCurrentIndex] = useState(0)
 
     if (item.type === 'LISTING') {
@@ -78,52 +80,73 @@ export function MapMarker({ item, position, onStartChat, onViewStory }: MapMarke
         };
 
         return (
-            <Marker key={baseListing.id} position={position} icon={icon}>
-                <Popup className="compact-popup">
-                    <div className="text-right min-w-[180px]">
+            <Marker
+                key={baseListing.id}
+                position={position}
+                icon={icon}
+                eventHandlers={{
+                    mouseover: onMouseEnter,
+                    mouseout: onMouseLeave
+                }}
+            >
+                <Popup className="compact-popup" closeButton={true}>
+                    <div className="text-right min-w-[200px] max-w-[240px] p-3">
 
-                        {/* 🌟 Header: Navigation and Title */}
-                        <div className="flex justify-between items-center mb-2 border-b border-zinc-200 dark:border-zinc-800 pb-1">
+                        {/* 🌟 Header: Navigation and Badge */}
+                        <div className="flex justify-between items-center mb-2.5">
                             {isGrouped ? (
-                                <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-md px-1" dir="ltr">
-                                    <button onClick={handlePrev} disabled={currentIndex === 0} className="p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded disabled:opacity-30 disabled:hover:bg-transparent">
-                                        <ChevronLeft size={16} />
+                                <div className="flex items-center gap-0.5 bg-white/[0.06] rounded-full px-1.5 py-0.5 border border-white/10" dir="ltr">
+                                    <button onClick={handlePrev} disabled={currentIndex === 0} className="p-0.5 hover:bg-white/10 rounded-full disabled:opacity-20 transition-colors">
+                                        <ChevronLeft size={14} className="text-zinc-300" />
                                     </button>
-                                    <span className="text-[10px] font-bold px-1">{currentIndex + 1} / {item.count}</span>
-                                    <button onClick={handleNext} disabled={currentIndex === (item.count! - 1)} className="p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded disabled:opacity-30 disabled:hover:bg-transparent">
-                                        <ChevronRight size={16} />
+                                    <span className="text-[10px] font-bold px-1.5 text-zinc-300">{currentIndex + 1} / {item.count}</span>
+                                    <button onClick={handleNext} disabled={currentIndex === (item.count! - 1)} className="p-0.5 hover:bg-white/10 rounded-full disabled:opacity-20 transition-colors">
+                                        <ChevronRight size={14} className="text-zinc-300" />
                                     </button>
                                 </div>
                             ) : <div></div>}
-                            <span className="font-bold text-xs text-amber-600 bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-0.5 rounded-full">
+                            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${activeListing.type === 'PRODUCT'
+                                ? 'bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-emerald-300 border-emerald-500/30 shadow-[0_0_8px_rgba(16,185,129,0.2)]'
+                                : 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/30 shadow-[0_0_8px_rgba(168,85,247,0.2)]'
+                                }`}>
                                 {popupTitle}
                             </span>
                         </div>
 
-                        {/* 🖼️ Content */}
+                        {/* 🖼️ Image with Overlay */}
                         {activeListing.images && (
-                            <img
-                                src={activeListing.images.split(',')[0]}
-                                alt={activeListing.title}
-                                className="w-full h-24 object-cover rounded-md mb-2"
-                            />
+                            <div className="relative rounded-xl overflow-hidden mb-2.5 group">
+                                <img
+                                    src={activeListing.images.split(',')[0]}
+                                    alt={activeListing.title}
+                                    className="w-full h-28 object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                                {activeListing.price && (
+                                    <div className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-md text-emerald-300 text-[11px] font-bold px-2 py-0.5 rounded-lg border border-emerald-500/30 shadow-[0_0_6px_rgba(16,185,129,0.2)]">
+                                        {activeListing.price} د.م
+                                    </div>
+                                )}
+                            </div>
                         )}
-                        <h3 className="font-bold text-sm truncate">{activeListing.title}</h3>
+
+                        {/* 📝 Title */}
+                        <h3 className="font-bold text-sm text-white truncate mb-1">{activeListing.title}</h3>
 
                         {/* 👤 Seller Info */}
-                        <div className="flex justify-start items-center mb-2 mt-1">
+                        <div className="flex justify-start items-center mb-3">
                             {activeListing.seller?.username ? (
-                                <Link onClick={(e) => e.stopPropagation()} href={`/u/${activeListing.seller.username}`} className="text-xs text-blue-500 hover:underline flex items-center gap-1">
+                                <Link onClick={(e) => e.stopPropagation()} href={`/u/${activeListing.seller.username}`} className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1.5">
                                     <UserIcon size={12} /> {sellerName}
                                 </Link>
                             ) : (
-                                <p className="text-xs flex items-center gap-1 text-zinc-500"><UserIcon size={12} /> {sellerName}</p>
+                                <p className="text-xs flex items-center gap-1.5 text-zinc-400"><UserIcon size={12} /> {sellerName}</p>
                             )}
                         </div>
 
                         {/* 🔘 Action Buttons */}
-                        <div className="flex flex-col gap-1.5 mt-2">
-                            <button className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs w-full hover:bg-blue-700 transition"
+                        <div className="flex flex-col gap-2">
+                            <button className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white px-3 py-2 rounded-xl text-xs w-full font-bold transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30"
                                 onClick={(e) => { e.stopPropagation(); onStartChat(activeListing.id, activeListing.sellerId, sellerName); }}>
                                 تواصل
                             </button>
@@ -132,7 +155,7 @@ export function MapMarker({ item, position, onStartChat, onViewStory }: MapMarke
                                 <Link
                                     onClick={(e) => e.stopPropagation()}
                                     href={`/u/${activeListing.seller.username}?tab=SALES`}
-                                    className="bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-3 py-1.5 rounded text-xs w-full flex justify-center items-center gap-1 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition"
+                                    className="bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300 hover:text-white px-3 py-2 rounded-xl text-xs w-full flex justify-center items-center gap-1.5 border border-white/10 hover:border-white/20 transition-all font-medium"
                                 >
                                     <Store size={12} /> زيارة المتجر
                                 </Link>
@@ -179,7 +202,9 @@ export function MapMarker({ item, position, onStartChat, onViewStory }: MapMarke
                 position={position}
                 icon={finalIcon}
                 eventHandlers={{
-                    click: () => onViewStory?.(story)
+                    click: () => onViewStory?.(story),
+                    mouseover: onMouseEnter,
+                    mouseout: onMouseLeave
                 }}
             >
                 <Popup>
@@ -189,6 +214,68 @@ export function MapMarker({ item, position, onStartChat, onViewStory }: MapMarke
                         {item.count && item.count > 1 && (
                             <p className="text-xs text-orange-500 font-bold mt-1">+ {item.count - 1} قصص أخرى</p>
                         )}
+                    </div>
+                </Popup>
+            </Marker>
+        )
+    }
+    // 👤🏪🏢 USER type — Global users on the map
+    if (item.type === 'USER') {
+        const user = item.data as any as LocationUser
+        const userType = (user.type || 'INDIVIDUAL') as string
+
+        // Pick the correct neon icon based on user type
+        const icon = userType === 'SHOP'
+            ? getShopIcon(false, true)
+            : userType === 'COMPANY'
+                ? getCompanyIcon(false, true)
+                : getIndividualIcon(false, true)
+
+        const typeLabel = userType === 'SHOP' ? '🏪 متجر' : userType === 'COMPANY' ? '🏢 شركة' : '👤 فرد'
+        const typeColor = userType === 'SHOP' ? 'text-amber-500' : userType === 'COMPANY' ? 'text-purple-400' : 'text-blue-400'
+
+        return (
+            <Marker
+                key={`user-${user.id}`}
+                position={position}
+                icon={icon}
+                eventHandlers={{
+                    mouseover: onMouseEnter,
+                    mouseout: onMouseLeave
+                }}
+            >
+                <Popup>
+                    <div className="text-right min-w-[160px] p-1" dir="rtl">
+                        <div className="flex items-center gap-2 mb-2">
+                            {user.avatarUrl ? (
+                                <img src={user.avatarUrl} className="w-8 h-8 rounded-full object-cover border-2 border-white shadow" alt="" />
+                            ) : (
+                                <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center">
+                                    <UserIcon size={16} className="text-zinc-400" />
+                                </div>
+                            )}
+                            <div>
+                                <h3 className="font-bold text-sm leading-tight">{user.name || user.username || 'مستخدم'}</h3>
+                                <span className={`text-[10px] font-medium ${typeColor}`}>{typeLabel}</span>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            {user.username && (
+                                <Link
+                                    href={`/u/${user.username}`}
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="bg-blue-600 text-white px-3 py-1.5 rounded text-xs w-full flex justify-center items-center gap-1 hover:bg-blue-700 transition"
+                                >
+                                    <UserIcon size={12} /> زيارة الملف
+                                </Link>
+                            )}
+                            <button
+                                className="bg-emerald-600 text-white px-3 py-1.5 rounded text-xs w-full flex justify-center items-center gap-1 hover:bg-emerald-700 transition"
+                                onClick={(e) => { e.stopPropagation(); onStartChat(user.id, user.id, user.name); }}
+                            >
+                                <MessageCircle size={12} /> تواصل
+                            </button>
+                        </div>
                     </div>
                 </Popup>
             </Marker>

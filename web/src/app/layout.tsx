@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Cairo } from 'next/font/google'
 import './globals.css'
 import { cn } from '@/lib/utils'
 import { Toaster } from 'sonner'
@@ -7,7 +7,8 @@ import SocketStatus from '@/components/debug/SocketStatus'
 import { SocketProvider } from '@/providers/SocketProvider'
 import { SearchMenu } from '@/components/ui/SearchMenu'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-cairo' })
 
 export const metadata: Metadata = {
     title: 'SouqMap - منصة التجارة المحلية الذكية',
@@ -31,7 +32,8 @@ export default function RootLayout({
         <html lang="ar" dir="rtl" className="dark" suppressHydrationWarning>
             <body
                 className={cn(
-                    inter.className,
+                    cairo.variable,
+                    inter.variable,
                     'min-h-screen bg-background font-sans antialiased text-foreground'
                 )}
                 suppressHydrationWarning
