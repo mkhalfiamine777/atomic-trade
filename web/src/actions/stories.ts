@@ -1,6 +1,7 @@
 'use server'
 
 import { db } from '@/lib/db'
+import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { MediaType } from '@prisma/client'
 
@@ -8,13 +9,16 @@ export async function createStory(formData: FormData) {
     try {
         const mediaUrl = formData.get('mediaUrl') as string
         const caption = formData.get('caption') as string
-        const userId = formData.get('userId') as string
         const latitude = parseFloat(formData.get('latitude') as string)
         const longitude = parseFloat(formData.get('longitude') as string)
-        const mediaType = (formData.get('mediaType') as MediaType) || MediaType.IMAGE // Passed from client
+        const mediaType = (formData.get('mediaType') as MediaType) || MediaType.IMAGE
 
-        if (!mediaUrl || !userId) {
-            return { error: 'Missing file or user ID' }
+        // 🛡️ Auth: Use cookie, NEVER trust FormData userId
+        const cookieStore = await cookies()
+        const userId = cookieStore.get('user_id')?.value
+
+        if (!userId || !mediaUrl) {
+            return { error: 'Missing file or authentication' }
         }
 
         // Save to DB

@@ -82,7 +82,7 @@ export async function createListing(formData: FormData) {
             stack: error.stack
         } : { message: String(error) }
         console.error('Market Error Details:', errDetails)
-        return { error: 'فشل إنشاء العرض: ' + errDetails.message }
+        return { error: 'فشل إنشاء العرض، يرجى المحاولة لاحقاً.' }
     }
 }
 
@@ -97,7 +97,7 @@ export async function getListings() {
                         name: true,
                         username: true,
                         avatarUrl: true,
-                        phone: true,
+                        // ⛔ phone removed — prevent public leak
                         reputationScore: true, // 🛡️ Trust Score
                         isVerified: true, // ✅ Verified Badge
                         type: true, // 👤 INDIVIDUAL, 🏪 SHOP

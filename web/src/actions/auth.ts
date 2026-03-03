@@ -129,7 +129,23 @@ export async function getUser() {
         if (!userId) return null
 
         const user = await db.user.findUnique({
-            where: { id: userId }
+            where: { id: userId },
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                phone: true,
+                avatarUrl: true,
+                type: true,
+                shopCategory: true,
+                bio: true,
+                reputationScore: true,
+                isVerified: true,
+                latitude: true,
+                longitude: true,
+                createdAt: true,
+                // ⛔ password explicitly excluded
+            }
         })
 
         return user

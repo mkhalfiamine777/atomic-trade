@@ -21,7 +21,7 @@ app.prepare().then(() => {
         path: '/api/socket',
         addTrailingSlash: false,
         cors: {
-            origin: process.env.NEXT_PUBLIC_APP_URL || '*',
+            origin: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
             methods: ['GET', 'POST'],
         },
     })
@@ -75,6 +75,11 @@ app.prepare().then(() => {
 
         // ── Send message → broadcast to room ────────────────
         socket.on('send_message', (data: { conversationId: string;[key: string]: unknown }) => {
+            // 🛡️ Security: Only broadcast if sender is actually in the room
+            if (!socket.rooms.has(data.conversationId)) {
+                console.warn(`🚨 Security: Socket ${socket.id} tried to send to room ${data.conversationId} without joining`)
+                return
+            }
             // Broadcast to everyone in the room EXCEPT sender
             socket.to(data.conversationId).emit('receive_message', data)
         })
