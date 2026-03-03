@@ -24,7 +24,7 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
 
     // 1. Fetch Posts (Video & Image)
     const postsPromise = db.socialPost.findMany({
-        take: limit * 2,
+        take: limit, // جلب العدد المطلوب فقط لضمان عدم ضياع أي منشور
         skip: skip,
         where: {
             mediaType: { in: ['VIDEO', 'IMAGE'] }
@@ -117,5 +117,7 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
         [combined[i], combined[j]] = [combined[j], combined[i]]
     }
 
-    return combined.slice(0, limit)
+    // إرجاع كل العناصر المدمجة (المنشورات + القصص) دون اقتطاعها
+    // هذا يضمن أن كل منشور تم جلبه سيتم عرضه ولن يضيع بين الصفحات
+    return combined
 }
