@@ -22,23 +22,32 @@ export async function purchaseZone(geohash: string) {
             return { error: 'عذراً، هذه المنطقة مملوكة مسبقاً لسيد آخر!' }
         }
 
-        // 2. Check User Balance (Mocked for Demo - We assume he is rich)
-        // In real logic:
-        // const user = await db.user.findUnique({ where: { id: userId } })
-        // if (user.walletBalance < 5000) return { error: "رصيدك غير كافي" }
-
-        // 3. Create the Zone Fiefdom
-        const newZone = await db.zoneMaster.create({
-            data: {
-                geoHash: geohash,
-                zoneName: `إقطاعية ${geohash.slice(0, 5)}`,
-                currentLordId: userId,
-                taxRate: 1.5 // Default Tax
-            }
+        // 2. Check User Coins Balance
+        const ZONE_COST = 500 // coins
+        const user = await db.user.findUnique({
+            where: { id: userId },
+            select: { coins: true }
         })
 
-        // 4. Update User stats (Mock)
-        // await db.user.update({ where: { id: userId }, data: { walletBalance: { decrement: 5000 } } })
+        if (!user || user.coins < ZONE_COST) {
+            return { error: `رصيدك غير كافي. تحتاج ${ZONE_COST} عملة (لديك ${user?.coins || 0})` }
+        }
+
+        // 3. Create Zone + Deduct Coins in a transaction
+        const [newZone] = await db.$transaction([
+            db.zoneMaster.create({
+                data: {
+                    geoHash: geohash,
+                    zoneName: `إقطاعية ${geohash.slice(0, 5)}`,
+                    currentLordId: userId,
+                    taxRate: 1.5
+                }
+            }),
+            db.user.update({
+                where: { id: userId },
+                data: { coins: { decrement: ZONE_COST } }
+            })
+        ])
 
         revalidatePath('/dashboard')
         return { success: true, zone: newZone }

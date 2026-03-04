@@ -28,13 +28,13 @@ export async function login(_prevState: unknown, formData: FormData) {
             where: { phone }
         })
 
-        // Password validation is handled below with bcrypt
+        if (!user) {
+            return { error: 'رقم الهاتف أو كلمة المرور غير صحيحة' }
+        }
 
-        // Check password (support both hashed and legacy plain-text for dev transition if needed,
-        // but for strict security we only support hashed)
-        const isMatch = await bcrypt.compare(password, user?.password || '')
+        const isMatch = await bcrypt.compare(password, user.password)
 
-        if (!user || !isMatch) {
+        if (!isMatch) {
             return { error: 'رقم الهاتف أو كلمة المرور غير صحيحة' }
         }
 
@@ -120,37 +120,9 @@ export async function logout() {
     redirect('/login')
 }
 
-// Get current logged-in user from session cookie
+// D-1 FIX: getUser() is DEPRECATED — use getCurrentUser() from '@/actions/getCurrentUser' instead.
+/** @deprecated Use getCurrentUser() instead */
 export async function getUser() {
-    try {
-        const cookieStore = await cookies()
-        const userId = cookieStore.get('user_id')?.value
-
-        if (!userId) return null
-
-        const user = await db.user.findUnique({
-            where: { id: userId },
-            select: {
-                id: true,
-                name: true,
-                username: true,
-                phone: true,
-                avatarUrl: true,
-                type: true,
-                shopCategory: true,
-                bio: true,
-                reputationScore: true,
-                isVerified: true,
-                latitude: true,
-                longitude: true,
-                createdAt: true,
-                // ⛔ password explicitly excluded
-            }
-        })
-
-        return user
-    } catch (error) {
-        console.error("Error getting user session:", error)
-        return null
-    }
+    const { getCurrentUser } = await import('@/actions/getCurrentUser')
+    return getCurrentUser()
 }

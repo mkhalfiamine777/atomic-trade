@@ -1,6 +1,7 @@
 'use server'
 
 import { cookies } from 'next/headers'
+import { db } from '@/lib/db'
 import { submitTransactionRating } from '@/services/trustService'
 
 export async function submitReview(targetUserId: string, listingId: string, rating: number, comment: string) {
@@ -14,6 +15,21 @@ export async function submitReview(targetUserId: string, listingId: string, rati
 
         if (currentUserId === targetUserId) {
             return { success: false, error: 'لا يمكنك تقييم نفسك!' }
+        }
+
+        // S-1 FIX: Verify that a real transaction/conversation exists between the two users
+        const conversation = await db.conversation.findFirst({
+            where: {
+                listingId: listingId,
+                OR: [
+                    { participant1Id: currentUserId, participant2Id: targetUserId },
+                    { participant1Id: targetUserId, participant2Id: currentUserId }
+                ]
+            }
+        })
+
+        if (!conversation) {
+            return { success: false, error: 'لا يمكنك التقييم بدون معاملة سابقة مع هذا المستخدم' }
         }
 
         const result = await submitTransactionRating(currentUserId, targetUserId, listingId, rating, comment)

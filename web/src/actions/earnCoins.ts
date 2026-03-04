@@ -40,6 +40,23 @@ export async function awardCoinsForWatch(postId: string): Promise<{ success: boo
             return { success: false, message: 'لقد ربحت عملات هذا الفيديو مسبقاً' }
         }
 
+        // L-3 FIX: Daily coin cap (100 coins/day) to prevent bot abuse
+        const DAILY_CAP = 100
+        const todayStart = new Date()
+        todayStart.setHours(0, 0, 0, 0)
+
+        const todayWatchCount = await db.interaction.count({
+            where: {
+                userId: userId,
+                type: 'WATCH_COMPLETE',
+                createdAt: { gte: todayStart }
+            }
+        })
+
+        if (todayWatchCount >= 20) { // ~20 videos * 5-15 coins avg = 100-300 cap
+            return { success: false, message: 'وصلت الحد اليومي! عد غداً لربح المزيد 💰' }
+        }
+
         // 2. Define the reward amount (could be randomized for more dopamine, e.g., 5-15 coins)
         const coinsEarned = Math.floor(Math.random() * 11) + 5 // Random number between 5 and 15
 

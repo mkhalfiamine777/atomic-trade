@@ -23,6 +23,6 @@ export const createListingSchema = z.object({
     category: z.string().min(1, { message: "التصنيف مطلوب" }),
     subcategory: z.string().nullish(),
     imageUrl: z.string().nullish(), // URL from Uploadthing
-    latitude: z.coerce.number().nullish(),
-    longitude: z.coerce.number().nullish(),
+    latitude: z.coerce.number({ message: "الموقع مطلوب" }),
+    longitude: z.coerce.number({ message: "الموقع مطلوب" }),
 });

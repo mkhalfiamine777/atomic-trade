@@ -53,9 +53,7 @@ export async function submitTransactionRating(
     // 2. Calculate reputation adjustment
     const scoreAdjustment = RATING_WEIGHTS[rating as keyof typeof RATING_WEIGHTS]
 
-    if (scoreAdjustment === 0) return { success: true, message: 'Neutral rating recorded' }
-
-    // 3. Update the target user's reputation score within boundaries
+    // 3. Fetch target user's current reputation
     const targetUser = await db.user.findUnique({
         where: { id: targetUserId },
         select: { reputationScore: true }
@@ -63,6 +61,11 @@ export async function submitTransactionRating(
 
     if (!targetUser) {
         throw new Error("Target user not found")
+    }
+
+    // If neutral (3 stars), return current score without changing it
+    if (scoreAdjustment === 0) {
+        return { success: true, newScore: targetUser.reputationScore, adjustment: 0 }
     }
 
     let newScore = targetUser.reputationScore + scoreAdjustment

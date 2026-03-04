@@ -11,7 +11,7 @@ export interface UserProfile {
     name: string | null
     username: string | null
     email?: string | null
-    type: 'INDIVIDUAL' | 'SHOP' | null
+    type: 'INDIVIDUAL' | 'SHOP' | 'COMPANY' | null
     avatarUrl: string | null
     isVerified: boolean
     reputationScore: number
@@ -30,7 +30,7 @@ export interface LocationUser {
     avatarUrl: string | null
     latitude: number
     longitude: number
-    type: 'INDIVIDUAL' | 'SHOP' | null
+    type: 'INDIVIDUAL' | 'SHOP' | 'COMPANY' | null
     isOnline: boolean
     hasStories: boolean
 }

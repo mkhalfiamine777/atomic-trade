@@ -43,7 +43,7 @@ export default async function UserProfilePage(props: {
                 isVerified: true,
                 reputationScore: true,
                 createdAt: true,
-                stories: true
+                stories: { select: { id: true, mediaUrl: true, mediaType: true, caption: true } } // P-1: Only needed fields
             }
         })
     }
@@ -63,7 +63,7 @@ export default async function UserProfilePage(props: {
                 isVerified: true,
                 reputationScore: true,
                 createdAt: true,
-                stories: true
+                stories: { select: { id: true, mediaUrl: true, mediaType: true, caption: true } } // P-1: Only needed fields
             }
         })
     }

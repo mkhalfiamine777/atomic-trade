@@ -5,7 +5,7 @@
 > 3.  **GOAL:** لا تشتت. التزم بالمسار. كل ميزة يجب أن تخدم **العرض والطلب على الخريطة**.
 
 **Last Updated:** 2026-03-04
-**Status:** Session 20 Complete (Comprehensive Audit & Fixes) 🟢
+**Status:** Session 20b Complete (Deep Audit Execution — 18/20 fixes) 🟢
 **Time Report:** [View Report](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/cbcde559-0035-44e2-ae2e-51b1c66aa2ac/time_tracking_report.md)
 **📜 Core Vision:** [الوثيقة التأسيسية](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/0eee0296-0fbf-43ba-ad1c-7b67f579aedc/core_vision_report.md) ← **اقرأها أولاً!**
 **💥 boom_Report:** [السجل التاريخي الشامل](session_reports/boom_Report.md) ← **يُحدَّث أوتوماتيكياً عند `/session_end`**
@@ -59,6 +59,14 @@
 *   **🏗️ تحسين هندسي:** توحيد auth (`getCurrentUser`)، إزالة `as any` من `feedService` و`CommentsSheet`.
 *   **✅ Build:** ناجح 0 أخطاء — 20 صفحة (8 static + 12 dynamic).
 *   **التقارير:** [تقرير التدقيق الشامل](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/cbcde559-0035-44e2-ae2e-51b1c66aa2ac/Comprehensive_Audit_Session_20.md)
+
+### 📅 04-03-2026 — الجلسة 20b (🔬 التدقيق العميق وتنفيذ الإصلاحات)
+*   **🔬 تدقيق عميق خبير:** فحص 25+ ملف مصدري عبر جميع الطبقات. اكتشاف 20 مشكلة إضافية (6 حرجة، 11 متوسطة، 3 منخفضة).
+*   **🛡️ إصلاح أمني:** منع قصف السمعة (فحص معاملة في `trust.ts`)، فحص User قبل bcrypt، lat/lng إجبارية.
+*   **🔧 إصلاح منطقي:** تفعيل خصم 500 عملة لشراء المنطقة (`zones.ts`)، إرجاع `newScore` عند neutral (`trustService.ts`)، حد يومي لـ Watch-to-Earn.
+*   **🏗️ تحسين هندسي:** حذف Prisma types مكررة، static import لـ feedService، `getUser()` → wrapper لـ `getCurrentUser`، `originalPrice` في Schema.
+*   **✅ Build:** ناجح 0 أخطاء — 23 صفحة.
+*   **التقارير:** [تقرير التدقيق العميق](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/cbcde559-0035-44e2-ae2e-51b1c66aa2ac/Expert_Deep_Audit_Session_20b.md)
 
 ### 📅 04-03-2026 — الجلسة 19 (🚀 Explore Addiction Engine: Gamification & Feeds)
 *   **🔴 الإنجاز الجوهري: محرك الإدمان التفاعلي (Explore Engine):**
@@ -454,6 +462,8 @@
 | **أيقونات المستخدمين** | `walkthrough_user_icons.md` | تقرير إصلاح أيقونات المستخدمين على الخريطة (روح المشروع). |
 | **تتبع الأيقونات** | `User_Map_Icons_Report.md` | تحليل تاريخي لجميع التقارير المتعلقة بالأيقونات. |
 | **محرك الاستكشاف** | `session_reports/Explore_Session_Report.md` | تفاصيل ميكانيكيات التفاعل، الشبح، وتخفيض السعر في Explore. |
+| **التدقيق الشامل (ج20)** | `Comprehensive_Audit_Session_20.md` | تدقيق 5 محاور (أمني، تقني، هندسي، تكاملي، تكراري) — 17 مشكلة. |
+| **التحسينات المستقبلية** | `session_reports/the_future.md` | 4 تحسينات مؤجلة مع المتطلبات التقنية والأولويات. |
 
 **⚠️ نصيحة:** ارجع لهذه التقارير عند الرغبة في فهم "لماذا" تم اتخاذ قرار تصميمي معين في الكود. 🎯
 

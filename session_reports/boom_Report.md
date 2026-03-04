@@ -22,6 +22,25 @@
 | 21:09 | 🟠 SEC-3: توحيد auth — Admin layout يستخدم `getCurrentUser` | `admin/layout.tsx` |
 | 21:19 | ✅ **Build ناجح:** 0 أخطاء — 20 صفحة | `npm run build` |
 
+### 🟢 04-03-2026 | 22:21 → 22:53 | الجلسة 20b — 🔬 التدقيق العميق وتنفيذ 18 إصلاح
+| الوقت | الحدث | التقرير/الملف |
+|-------|-------|---------------|
+| 22:21 | بدء التدقيق العميق الخبير (25+ ملف، 7 فئات) | [Expert_Deep_Audit](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/cbcde559-0035-44e2-ae2e-51b1c66aa2ac/Expert_Deep_Audit_Session_20b.md) |
+| 22:25 | 🔴 S-1: منع قصف السمعة (فحص conversation) | `trust.ts` |
+| 22:25 | 🔴 L-1: إصلاح return shape neutral rating | `trustService.ts` |
+| 22:25 | 🔴 T-1: إضافة COMPANY للأنواع المحلية | `types/index.ts` |
+| 22:25 | 🔴 L-2: تفعيل خصم 500 عملة لشراء المنطقة | `zones.ts` |
+| 22:25 | 🔴 DI-1: حفظ originalPrice + حقل Schema | `schema.prisma` + `interactions.ts` |
+| 22:30 | 🟠 L-3: حد يومي 20 فيديو لـ Watch-to-Earn | `earnCoins.ts` |
+| 22:30 | 🟠 S-2: lat/lng إجبارية للمنتجات | `schemas.ts` |
+| 22:30 | 🟠 S-3: فحص User قبل bcrypt | `auth.ts` |
+| 22:32 | 🟠 T-2 + P-2: حذف Prisma types مكررة + static import | `feed.ts` |
+| 22:32 | 🟠 I-3: إضافة STORIES لـ ContentType | `getProfileContent.ts` |
+| 22:32 | 🟠 D-1: getUser() → wrapper لـ getCurrentUser | `auth.ts` |
+| 22:35 | 🟡 P-1: تحسين stories select في Profile | `u/[username]/page.tsx` |
+| 22:38 | `npx prisma generate` — تجديد الأنواع | Prisma Client v5.10.0 |
+| 22:43 | ✅ **Build ناجح:** 0 أخطاء — 23 صفحة | `npm run build` |
+
 ---
 
 ### 🟢 04-03-2026 | Session 19 — 🚀 محرك الإدمان الاستكشافي (Explore Addiction Engine)

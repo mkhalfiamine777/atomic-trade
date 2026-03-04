@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db'
 
-export type ContentType = 'VIDEOS' | 'IMAGES' | 'SALES' | 'REQUESTS'
+export type ContentType = 'VIDEOS' | 'IMAGES' | 'STORIES' | 'SALES' | 'REQUESTS'
 
 export async function getProfileContent(userId: string, type: ContentType, page: number = 1, limit: number = 12) {
     try {

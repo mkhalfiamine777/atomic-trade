@@ -123,6 +123,7 @@ model Listing {
   // Crowd Price Drop (Phase 6)
   crowdTarget   Int?     // Target number of likes needed for discount
   crowdDiscount Float?   // Discount amount applied if target reached
+  originalPrice Float?   // DI-1: Original price before Crowd Price Drop was applied
 
   sellerId    String
   seller      User     @relation(fields: [sellerId], references: [id])
