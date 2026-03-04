@@ -22,6 +22,9 @@ async function verifyAdmin(): Promise<{ authorized: boolean; error?: string }> {
 
 // Fetch all users with basic stats
 export async function getAllUsers() {
+    const { authorized, error } = await verifyAdmin()
+    if (!authorized) return { error }
+
     try {
         const users = await db.user.findMany({
             orderBy: { createdAt: 'desc' },
@@ -49,6 +52,9 @@ export async function getAllUsers() {
 
 // Toggle Verification Status (The Blue Tick ✅)
 export async function toggleUserVerification(userId: string, currentStatus: boolean) {
+    const { authorized, error } = await verifyAdmin()
+    if (!authorized) return { error }
+
     try {
         await db.user.update({
             where: { id: userId },
@@ -64,6 +70,9 @@ export async function toggleUserVerification(userId: string, currentStatus: bool
 
 // Reset Reputation Score (A form of warning/punishment)
 export async function resetReputation(userId: string) {
+    const { authorized, error } = await verifyAdmin()
+    if (!authorized) return { error }
+
     try {
         await db.user.update({
             where: { id: userId },

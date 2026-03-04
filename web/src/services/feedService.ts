@@ -153,7 +153,7 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
     }))
 
     // 🛍️ Map Listings
-    const listingItems: FeedItemDTO[] = listings.map((listing: any) => {
+    const listingItems: FeedItemDTO[] = listings.map((listing: ListingWithSeller & { interactions: { id: string; type: string; userId: string }[] }) => {
         const imageUrl = listing.images ? listing.images.split(',')[0].trim() : ''
         const likeCount = listing.interactions?.filter((i: any) => i.type === 'LIKE').length || 0
         const isLiked = currentUserId ? listing.interactions?.some((i: any) => i.type === 'LIKE' && i.userId === currentUserId) : false

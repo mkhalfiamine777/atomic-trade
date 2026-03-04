@@ -12,6 +12,7 @@ datasource db {
 enum UserType {
   INDIVIDUAL
   SHOP
+  COMPANY
 }
 
 enum SubscriptionPlan {

@@ -48,6 +48,7 @@ export async function getComments(targetId: string) {
                 postId: targetId,
                 type: 'COMMENT'
             },
+            take: 50,
             include: {
                 user: {
                     select: {

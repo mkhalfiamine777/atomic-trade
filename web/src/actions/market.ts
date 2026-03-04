@@ -8,7 +8,6 @@ import { ListingType } from '@prisma/client'
 import { createListingSchema } from '@/lib/schemas'
 
 export async function createListing(formData: FormData) {
-    console.log("🚀 Create Listing Action Triggered!")
     // 1. Auth Check
     const userId = (await cookies()).get('user_id')?.value
     if (!userId) {
@@ -77,11 +76,7 @@ export async function createListing(formData: FormData) {
         revalidatePath('/dashboard')
         return { success: true }
     } catch (error: unknown) {
-        const errDetails = error instanceof Error ? {
-            message: error.message,
-            stack: error.stack
-        } : { message: String(error) }
-        console.error('Market Error Details:', errDetails)
+        console.error('Market Error:', error instanceof Error ? error.message : error)
         return { error: 'فشل إنشاء العرض، يرجى المحاولة لاحقاً.' }
     }
 }
@@ -102,24 +97,13 @@ export async function getListings() {
                         isVerified: true, // ✅ Verified Badge
                         type: true, // 👤 INDIVIDUAL, 🏪 SHOP
                         shopCategory: true, // 🏷️ Category
-                        latitude: true, // 📍 Fetch Seller Location
-                        longitude: true
+                        // ⛔ latitude/longitude removed — prevent public tracking of sellers
                     }
                 }
             }
         })
 
-        // Live Location Overwrite for INDIVIDUALS 🚶‍♂️
-        return listings.map(l => {
-            if (l.seller.type === 'INDIVIDUAL' && l.seller.latitude && l.seller.longitude) {
-                return {
-                    ...l,
-                    latitude: l.seller.latitude,
-                    longitude: l.seller.longitude
-                }
-            }
-            return l
-        })
+        return listings
     } catch (_error) {
         return []
     }

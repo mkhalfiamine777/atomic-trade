@@ -1,23 +1,28 @@
 import { redirect } from "next/navigation"
-import { getUser } from "@/actions/auth"
+import { getCurrentUser } from "@/actions/getCurrentUser"
+import { db } from "@/lib/db"
 
 export default async function AdminLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
-    const user = await getUser()
+    const user = await getCurrentUser()
+
+    if (!user) {
+        redirect("/")
+    }
 
     // Security for Production (Railway):
     // Check if the user's phone number exists in the allowed ADMIN_PHONES environment variable.
-    // Example in Railway settings: ADMIN_PHONES="+212600000000,+212611111111"
     const adminPhones = process.env.ADMIN_PHONES ? process.env.ADMIN_PHONES.split(',') : []
-
-    // We allow access if it's local development OR if their phone matches the admin list in production.
     const isDev = process.env.NODE_ENV === 'development'
 
-    if (!user || (!isDev && !adminPhones.includes(user.phone))) {
-        redirect("/") // Redirect unauthorized users back to the homepage
+    if (!isDev && adminPhones.length > 0) {
+        const dbUser = await db.user.findUnique({ where: { id: user.id }, select: { phone: true } })
+        if (!dbUser || !adminPhones.includes(dbUser.phone)) {
+            redirect("/")
+        }
     }
 
     return (

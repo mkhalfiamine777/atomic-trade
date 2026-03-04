@@ -5,7 +5,7 @@
 > 3.  **GOAL:** لا تشتت. التزم بالمسار. كل ميزة يجب أن تخدم **العرض والطلب على الخريطة**.
 
 **Last Updated:** 2026-03-04
-**Status:** Session 19 Complete (Explore Addiction Engine) 🟢
+**Status:** Session 20 Complete (Comprehensive Audit & Fixes) 🟢
 **Time Report:** [View Report](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/cbcde559-0035-44e2-ae2e-51b1c66aa2ac/time_tracking_report.md)
 **📜 Core Vision:** [الوثيقة التأسيسية](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/0eee0296-0fbf-43ba-ad1c-7b67f579aedc/core_vision_report.md) ← **اقرأها أولاً!**
 **💥 boom_Report:** [السجل التاريخي الشامل](session_reports/boom_Report.md) ← **يُحدَّث أوتوماتيكياً عند `/session_end`**
@@ -39,21 +39,26 @@
 ---
 
 ## 📍 2. الحالة الحالية (Current Pulse)
-**نحن الآن في:** إتمام **الجلسة 19** (محرك الإدمان والتفاعل - Explore Addiction Engine).
-*   ✅ **تم إنجاز (المحرك التفاعلي Explore):**
-    1. **إصلاح أيقونات المستخدمين على الخريطة:** اكتشاف وإصلاح خطأ جذري أن `globalUsers` كانوا يُعرضون بنوع `POST` (بلا معالج) منذ 18 فبراير ولم يظهروا أبداً.
-    2. إضافة نوع `USER` جديد في `MapItem` مع معالج مخصص يستخدم `getIndividualIcon` (👤 أزرق) / `getShopIcon` (🏪 ذهبي) / `getCompanyIcon` (🏢 بنفسجي).
-    3. إعادة تصميم نظام الإشعارات بالكامل: popout أفقي + auto-dismiss + حذف فردي + صفحة `/notifications`.
-    4. تجميع أيقونات الخريطة المتراكبة بتصفح أسهم + نافذة معلومات غنية.
-    5. منظومة إخفاء ذكي (30 ثانية) + Hover-to-reveal + Click-to-pin لأيقونات المحيط.
-    6. إصلاح عرض النص العربي عبر تكوين خط Cairo في Tailwind.
-    7. توسيط شريط البحث الذكي أعلى الصفحة.
+**نحن الآن في:** إتمام **الجلسة 20** (التدقيق الشامل وإصلاح الديون التقنية).
+*   ✅ **تم إنجاز (الجلسة 20 — تدقيق شامل):**
+    1. **تدقيق تقني 5 محاور:** فحص 15+ ملف عبر جميع طبقات المشروع (أمني، تقني، هندسي، تكاملي، تكراري).
+    2. **إصلاح 4 مشاكل حرجة:** حماية دوال Admin، تجديد Prisma Types، إضافة `COMPANY` enum، إزالة تسريب `error.stack`.
+    3. **إصلاح 8 مشاكل متوسطة:** حذف ملفات debug، توحيد auth، pagination، إزالة `as any`، إخفاء موقع البائع.
+    4. **بناء ناجح:** `npm run build` — 0 أخطاء، 20 صفحة.
 *   🚀 **حالة النظام:** **مستقر (Stable) وآمن** بدرجة عالية.
-*   🚧 **المرحلة القادمة:** تحسين اقتصاد السيطرة (Zone Master Tax)، وأنظمة الإعلانات.
+*   🚧 **المرحلة القادمة:** المزاد العكسي الخاطف (Flash Auctions)، اقتصاد السيطرة (Zone Master Tax)، أو خوارزمية السمعة المتقدمة.
 
 ---
 
 ## 📜 3. سجل الإنجازات (Achievement Log)
+
+### 📅 04-03-2026 — الجلسة 20 (🔍 تدقيق شامل وإصلاح الديون التقنية)
+*   **🔴 تدقيق شامل 5 محاور:** فحص 15+ ملف مصدري عبر جميع الطبقات. اكتشاف 17 مشكلة (4 حرجة، 9 متوسطة، 4 منخفضة).
+*   **🛡️ إصلاح أمني:** تفعيل `verifyAdmin()` في دوال Admin، إزالة تسريب `error.stack`، إخفاء موقع البائع، pagination للتعليقات.
+*   **🔧 إصلاح تقني:** إضافة `COMPANY` لـ UserType enum، تجديد Prisma Types، حذف `debug-feed.ts`.
+*   **🏗️ تحسين هندسي:** توحيد auth (`getCurrentUser`)، إزالة `as any` من `feedService` و`CommentsSheet`.
+*   **✅ Build:** ناجح 0 أخطاء — 20 صفحة (8 static + 12 dynamic).
+*   **التقارير:** [تقرير التدقيق الشامل](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/cbcde559-0035-44e2-ae2e-51b1c66aa2ac/Comprehensive_Audit_Session_20.md)
 
 ### 📅 04-03-2026 — الجلسة 19 (🚀 Explore Addiction Engine: Gamification & Feeds)
 *   **🔴 الإنجاز الجوهري: محرك الإدمان التفاعلي (Explore Engine):**

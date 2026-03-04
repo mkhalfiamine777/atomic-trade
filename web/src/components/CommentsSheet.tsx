@@ -30,7 +30,7 @@ export function CommentsSheet({ listingId, onClose, currentUserId }: Props) {
         setIsLoading(true)
         const data = await getComments(listingId)
         // Adjust type if needed, assuming the action returns compatible structure
-        setComments(data as any)
+        setComments(data as Comment[])
         setIsLoading(false)
     }
 
