@@ -2,21 +2,17 @@
 
 import { db } from '@/lib/db'
 
-export type ContentType = 'MEDIA' | 'SALES' | 'REQUESTS'
+export type ContentType = 'VIDEOS' | 'IMAGES' | 'SALES' | 'REQUESTS'
 
 export async function getProfileContent(userId: string, type: ContentType, page: number = 1, limit: number = 12) {
     try {
         const skip = (page - 1) * limit
 
-        if (type === 'MEDIA') {
-            // Fetch Mixed Media (Stories + Posts)
-            // Note: Pagination for mixed types is tricky. 
-            // For simplicity in this iteration, we will just fetch Posts here. 
-            // Stories are usually few and recent, so we might keep them separate or just fetch posts.
-            // Let's fetch SocialPosts specifically for infinite scroll.
+        if (type === 'VIDEOS' || type === 'IMAGES') {
+            const filterMediaType = type === 'VIDEOS' ? 'VIDEO' : 'IMAGE'
 
             const posts = await db.socialPost.findMany({
-                where: { userId },
+                where: { userId, mediaType: filterMediaType },
                 orderBy: { createdAt: 'desc' },
                 take: limit,
                 skip: skip,
@@ -34,7 +30,7 @@ export async function getProfileContent(userId: string, type: ContentType, page:
                 }
             })
 
-            const total = await db.socialPost.count({ where: { userId } })
+            const total = await db.socialPost.count({ where: { userId, mediaType: filterMediaType } })
             const hasMore = skip + posts.length < total
 
             return {

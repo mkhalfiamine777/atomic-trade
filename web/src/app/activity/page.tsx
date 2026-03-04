@@ -16,8 +16,8 @@ export default async function ActivityRedirectPage() {
     })
 
     if (user?.username) {
-        // Redirect to profile with SALES tab activated
-        redirect(`/u/${user.username}?tab=SALES`)
+        // Redirect to activity with SALES tab activated
+        redirect(`/activity/${user.username}?tab=SALES`)
     } else {
         // Self-heal: Generate username (Same logic as Profile fix)
         const newUsername = user?.name
@@ -29,6 +29,6 @@ export default async function ActivityRedirectPage() {
             data: { username: newUsername }
         })
 
-        redirect(`/u/${newUsername}?tab=SALES`)
+        redirect(`/activity/${newUsername}?tab=SALES`)
     }
 }

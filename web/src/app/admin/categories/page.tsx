@@ -1,5 +1,7 @@
 import { CategoryManager } from "@/components/admin/CategoryManager"
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
     title: 'إدارة التصنيفات | غرفة التحكم',
 }

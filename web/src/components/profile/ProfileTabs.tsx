@@ -2,51 +2,38 @@
 
 import { useState, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ShoppingBag, Megaphone, Image as ImageIcon } from 'lucide-react'
+import { Play, Clock, Image as ImageIcon } from 'lucide-react'
 import { PostModal } from '@/components/post/PostModal'
 import { getProfileContent } from '@/actions/getProfileContent'
-import { TabStory, TabListing, TabPost } from '@/types'
+import { TabStory, TabPost } from '@/types'
 import { TabButton } from './tabs/TabButton'
 import { MediaGrid } from './tabs/MediaGrid'
-import { ListingsGrid } from './tabs/ListingsGrid'
 import { InfiniteScrollSentinel } from './tabs/InfiniteScrollSentinel'
 
 interface Props {
     userId: string
     initialStories: TabStory[]
-    initialPosts: TabPost[]
-    initialProducts: TabListing[]
-    initialRequests: TabListing[]
-    initialTab?: TabType // Optional prop to force a specific tab
+    initialVideos: TabPost[]
+    initialImages: TabPost[]
+    initialTab?: TabType
 }
 
-type TabType = 'MEDIA' | 'SALES' | 'REQUESTS'
+type TabType = 'VIDEOS' | 'STORIES' | 'IMAGES'
 
-export function ProfileTabs({ userId, initialStories, initialPosts, initialProducts, initialRequests, initialTab }: Props) {
-    const getInitialTab = (): TabType => {
-        if (initialTab) return initialTab // Use prop if provided
-
-        if (initialProducts.length > 0) return 'SALES'
-        if (initialRequests.length > 0) return 'REQUESTS'
-        return 'MEDIA'
-    }
-
-    const [activeTab, setActiveTab] = useState<TabType>(getInitialTab())
+export function ProfileTabs({ userId, initialStories, initialVideos, initialImages, initialTab }: Props) {
+    const [activeTab, setActiveTab] = useState<TabType>(initialTab || 'VIDEOS')
     const [selectedPost, setSelectedPost] = useState<TabPost | null>(null)
 
     // State for Data
-    const [posts, setPosts] = useState<TabPost[]>(initialPosts)
-    const [products, setProducts] = useState<TabListing[]>(initialProducts)
-    const [requests, setRequests] = useState<TabListing[]>(initialRequests)
+    const [videos, setVideos] = useState<TabPost[]>(initialVideos)
+    const [images, setImages] = useState<TabPost[]>(initialImages)
 
     // State for Pagination
-    const [mediaPage, setMediaPage] = useState(1)
-    const [salesPage, setSalesPage] = useState(1)
-    const [requestsPage, setRequestsPage] = useState(1)
+    const [videosPage, setVideosPage] = useState(1)
+    const [imagesPage, setImagesPage] = useState(1)
 
-    const [hasMoreMedia, setHasMoreMedia] = useState(true)
-    const [hasMoreSales, setHasMoreSales] = useState(true)
-    const [hasMoreRequests, setHasMoreRequests] = useState(true)
+    const [hasMoreVideos, setHasMoreVideos] = useState(initialVideos.length === 12)
+    const [hasMoreImages, setHasMoreImages] = useState(initialImages.length === 12)
 
     const [isLoading, setIsLoading] = useState(false)
 
@@ -55,12 +42,12 @@ export function ProfileTabs({ userId, initialStories, initialPosts, initialProdu
         setIsLoading(true)
 
         try {
-            if (activeTab === 'MEDIA') {
-                const nextPage = mediaPage + 1
-                const res = await getProfileContent(userId, 'MEDIA', nextPage)
+            if (activeTab === 'VIDEOS') {
+                const nextPage = videosPage + 1
+                const res = await getProfileContent(userId, 'VIDEOS', nextPage)
                 if (res.success && res.data) {
-                    setPosts(prev => {
-                        const newPosts = res.data
+                    setVideos(prev => {
+                        const newItems = res.data
                             .map((p: any) => ({
                                 id: p.id,
                                 mediaUrl: p.mediaUrl,
@@ -68,52 +55,32 @@ export function ProfileTabs({ userId, initialStories, initialPosts, initialProdu
                                 caption: p.caption
                             }))
                             .filter((p: TabPost) => !prev.some(existing => existing.id === p.id))
-                        return [...prev, ...newPosts]
+                        return [...prev, ...newItems]
                     })
-                    setMediaPage(nextPage)
-                    setHasMoreMedia(res.hasMore)
+                    setVideosPage(nextPage)
+                    setHasMoreVideos(res.hasMore)
                 } else {
-                    setHasMoreMedia(false)
+                    setHasMoreVideos(false)
                 }
-            } else if (activeTab === 'SALES') {
-                const nextPage = salesPage + 1
-                const res = await getProfileContent(userId, 'SALES', nextPage)
+            } else if (activeTab === 'IMAGES') {
+                const nextPage = imagesPage + 1
+                const res = await getProfileContent(userId, 'IMAGES', nextPage)
                 if (res.success && res.data) {
-                    setProducts(prev => {
-                        const newProducts = res.data
-                            .map((l: any) => ({
-                                id: l.id,
-                                title: l.title,
-                                price: l.price,
-                                images: l.images
+                    setImages(prev => {
+                        const newItems = res.data
+                            .map((p: any) => ({
+                                id: p.id,
+                                mediaUrl: p.mediaUrl,
+                                mediaType: p.mediaType,
+                                caption: p.caption
                             }))
-                            .filter((l: TabListing) => !prev.some(existing => existing.id === l.id))
-                        return [...prev, ...newProducts]
+                            .filter((p: TabPost) => !prev.some(existing => existing.id === p.id))
+                        return [...prev, ...newItems]
                     })
-                    setSalesPage(nextPage)
-                    setHasMoreSales(res.hasMore)
+                    setImagesPage(nextPage)
+                    setHasMoreImages(res.hasMore)
                 } else {
-                    setHasMoreSales(false)
-                }
-            } else if (activeTab === 'REQUESTS') {
-                const nextPage = requestsPage + 1
-                const res = await getProfileContent(userId, 'REQUESTS', nextPage)
-                if (res.success && res.data) {
-                    setRequests(prev => {
-                        const newRequests = res.data
-                            .map((l: any) => ({
-                                id: l.id,
-                                title: l.title,
-                                price: l.price,
-                                images: l.images
-                            }))
-                            .filter((l: TabListing) => !prev.some(existing => existing.id === l.id))
-                        return [...prev, ...newRequests]
-                    })
-                    setRequestsPage(nextPage)
-                    setHasMoreRequests(res.hasMore)
-                } else {
-                    setHasMoreRequests(false)
+                    setHasMoreImages(false)
                 }
             }
         } catch (error) {
@@ -121,12 +88,7 @@ export function ProfileTabs({ userId, initialStories, initialPosts, initialProdu
         } finally {
             setIsLoading(false)
         }
-    }, [activeTab, isLoading, userId, mediaPage, salesPage, requestsPage])
-
-
-    const mediaCount = initialStories.length + posts.length
-    const salesCount = products.length
-    const requestsCount = requests.length
+    }, [activeTab, isLoading, userId, videosPage, imagesPage])
 
     return (
         <div className="w-full">
@@ -134,25 +96,25 @@ export function ProfileTabs({ userId, initialStories, initialPosts, initialProdu
             <div className="sticky top-0 z-20 bg-zinc-950/80 backdrop-blur-xl border-b border-white/5 -mx-2 sm:-mx-4 px-2 sm:px-4">
                 <div className="flex relative">
                     <TabButton
-                        isActive={activeTab === 'MEDIA'}
-                        onClick={() => setActiveTab('MEDIA')}
+                        isActive={activeTab === 'VIDEOS'}
+                        onClick={() => setActiveTab('VIDEOS')}
+                        icon={<Play className="w-4 h-4" />}
+                        label="فيديوهات"
+                        count={videos.length}
+                    />
+                    <TabButton
+                        isActive={activeTab === 'STORIES'}
+                        onClick={() => setActiveTab('STORIES')}
+                        icon={<Clock className="w-4 h-4" />}
+                        label="ستوريات"
+                        count={initialStories.length}
+                    />
+                    <TabButton
+                        isActive={activeTab === 'IMAGES'}
+                        onClick={() => setActiveTab('IMAGES')}
                         icon={<ImageIcon className="w-4 h-4" />}
-                        label="المحتوى"
-                        count={mediaCount}
-                    />
-                    <TabButton
-                        isActive={activeTab === 'SALES'}
-                        onClick={() => setActiveTab('SALES')}
-                        icon={<ShoppingBag className="w-4 h-4" />}
-                        label="المنتجات"
-                        count={salesCount}
-                    />
-                    <TabButton
-                        isActive={activeTab === 'REQUESTS'}
-                        onClick={() => setActiveTab('REQUESTS')}
-                        icon={<Megaphone className="w-4 h-4" />}
-                        label="الطلبات"
-                        count={requestsCount}
+                        label="صور وملصقات"
+                        count={images.length}
                     />
                 </div>
             </div>
@@ -165,38 +127,41 @@ export function ProfileTabs({ userId, initialStories, initialPosts, initialProdu
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="min-h-[200px] flex flex-col gap-4"
+                    className="min-h-[200px] flex flex-col gap-4 mt-4"
                 >
-                    {activeTab === 'MEDIA' && (
+                    {activeTab === 'VIDEOS' && (
                         <>
                             <MediaGrid
-                                stories={initialStories}
-                                posts={posts}
+                                stories={[]}
+                                posts={videos}
                                 onPostClick={(post) => setSelectedPost(post)}
                             />
                             <InfiniteScrollSentinel
                                 onIntersect={loadMore}
-                                hasMore={hasMoreMedia}
+                                hasMore={hasMoreVideos}
                                 isLoading={isLoading}
                             />
                         </>
                     )}
-                    {activeTab === 'SALES' && (
+                    {activeTab === 'STORIES' && (
                         <>
-                            <ListingsGrid items={products} type="PRODUCT" />
-                            <InfiniteScrollSentinel
-                                onIntersect={loadMore}
-                                hasMore={hasMoreSales}
-                                isLoading={isLoading}
+                            <MediaGrid
+                                stories={initialStories}
+                                posts={[]}
+                                onPostClick={(post) => setSelectedPost(post)}
                             />
                         </>
                     )}
-                    {activeTab === 'REQUESTS' && (
+                    {activeTab === 'IMAGES' && (
                         <>
-                            <ListingsGrid items={requests} type="REQUEST" />
+                            <MediaGrid
+                                stories={[]}
+                                posts={images}
+                                onPostClick={(post) => setSelectedPost(post)}
+                            />
                             <InfiniteScrollSentinel
                                 onIntersect={loadMore}
-                                hasMore={hasMoreRequests}
+                                hasMore={hasMoreImages}
                                 isLoading={isLoading}
                             />
                         </>

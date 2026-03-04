@@ -154,7 +154,7 @@ export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnt
                             {activeListing.seller?.username && (
                                 <Link
                                     onClick={(e) => e.stopPropagation()}
-                                    href={`/u/${activeListing.seller.username}?tab=SALES`}
+                                    href={`/activity/${activeListing.seller.username}?tab=SALES`}
                                     className="bg-white/[0.06] hover:bg-white/[0.1] text-zinc-300 hover:text-white px-3 py-2 rounded-xl text-xs w-full flex justify-center items-center gap-1.5 border border-white/10 hover:border-white/20 transition-all font-medium"
                                 >
                                     <Store size={12} /> زيارة المتجر

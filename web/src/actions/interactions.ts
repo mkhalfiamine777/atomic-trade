@@ -167,7 +167,41 @@ export async function interactWithListing(listingId: string, type: 'LIKE' | 'LOV
         await db.interaction.create({
             data: { type, userId: userId, listingId }
         })
-        return { success: true, action: 'added' }
+
+        // 🔥 Crowd Price Drop Logic (Phase 6)
+        let priceDropped = false
+        let newPrice = undefined
+        let currentLikes = undefined
+
+        if (type === 'LIKE') {
+            const listing = await db.listing.findUnique({
+                where: { id: listingId },
+                select: { crowdTarget: true, crowdDiscount: true, price: true }
+            })
+
+            if (listing?.crowdTarget && listing?.crowdDiscount) {
+                currentLikes = await db.interaction.count({
+                    where: { listingId, type: 'LIKE' }
+                })
+
+                if (currentLikes >= listing.crowdTarget) {
+                    // Target hit! Apply the discount (assuming crowdDiscount is a percentage like 30)
+                    newPrice = Math.max(0, listing.price - (listing.price * (listing.crowdDiscount / 100)))
+
+                    await db.listing.update({
+                        where: { id: listingId },
+                        data: {
+                            price: newPrice,
+                            crowdTarget: null, // Clear so it only drops once
+                            crowdDiscount: null
+                        }
+                    })
+                    priceDropped = true
+                }
+            }
+        }
+
+        return { success: true, action: 'added', priceDropped, newPrice, currentLikes }
     } catch (error) {
         console.error('Error interacting with listing:', error)
         return { success: false, error: 'Database error' }

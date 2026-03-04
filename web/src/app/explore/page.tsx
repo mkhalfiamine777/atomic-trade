@@ -1,10 +1,14 @@
 import { cookies } from 'next/headers'
 import { VideoFeed } from '@/components/video/VideoFeed'
-
+import { StreakNotifier } from '@/components/video/StreakNotifier'
+import { checkAndUpdateStreak } from '@/actions/updateStreak'
 import Link from 'next/link'
 
 export default async function ExplorePage() {
     const userId = (await cookies()).get('user_id')?.value
+
+    // Check and award daily streak immediately when loading the Explore page
+    const streakStatus = await checkAndUpdateStreak()
 
     return (
         <div className="bg-black min-h-screen relative">
@@ -18,6 +22,9 @@ export default async function ExplorePage() {
                     <span className="hidden sm:inline">الخريطة</span>
                 </Link>
             </div>
+
+            {/* 🔥 Daily Streak UI */}
+            {streakStatus && <StreakNotifier status={streakStatus} />}
 
             <VideoFeed currentUserId={userId} />
         </div>

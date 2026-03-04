@@ -4,6 +4,7 @@ import { useRef, useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { VideoPlayer } from './VideoPlayer'
 import { ImageViewer } from './ImageViewer'
+import { ListingFeedCard } from './ListingFeedCard'
 import { VideoActions } from './VideoActions'
 import { getMixedFeed, type FeedItemDTO } from '@/actions/feed'
 import { toast } from 'sonner'
@@ -20,6 +21,18 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
     const [hasMore, setHasMore] = useState(true)
     const loaderRef = useRef<HTMLDivElement>(null)
 
+    // 👻 Ghost Product Session State
+    const [watchedVideos, setWatchedVideos] = useState<Set<string>>(new Set())
+
+    const handleVideoEnd = useCallback((id: string) => {
+        setWatchedVideos(prev => {
+            if (prev.has(id)) return prev
+            const next = new Set(prev)
+            next.add(id)
+            return next
+        })
+    }, [])
+
     // Preload Next Item Strategy (Video or Image)
     useEffect(() => {
         if (feedItems.length > activeIndex + 1) {
@@ -31,7 +44,7 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
                 link.rel = 'preload'
                 link.as = 'video'
                 link.href = nextItem.url
-            } else if (nextItem.type === 'IMAGE' || nextItem.type === 'STORY') {
+            } else if (nextItem.type === 'IMAGE' || nextItem.type === 'STORY' || nextItem.type === 'LISTING') {
                 link = document.createElement('link')
                 link.rel = 'preload'
                 link.as = 'image'
@@ -141,11 +154,20 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
 
                         {Math.abs(index - activeIndex) <= 1 ? (
                             <>
-                                {item.type === 'VIDEO' ? (
+                                {item.type === 'LISTING' ? (
+                                    <ListingFeedCard
+                                        item={item}
+                                        isActive={index === activeIndex}
+                                        isGhost={!item.isGoldenDeal && (item.id.charCodeAt(0) % 3 === 0)}
+                                        videosNeededForUnlock={Math.max(0, 3 - watchedVideos.size)}
+                                    />
+                                ) : item.type === 'VIDEO' ? (
                                     <div className="w-full h-full relative">
                                         <VideoPlayer
                                             src={item.url}
                                             isActive={index === activeIndex}
+                                            postId={item.id}
+                                            onEnd={() => handleVideoEnd(item.id)}
                                         />
 
                                         {/* Overlay Content for Video */}

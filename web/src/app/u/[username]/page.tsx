@@ -14,10 +14,11 @@ export default async function UserProfilePage(props: {
     const params = await props.params
     const searchParams = await props.searchParams
 
-    // Parse Tab
-    const tabParam = typeof searchParams.tab === 'string' ? searchParams.tab.toUpperCase() : undefined
-    const initialTab = ['MEDIA', 'SALES', 'REQUESTS'].includes(tabParam || '')
-        ? (tabParam as 'MEDIA' | 'SALES' | 'REQUESTS')
+    // The Profile page is now strictly for MEDIA. Tab parsing for SALES/REQUESTS is removed.
+    // The activity page handles commerce.
+    const initialTabStr = typeof searchParams.tab === 'string' ? searchParams.tab.toUpperCase() : undefined
+    const initialTab = ['VIDEOS', 'STORIES', 'IMAGES'].includes(initialTabStr || '')
+        ? (initialTabStr as 'VIDEOS' | 'STORIES' | 'IMAGES')
         : undefined
 
     // 1. Resolve User (Smart ID/Username Resolution)
@@ -72,25 +73,21 @@ export default async function UserProfilePage(props: {
     }
 
     // Parallel Fetching for Initial Content (Limit 12 for Pagination)
-    const [posts, products, requests, interactionStats] = await Promise.all([
+    const [videos, images, productsCount, postsCount, interactionStats] = await Promise.all([
         db.socialPost.findMany({
-            where: { userId: user.id },
+            where: { userId: user.id, mediaType: 'VIDEO' },
             orderBy: { createdAt: 'desc' },
             take: 12,
             select: { id: true, mediaUrl: true, mediaType: true, caption: true }
         }),
-        db.listing.findMany({
-            where: { sellerId: user.id, type: 'PRODUCT' },
+        db.socialPost.findMany({
+            where: { userId: user.id, mediaType: 'IMAGE' },
             orderBy: { createdAt: 'desc' },
             take: 12,
-            select: { id: true, title: true, price: true, images: true }
+            select: { id: true, mediaUrl: true, mediaType: true, caption: true }
         }),
-        db.listing.findMany({
-            where: { sellerId: user.id, type: 'REQUEST' },
-            orderBy: { createdAt: 'desc' },
-            take: 12,
-            select: { id: true, title: true, price: true, images: true }
-        }),
+        db.listing.count({ where: { sellerId: user.id, type: 'PRODUCT' } }),
+        db.socialPost.count({ where: { userId: user.id } }),
         db.interaction.groupBy({
             by: ['type'],
             where: {
@@ -156,18 +153,28 @@ export default async function UserProfilePage(props: {
                         stats={{
                             likes: likesCount,
                             loves: lovesCount,
-                            posts: posts.length,
-                            products: products.length
+                            posts: postsCount + mappedStories.length,
+                            products: productsCount
                         }}
                     />
 
-                    <div className="px-2 sm:px-4">
+                    <div className="flex flex-col gap-6 px-2 sm:px-4">
+                        {/* Commerce Link Button */}
+                        <div className="flex justify-center w-full mt-2">
+                            <Link
+                                href={`/activity/${user.username}`}
+                                className="w-full flex items-center justify-center gap-2 bg-zinc-800/50 hover:bg-zinc-800 border border-white/10 py-3 rounded-2xl transition-colors font-medium text-amber-500 shadow-md"
+                            >
+                                <span className="text-xl">🛍️</span>
+                                زيارة المتجر والعناصر المعروضة
+                            </Link>
+                        </div>
+
                         <ProfileTabs
                             userId={user.id}
+                            initialVideos={videos as import('@/types').TabPost[]}
+                            initialImages={images as import('@/types').TabPost[]}
                             initialStories={mappedStories}
-                            initialPosts={posts as import('@/types').TabPost[]}
-                            initialProducts={products}
-                            initialRequests={requests}
                             initialTab={initialTab}
                         />
                     </div>

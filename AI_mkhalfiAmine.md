@@ -4,8 +4,8 @@
 > 2.  **END (الاختتام):** يجب تحديث هذا الملف قبل إغلاق الجلسة. سجل "الإنجازات" الجديدة وحدث "الحالة".
 > 3.  **GOAL:** لا تشتت. التزم بالمسار. كل ميزة يجب أن تخدم **العرض والطلب على الخريطة**.
 
-**Last Updated:** 2026-03-03 12:39
-**Status:** Session 18 Complete (Phase 12: User Map Visibility — روح المشروع) 🟢
+**Last Updated:** 2026-03-04
+**Status:** Session 19 Complete (Explore Addiction Engine) 🟢
 **Time Report:** [View Report](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/cbcde559-0035-44e2-ae2e-51b1c66aa2ac/time_tracking_report.md)
 **📜 Core Vision:** [الوثيقة التأسيسية](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/0eee0296-0fbf-43ba-ad1c-7b67f579aedc/core_vision_report.md) ← **اقرأها أولاً!**
 **💥 boom_Report:** [السجل التاريخي الشامل](session_reports/boom_Report.md) ← **يُحدَّث أوتوماتيكياً عند `/session_end`**
@@ -39,8 +39,8 @@
 ---
 
 ## 📍 2. الحالة الحالية (Current Pulse)
-**نحن الآن في:** إتمام **الجلسة 18** (المرحلة 12: رؤية المستخدمين على الخريطة).
-*   ✅ **تم إنجاز (المرحلة 12 — روح المشروع):**
+**نحن الآن في:** إتمام **الجلسة 19** (محرك الإدمان والتفاعل - Explore Addiction Engine).
+*   ✅ **تم إنجاز (المحرك التفاعلي Explore):**
     1. **إصلاح أيقونات المستخدمين على الخريطة:** اكتشاف وإصلاح خطأ جذري أن `globalUsers` كانوا يُعرضون بنوع `POST` (بلا معالج) منذ 18 فبراير ولم يظهروا أبداً.
     2. إضافة نوع `USER` جديد في `MapItem` مع معالج مخصص يستخدم `getIndividualIcon` (👤 أزرق) / `getShopIcon` (🏪 ذهبي) / `getCompanyIcon` (🏢 بنفسجي).
     3. إعادة تصميم نظام الإشعارات بالكامل: popout أفقي + auto-dismiss + حذف فردي + صفحة `/notifications`.
@@ -54,6 +54,15 @@
 ---
 
 ## 📜 3. سجل الإنجازات (Achievement Log)
+
+### 📅 04-03-2026 — الجلسة 19 (🚀 Explore Addiction Engine: Gamification & Feeds)
+*   **🔴 الإنجاز الجوهري: محرك الإدمان التفاعلي (Explore Engine):**
+    *   بناء **التغذية الهجينة (Hybrid Full-Screen Feed)** تدمج الفيديوهات القصيرة، الصور،، الستوريات والمنتجات بأسلوب TikTok مع التمرير اللانهائي واستمرار Pagination بشكل ذكي جداً لجميع قواعد البيانات.
+    *   **منتج الشبح (Ghost Product):** قفل عروض ذكية لا تظهر إلا بعد إجبار المستخدم على مشاهدة عدد محدد من الفيديوهات.
+    *   **التخفيض الجماعي (Crowd Price Drop):** إضافة ميكانيكية حية تقوم بتنزيل السعر للمنتجات مباشرة عند اكتمال عداد الإعجابات (Likes Target) مع احتفالية مرئية.
+    *   **السلسلة اليومية (Daily Streak):** مكافأة تلقائية للمستخدم فور دخوله.
+    *   إصلاح أخطاء `Build` المتعلقة بالـ Server Actions (force-dynamic لصفحات التحكم) وصور الروابط الخارجية (Unsplash).
+*   **التقارير:** [تقرير جلسة الاستكشاف](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/cbcde559-0035-44e2-ae2e-51b1c66aa2ac/Explore_Session_Report.md)
 
 ### 📅 03-03-2026 — الجلسة 18 (💎 Phase 12: User Map Visibility — روح المشروع)
 *   **🔴 الإنجاز الجوهري: إظهار المستخدمين على الخريطة (User Markers Fix):**
@@ -380,9 +389,16 @@
 5.  [x] **Notification Overhaul:** إعادة هيكلة نظام الإشعارات بالكامل.
 6.  [x] **Arabic Font Fix:** Cairo كخط أساسي في Tailwind.
 
-### **ط. المرحلة المستقبلية: اقتصاد متقدم + إعلانات**
-1.  [ ] **Zone Economy & Tax:** تطبيق ضرائب الشراء وإضافتها لحساب الحاكم (Zone Master).
-2.  [ ] **Advanced Reputation Algorithm:** معادلة سمعة معقدة تدمج سرعة الرد ونسب الرضى.
+### **ط. المرحلة 13: محرك الإدمان والتفاعل (Explore Addiction Engine) — ✅ Completed**
+1.  [x] **Hybrid Feed:** توحيد الفيديوهات، الصور، الستوريات، والمنتجات في عرض احترافي مرن (`VideoFeed.tsx`).
+2.  [x] **Gamification (Ghost Product):** قفل المنتجات بناءً على شروط المشاهدة مع دعم الاستمرارية.
+3.  [x] **Gamification (Crowd Price):** تخفيضات تسعيرية حية استجابةً للجمهور المشتري والتفاعل.
+4.  [x] **Retention (Daily Streak):** تسجيل نقاط ومكافآت يومية للحفاظ على الدخول المستمر.
+
+### **ي. المرحلة المستقبلية: المزاد الخاطف واقتصاد متقدم**
+1.  [ ] **Flash Auctions:** المزادات العكسية الخاطفة (السعر ينزل مع مرور الوقت لزيادة الإلحاح).
+2.  [ ] **Zone Economy & Tax:** تطبيق ضرائب الشراء وإضافتها لحساب الحاكم (Zone Master).
+3.  [ ] **Advanced Reputation Algorithm:** معادلة سمعة معقدة تدمج سرعة الرد ونسب الرضى.
 
 ---
 
@@ -432,6 +448,7 @@
 | **الإشعارات** | `session_reports/Session_Report_2026_02_23.md` | توثيق نظام Socket.io والـ Notification Bell. |
 | **أيقونات المستخدمين** | `walkthrough_user_icons.md` | تقرير إصلاح أيقونات المستخدمين على الخريطة (روح المشروع). |
 | **تتبع الأيقونات** | `User_Map_Icons_Report.md` | تحليل تاريخي لجميع التقارير المتعلقة بالأيقونات. |
+| **محرك الاستكشاف** | `session_reports/Explore_Session_Report.md` | تفاصيل ميكانيكيات التفاعل، الشبح، وتخفيض السعر في Explore. |
 
 **⚠️ نصيحة:** ارجع لهذه التقارير عند الرغبة في فهم "لماذا" تم اتخاذ قرار تصميمي معين في الكود. 🎯
 

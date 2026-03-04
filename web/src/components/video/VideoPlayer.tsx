@@ -1,25 +1,32 @@
 'use client'
 
 import { useRef, useEffect, useState } from 'react'
-import { Play, Pause, Volume2, VolumeX } from 'lucide-react'
+import { Play, Pause, Volume2, VolumeX, Coins } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { awardCoinsForWatch } from '@/actions/earnCoins'
+import { toast } from 'sonner'
 
 interface VideoPlayerProps {
     src: string
     isActive?: boolean
     className?: string
     poster?: string
+    postId?: string // For Watch-to-Earn
+    onEnd?: () => void // For Session Watch Tracking
 }
 
 export function VideoPlayer({
     src,
     isActive = false,
     className,
-    poster
+    poster,
+    postId,
+    onEnd
 }: VideoPlayerProps) {
     const videoRef = useRef<HTMLVideoElement>(null)
     const [isPlaying, setIsPlaying] = useState(false)
     const [isMuted, setIsMuted] = useState(true)
+    const [hasEarned, setHasEarned] = useState(false)
 
     // Handle auto-play when active
     useEffect(() => {
@@ -65,6 +72,26 @@ export function VideoPlayer({
         }
     }
 
+    const handleVideoEnd = async () => {
+        setIsPlaying(false)
+        if (onEnd) onEnd() // Trigger session track
+
+        if (postId && !hasEarned) {
+            try {
+                const res = await awardCoinsForWatch(postId)
+                if (res.success && res.coinsEarned) {
+                    setHasEarned(true)
+                    toast.success(res.message, {
+                        icon: <Coins className="text-yellow-400 w-5 h-5 animate-pulse" />,
+                        duration: 4000
+                    })
+                }
+            } catch (error) {
+                console.error("Failed to unlock watch reward", error)
+            }
+        }
+    }
+
     return (
         <div
             className={cn("relative w-full h-full bg-black cursor-pointer group", className)}
@@ -74,12 +101,13 @@ export function VideoPlayer({
                 ref={videoRef}
                 src={src}
                 className="w-full h-full object-cover"
-                loop
+                loop={!postId} // If it's a monetized video, pause at end to show reward state. Otherwise loop.
                 muted={isMuted}
                 playsInline
                 poster={poster}
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
+                onEnded={handleVideoEnd}
             />
 
             {/* Play/Pause Overlay Icon */}

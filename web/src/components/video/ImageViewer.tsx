@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { VideoActions } from './VideoActions'
@@ -47,24 +46,22 @@ export function ImageViewer({
 
             {/* Background Blur for Ambience */}
             <div className="absolute inset-0 z-0 opacity-50 blur-3xl scale-110">
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                     src={src}
                     alt="Background"
-                    fill
-                    className="object-cover"
-                    priority={isActive}
+                    className="w-full h-full object-cover"
                 />
             </div>
             <div className="absolute inset-0 bg-black/30 z-0" />
 
             {/* Main Image */}
-            <div className="relative z-10 w-full h-full max-h-[85vh] aspect-[9/16] flex items-center justify-center">
-                <Image
+            <div className="relative z-10 w-full h-full max-h-[85vh] flex items-center justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                     src={src}
                     alt={alt}
-                    fill
-                    className="object-contain"
-                    priority={isActive}
+                    className="w-full h-full object-contain"
                 />
             </div>
 

@@ -1,5 +1,7 @@
 import { UserManagement } from "@/components/admin/UserManagement"
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
     title: 'إدارة المستخدمين | غرفة التحكم',
 }

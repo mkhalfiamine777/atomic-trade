@@ -40,6 +40,7 @@ enum InteractionType {
   LOVE
   COMMENT
   RATING // Added for Advanced Trust AI (Post-Transaction Reviews)
+  WATCH_COMPLETE // Added for Watch-to-Earn (Explore Addiction Engine Phase 3)
 }
 
 // --- Models ---
@@ -78,6 +79,9 @@ model User {
   longitude Float?
   subscription SubscriptionPlan @default(FREE)
   walletBalance Float @default(0.0)
+  coins       Int @default(0) // Virtual currency for Watch-to-Earn and gamification
+  streakDays  Int @default(0) // Daily active streak for Explore
+  lastStreakDate DateTime?    // Last time the streak was updated
   totalSales Int @default(0)
   listings  Listing[]
   stories   MapStory[]
@@ -114,6 +118,11 @@ model Listing {
   subcategory String?  // Standardized identifier from catalog
   latitude    Float
   longitude   Float
+
+  // Crowd Price Drop (Phase 6)
+  crowdTarget   Int?     // Target number of likes needed for discount
+  crowdDiscount Float?   // Discount amount applied if target reached
+
   sellerId    String
   seller      User     @relation(fields: [sellerId], references: [id])
   isSold      Boolean  @default(false)

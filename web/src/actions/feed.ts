@@ -3,10 +3,10 @@
 import { db } from '@/lib/db'
 import type { Prisma } from '@prisma/client'
 
-// Define the shape of a Feed Item (Video, Image, or Story)
+// Define the shape of a Feed Item (Video, Image, Story, or Listing)
 export type FeedItemDTO = {
     id: string
-    type: 'VIDEO' | 'IMAGE' | 'STORY'
+    type: 'VIDEO' | 'IMAGE' | 'STORY' | 'LISTING'
     url: string
     poster?: string
     username: string
@@ -20,6 +20,21 @@ export type FeedItemDTO = {
     isLiked: boolean
     createdAt: Date
     expiresAt?: Date // For stories
+
+    // 🛍️ Commerce Fields (Listing only)
+    price?: number | null
+    title?: string | null
+    listingType?: 'PRODUCT' | 'REQUEST'
+    sellerId?: string
+    sellerUsername?: string
+
+    // 📉 Crowd Price Drop Fields
+    crowdTarget?: number | null
+    crowdDiscount?: number | null
+
+    // 🎰 Golden Deal Fields
+    isGoldenDeal?: boolean
+    dealExpiresAt?: Date | null
 }
 
 // Type for SocialPost with user and interactions included
