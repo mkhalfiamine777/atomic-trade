@@ -43,7 +43,7 @@ export function SettingsDrawer({
     onToggleLocation,
 }: SettingsDrawerProps) {
     const router = useRouter()
-    const { showZoneGrid, toggleZoneGrid } = useAppStore()
+    const { showZoneGrid, toggleZoneGrid, mapType, toggleMapType } = useAppStore()
 
     const handleLogout = async () => {
         await logout()
@@ -167,7 +167,25 @@ export function SettingsDrawer({
                                     </div>
                                 </button>
 
-                                <MenuItem icon={Map} label="نوع الخريطة" onClick={() => { }} disabled badge="قريباً" />
+                                {/* 🗺️ Map Type Toggle */}
+                                <button
+                                    onClick={toggleMapType}
+                                    className={`flex items-center justify-between w-full p-3 rounded-xl transition-colors ${mapType === 'satellite' ? 'bg-indigo-500/10 text-indigo-400' : 'hover:bg-white/5 text-zinc-300 hover:text-white'
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <Map size={18} />
+                                        <span className="text-sm font-medium">
+                                            {mapType === 'street' ? 'خريطة الشوارع' : 'القمر الصناعي'}
+                                        </span>
+                                    </div>
+                                    <div className={`w-8 h-5 rounded-full p-1 transition-colors ${mapType === 'satellite' ? 'bg-indigo-600' : 'bg-zinc-700'}`}>
+                                        <motion.div
+                                            className="w-3 h-3 bg-white rounded-full shadow-sm"
+                                            animate={{ x: mapType === 'satellite' ? 12 : 0 }}
+                                        />
+                                    </div>
+                                </button>
                                 <MenuItem icon={Bell} label="الإشعارات" onClick={() => { }} disabled badge="قريباً" />
                                 <MenuItem icon={Wallet} label="المحفظة" onClick={() => { }} disabled badge="قريباً" />
                             </div>

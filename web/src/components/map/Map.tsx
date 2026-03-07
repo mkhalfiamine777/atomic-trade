@@ -32,7 +32,7 @@ export default function Map({
     refreshTrigger?: number
     isLocationVisible?: boolean
 }) {
-    const { currentUser, showZoneGrid } = useAppStore()
+    const { currentUser, showZoneGrid, mapType } = useAppStore()
     const currentUserId = currentUser?.id
     const userType = currentUser?.type || 'INDIVIDUAL'
     const router = useRouter()
@@ -200,10 +200,19 @@ export default function Map({
     return (
         <div className="h-full w-full relative z-0 bg-zinc-950">
             <MapContainer center={center} zoom={16} style={{ height: '100%', width: '100%' }}>
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
+                {mapType === 'street' ? (
+                    <TileLayer
+                        key="street"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                ) : (
+                    <TileLayer
+                        key="satellite"
+                        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                        attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
+                    />
+                )}
                 {coordinates && (
                     <>
                         <MapControls

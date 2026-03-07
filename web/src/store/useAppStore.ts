@@ -25,6 +25,8 @@ interface AppState {
     // UI Settings
     showZoneGrid: boolean
     toggleZoneGrid: () => void
+    mapType: 'street' | 'satellite'
+    toggleMapType: () => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -40,5 +42,7 @@ export const useAppStore = create<AppState>((set) => ({
     })),
 
     showZoneGrid: false,
-    toggleZoneGrid: () => set((state) => ({ showZoneGrid: !state.showZoneGrid }))
+    toggleZoneGrid: () => set((state) => ({ showZoneGrid: !state.showZoneGrid })),
+    mapType: 'street',
+    toggleMapType: () => set((state) => ({ mapType: state.mapType === 'street' ? 'satellite' : 'street' }))
 }))
