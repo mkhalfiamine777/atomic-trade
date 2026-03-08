@@ -24,13 +24,19 @@ export async function createPost(
             return { success: false, error: 'Media URL is required' }
         }
 
+        // C-4 FIX: Validate mediaType instead of using unsafe `as` assertion
+        const validMediaTypes: MediaType[] = ['IMAGE', 'VIDEO']
+        if (!validMediaTypes.includes(mediaType as MediaType)) {
+            return { success: false, error: 'نوع الوسائط غير صالح' }
+        }
+
         const post = await db.socialPost.create({
             data: {
                 userId,
                 caption,
                 mediaUrl,
                 type,
-                mediaType: mediaType as MediaType,
+                mediaType,
                 latitude,
                 longitude
             }

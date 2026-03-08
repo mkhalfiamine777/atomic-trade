@@ -21,7 +21,7 @@ app.prepare().then(() => {
         path: '/api/socket',
         addTrailingSlash: false,
         cors: {
-            origin: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+            origin: dev ? '*' : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
             methods: ['GET', 'POST'],
         },
     })

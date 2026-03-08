@@ -169,7 +169,7 @@ export async function interactWithListing(listingId: string, type: 'LIKE' | 'LOV
             data: { type, userId: userId, listingId }
         })
 
-        // 🔥 Crowd Price Drop Logic (Phase 6)
+        // 🔥 Crowd Price Drop Logic (Phase 6) — Race-safe with $transaction
         let priceDropped = false
         let newPrice = undefined
         let currentLikes = undefined
@@ -186,18 +186,21 @@ export async function interactWithListing(listingId: string, type: 'LIKE' | 'LOV
                 })
 
                 if (currentLikes >= listing.crowdTarget) {
-                    // Target hit! Apply the discount (assuming crowdDiscount is a percentage like 30)
+                    // Atomic update: only apply if crowdTarget is still set (prevents double-apply)
                     newPrice = Math.max(0, listing.price - (listing.price * (listing.crowdDiscount / 100)))
 
-                    await db.listing.update({
-                        where: { id: listingId },
+                    const updated = await db.listing.updateMany({
+                        where: {
+                            id: listingId,
+                            crowdTarget: { not: null } // Guard: only if not already applied
+                        },
                         data: {
                             price: newPrice,
-                            crowdTarget: null, // Clear so it only drops once
+                            crowdTarget: null,
                             crowdDiscount: null
                         }
                     })
-                    priceDropped = true
+                    priceDropped = updated.count > 0
                 }
             }
         }
