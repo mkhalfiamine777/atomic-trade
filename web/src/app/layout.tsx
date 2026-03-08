@@ -6,6 +6,7 @@ import { Toaster } from 'sonner'
 import SocketStatus from '@/components/debug/SocketStatus'
 import { SocketProvider } from '@/providers/SocketProvider'
 import { SearchMenu } from '@/components/ui/SearchMenu'
+import { VideoLightbox } from '@/components/modals/VideoLightbox'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-cairo' })
@@ -43,8 +44,9 @@ export default function RootLayout({
                     {children}
                     <SocketStatus />
                     <Toaster position="top-left" richColors />
+                    <VideoLightbox />
                 </SocketProvider>
             </body>
-        </html>
+        </html >
     )
 }

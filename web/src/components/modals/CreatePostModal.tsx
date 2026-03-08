@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { ModalWrapper } from './ModalWrapper'
 import { useGeolocation } from '@/hooks/useGeolocation'
+import { MediaUploader } from '@/components/video/MediaUploader'
 
 interface CreatePostModalProps {
     isOpen: boolean
@@ -15,7 +16,6 @@ interface CreatePostModalProps {
 }
 
 export function CreatePostModal({ isOpen, onClose, userId, onSuccess }: CreatePostModalProps) {
-    const [mediaUrl, setMediaUrl] = useState('')
     const [caption, setCaption] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const router = useRouter()
@@ -26,15 +26,12 @@ export function CreatePostModal({ isOpen, onClose, userId, onSuccess }: CreatePo
     // Reset state when closed
     useEffect(() => {
         if (!isOpen) {
-            setMediaUrl('')
             setCaption('')
+            setIsSubmitting(false)
         }
     }, [isOpen])
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!mediaUrl) return
-
+    const handleUploadComplete = async (url: string, type: 'IMAGE' | 'VIDEO', metadata: any) => {
         if (!coordinates) {
             toast.warning('يرجى انتظار تحديد الموقع لإضافة المنشور للخريطة ⏳')
             return
@@ -42,33 +39,32 @@ export function CreatePostModal({ isOpen, onClose, userId, onSuccess }: CreatePo
 
         setIsSubmitting(true)
 
-        // Pass location to server action
-        const result = await createPost(
-            caption,
-            mediaUrl,
-            'POST',
-            'IMAGE',
-            coordinates.lat,
-            coordinates.lng
-        )
+        try {
+            // Pass location to server action. Dynamic type based on upload.
+            const result = await createPost(
+                caption,
+                url,
+                'POST',
+                type,
+                coordinates.lat,
+                coordinates.lng
+            )
 
-        if (result.success) {
-            toast.success('تم نشر المنشور بنجاح! 🎉')
-            onClose()
-            router.refresh()
-            if (onSuccess) onSuccess()
-        } else {
-            toast.error('حدث خطأ أثناء النشر')
+            if (result.success) {
+                toast.success('تم نشر المنشور بنجاح! 🎉')
+                onClose()
+                router.refresh()
+                if (onSuccess) onSuccess()
+            } else {
+                toast.error('حدث خطأ أثناء النشر')
+            }
+        } catch (error) {
+            console.error(error)
+            toast.error('حدث خطأ غير متوقع أثناء النشر')
+        } finally {
+            setIsSubmitting(false)
         }
-        setIsSubmitting(false)
     }
-
-    // Preset images for quick testing (MVP)
-    const presets = [
-        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=800&auto=format&fit=crop', // Phone
-        'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop', // Watch
-        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800&auto=format&fit=crop' // Headphones
-    ]
 
     return (
         <ModalWrapper
@@ -84,55 +80,50 @@ export function CreatePostModal({ isOpen, onClose, userId, onSuccess }: CreatePo
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Image Preview / Input */}
+            <div className="space-y-4">
+                {/* Caption Input */}
                 <div className="space-y-2">
                     <label className="text-sm text-zinc-400 block text-right font-medium">
-                        صورة المنشور
-                    </label>
-                    <input
-                        type="text"
-                        placeholder="https://example.com/image.jpg"
-                        value={mediaUrl}
-                        onChange={e => setMediaUrl(e.target.value)}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-white focus:border-purple-500 outline-none text-right placeholder-zinc-700 dir-ltr"
-                    />
-
-                    <div className="flex gap-2 justify-end mt-2 overflow-x-auto pb-2">
-                        {presets.map((url, i) => (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                                key={i}
-                                src={url}
-                                alt={`Preset ${i + 1}`}
-                                onClick={() => setMediaUrl(url)}
-                                className={`w-16 h-16 rounded-md object-cover cursor-pointer hover:opacity-80 border-2 transition-all ${mediaUrl === url ? 'border-purple-500 scale-105' : 'border-transparent'}`}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                {/* Caption */}
-                <div className="space-y-2">
-                    <label className="text-sm text-zinc-400 block text-right font-medium">
-                        الوصف
+                        الوصف (اختياري)
                     </label>
                     <textarea
                         placeholder="شارك لحظاتك مع المجتمع..."
                         value={caption}
                         onChange={e => setCaption(e.target.value)}
-                        className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-white focus:border-purple-500 outline-none text-right h-24 placeholder-zinc-700 resize-none dir-rtl"
+                        disabled={isSubmitting || !coordinates}
+                        className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-white focus:border-purple-500 outline-none text-right h-24 placeholder-zinc-700 resize-none dir-rtl disabled:opacity-50"
                     />
                 </div>
 
-                <button
-                    type="submit"
-                    disabled={isSubmitting || !coordinates}
-                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-4 shadow-lg shadow-purple-900/20"
-                >
-                    {isSubmitting ? 'جاري النشر...' : 'نشر على الخريطة 🗺️'}
-                </button>
-            </form>
+                {/* Smart Media Uploader */}
+                <div className="space-y-2">
+                    <label className="text-sm text-zinc-400 block text-right font-medium mb-2">
+                        المرفقات (صورة أو فيديو)
+                    </label>
+                    {coordinates ? (
+                        <MediaUploader
+                            onUploadComplete={handleUploadComplete}
+                            disabled={isSubmitting}
+                            className="w-full"
+                        />
+                    ) : (
+                        <div className="w-full h-32 flex items-center justify-center border-2 border-dashed border-zinc-800 rounded-xl bg-zinc-900/50 text-zinc-500 text-sm">
+                            يرجى السماح بتحديد الموقع أولاً...
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {isSubmitting && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50 rounded-2xl backdrop-blur-sm">
+                    <div className="flex flex-col items-center gap-3">
+                        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500"></div>
+                        <span className="text-purple-400 font-bold shrink-0 animate-pulse">
+                            جاري النشر على الخريطة...
+                        </span>
+                    </div>
+                </div>
+            )}
         </ModalWrapper>
     )
 }
