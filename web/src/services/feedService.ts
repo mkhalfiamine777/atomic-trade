@@ -19,6 +19,7 @@ type StoryWithUser = Prisma.MapStoryGetPayload<{
 type ListingWithSeller = Prisma.ListingGetPayload<{
     include: {
         seller: { select: { id: true; name: true; username: true; avatarUrl: true; type: true; isVerified: true } }
+        interactions: { select: { type: true; userId: true } }
     }
 }>
 
@@ -69,9 +70,7 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
     const storiesPromise = db.mapStory.findMany({
         take: storyCount,
         skip: storySkip,
-        where: {
-            expiresAt: { gt: new Date() }
-        },
+        // DISABLED FOR EXPLORE TESTING: where: { expiresAt: { gt: new Date() } },
         orderBy: { createdAt: 'desc' },
         include: {
             user: {
@@ -106,7 +105,7 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
                 }
             },
             interactions: {
-                select: { id: true, type: true, userId: true }
+                select: { type: true, userId: true }
             }
         }
     })
@@ -138,7 +137,7 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
     // Map Stories
     const storyItems: FeedItemDTO[] = stories.map((story: StoryWithUser) => ({
         id: story.id,
-        type: (story.mediaType === 'VIDEO' ? 'VIDEO' : 'IMAGE') as 'VIDEO' | 'IMAGE',
+        type: story.mediaType as 'VIDEO' | 'IMAGE',
         url: story.mediaUrl,
         username: story.user.name || 'مستخدم',
         userAvatar: story.user.avatarUrl || undefined,
@@ -153,10 +152,10 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
     }))
 
     // 🛍️ Map Listings
-    const listingItems: FeedItemDTO[] = listings.map((listing: ListingWithSeller & { interactions: { id: string; type: string; userId: string }[] }) => {
+    const listingItems: FeedItemDTO[] = listings.map((listing: ListingWithSeller) => {
         const imageUrl = listing.images ? listing.images.split(',')[0].trim() : ''
-        const likeCount = listing.interactions?.filter((i: any) => i.type === 'LIKE').length || 0
-        const isLiked = currentUserId ? listing.interactions?.some((i: any) => i.type === 'LIKE' && i.userId === currentUserId) : false
+        const likeCount = listing.interactions.filter((i: { type: string }) => i.type === 'LIKE').length
+        const isLiked = currentUserId ? listing.interactions.some((i: { type: string; userId: string }) => i.type === 'LIKE' && i.userId === currentUserId) : false
 
         return {
             id: listing.id,
