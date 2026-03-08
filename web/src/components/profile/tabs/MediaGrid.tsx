@@ -32,7 +32,7 @@ function GridCell({ item, index, onClick }: { item: GridItem; index: number; onC
             onClick={onClick}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="aspect-[9/16] relative bg-zinc-900/80 rounded-lg overflow-hidden cursor-pointer group border border-white/5 hover:border-white/20 transition-all duration-300"
+            className="aspect-square relative bg-zinc-900/80 rounded-lg overflow-hidden cursor-pointer group border border-white/5 hover:border-white/20 transition-all duration-300"
         >
             {/* Media Content */}
             {isVideo ? (
@@ -55,8 +55,8 @@ function GridCell({ item, index, onClick }: { item: GridItem; index: number; onC
 
             {/* Gradient Overlay (Always visible at bottom, full on hover) */}
             <div className={`absolute inset-0 transition-opacity duration-300 ${isHovered
-                    ? 'bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-100'
-                    : 'bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80'
+                ? 'bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-100'
+                : 'bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80'
                 }`} />
 
             {/* Top Badges */}
