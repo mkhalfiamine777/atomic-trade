@@ -57,7 +57,7 @@
 *   **🎥 نافذة عرض موسع (Lightbox):** هندسة وبناء نظام عرض الفيديوهات بحجمها الحقيقي الكامل عبر تقنية المستويات (Zustand Global State + React Portals).
 *   **🎬 تجربة مستخدم (UX):** إضافة أيقونة المشاهدة والتكبير 🔍 للفيديوهات وحركات `Framer Motion` لنقل الفيديو بسلاسة من الـ Feed إلى الشاشة الكاملة وإيقاف تشغيل الفيديوهات الخلفية.
 *   **📏 تصحيح المقاسات:** استبدال `aspect-[9/16]` بـ `aspect-square` في شبكة الملف الشخصي لضمان عرض مربعات منتظمة للمنشورات والقصص دون مط لصور الفيديو.
-*   **التقارير:** [تحقيق النافذة المكررة](session_reports/Profile_Post_Modal_Investigation.md) | [معمارية المشاهدة الموسعة](session_reports/Video_Lightbox_Architecture.md) | [إصلاح مقاسات الشبكة](session_reports/Profile_Grid_Dimensions_Fix.md)
+*   **التقارير:** [تحقيق النافذة المكررة](session_reports/Profile_Post_Modal_Investigation.md) | [معمارية المشاهدة الموسعة](session_reports/Video_Lightbox_Architecture.md) | [إصلاح مقاسات الشبكة](session_reports/Profile_Grid_Dimensions_Fix.md) | [تقرير الإنفجار التقني 🚀](session_reports/BOOM_REPORT_S23.md)
 
 
 ### 📅 08-03-2026 — الجلسة 22 (🔬 تدقيق عميق للشفرة المصدرية وإصلاحات الثغرات)
