@@ -12,7 +12,27 @@ const app = next({ dev, hostname, port })
 const handle = app.getRequestHandler()
 
 app.prepare().then(() => {
+    // ── Security Headers (CSP + HSTS + COOP + Trusted Types) ─────
+    const cspDirectives = [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "img-src 'self' data: blob: https: http:",
+        "font-src 'self' https://fonts.gstatic.com data:",
+        "connect-src 'self' wss: ws: https://utfs.io https://*.utfs.io https://jwbamcdz4e.ufs.sh",
+        "media-src 'self' blob: https://utfs.io https://*.utfs.io https://jwbamcdz4e.ufs.sh",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "frame-ancestors 'self'",
+    ].join('; ')
+
     const server = createServer((req, res) => {
+        // Inject security headers on every response
+        res.setHeader('Content-Security-Policy', cspDirectives)
+        res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
+        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups')
+        res.setHeader('Content-Security-Policy-Report-Only', "require-trusted-types-for 'script'")
         handle(req, res)
     })
 

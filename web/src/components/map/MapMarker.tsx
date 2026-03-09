@@ -179,7 +179,7 @@ export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnt
         const iconHtml = `
             <div class="relative w-8 h-8">
                 <div class="absolute inset-0 rounded-full border-2 ${isLive ? `${borderColor} animate-pulse` : borderColor} overflow-hidden bg-black">
-                    <img src="${story.user?.avatarUrl || '/placeholder-user.jpg'}" class="w-full h-full object-cover" />
+                    <img src="${story.user?.avatarUrl || '/placeholder-user.jpg'}" class="w-full h-full object-cover" alt="${story.user?.name || 'قصة'}" />
                 </div>
                 ${isLive ? '<div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>' : ''}
                 ${badgeHTML}
@@ -248,7 +248,7 @@ export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnt
                     <div className="text-right min-w-[160px] p-1" dir="rtl">
                         <div className="flex items-center gap-2 mb-2">
                             {user.avatarUrl ? (
-                                <img src={user.avatarUrl} className="w-8 h-8 rounded-full object-cover border-2 border-white shadow" alt="" />
+                                <img src={user.avatarUrl} className="w-8 h-8 rounded-full object-cover border-2 border-white shadow" alt={user.name || user.username || 'مستخدم'} />
                             ) : (
                                 <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center">
                                     <UserIcon size={16} className="text-zinc-400" />

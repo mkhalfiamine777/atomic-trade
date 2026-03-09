@@ -14,7 +14,10 @@ const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-cairo' })
 export const metadata: Metadata = {
     title: 'SouqMap - منصة التجارة المحلية الذكية',
     description: 'أول منصة تجارة اجتماعية تعتمد على الموقع الجغرافي في المغرب.',
-    manifest: '/manifest.json'
+    manifest: '/manifest.json',
+    alternates: {
+        canonical: 'https://atomic-trade-production.up.railway.app'
+    }
 }
 
 export const viewport: Viewport = {

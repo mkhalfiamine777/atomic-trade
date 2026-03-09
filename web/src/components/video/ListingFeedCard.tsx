@@ -188,7 +188,7 @@ export function ListingFeedCard({ item, isActive, isGhost = false, videosNeededF
                     <div className="flex items-center justify-center gap-2 mb-5">
                         {item.userAvatar && (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={item.userAvatar} className="w-6 h-6 rounded-full object-cover border border-white/20" alt="" />
+                            <img src={item.userAvatar} className="w-6 h-6 rounded-full object-cover border border-white/20" alt={item.username || 'صورة البائع'} />
                         )}
                         <span className="text-zinc-400 text-sm">{item.username}</span>
                         {item.isShop && <span className="text-[9px] bg-indigo-500/80 text-white px-1.5 py-0.5 rounded">متجر</span>}
