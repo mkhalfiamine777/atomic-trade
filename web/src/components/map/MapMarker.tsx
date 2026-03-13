@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import L from 'leaflet'
 import { Marker, Popup } from 'react-leaflet'
 import { getShopIcon, getRequestIcon, getIndividualIcon, getCompanyIcon } from '@/utils/mapIcons'
@@ -60,7 +61,7 @@ export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnt
 
         // Determine the base icon type (only computed ONCE for the group wrapper)
         const baseListing = item.data as Listing;
-        const baseIcon = baseListing.type === 'PRODUCT' ? getShopIcon(false, true, item.count) : getRequestIcon(item.count);
+        const baseIcon = baseListing.type === 'PRODUCT' ? getShopIcon(false, true, true, item.count) : getRequestIcon(item.count);
         const icon = getOffsetIcon(baseIcon, item);
 
         const popupTitle = activeListing.type === 'PRODUCT' ? 'عرض جديد' : 'طلب جديد';
@@ -115,11 +116,12 @@ export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnt
 
                         {/* 🖼️ Image with Overlay */}
                         {activeListing.images && (
-                            <div className="relative rounded-xl overflow-hidden mb-2.5 group">
-                                <img
+                            <div className="relative rounded-xl overflow-hidden mb-2.5 group h-28 w-full">
+                                <Image
                                     src={activeListing.images.split(',')[0]}
-                                    alt={activeListing.title}
-                                    className="w-full h-28 object-cover"
+                                    alt={activeListing.title || 'صورة'}
+                                    fill
+                                    className="object-cover"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                                 {activeListing.price && (
@@ -225,11 +227,13 @@ export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnt
         const userType = (user.type || 'INDIVIDUAL') as string
 
         // Pick the correct neon icon based on user type
-        const icon = userType === 'SHOP'
+        const baseIcon = userType === 'SHOP'
             ? getShopIcon(false, true)
             : userType === 'COMPANY'
                 ? getCompanyIcon(false, true)
                 : getIndividualIcon(false, true)
+
+        const finalIcon = getOffsetIcon(baseIcon, item)
 
         const typeLabel = userType === 'SHOP' ? '🏪 متجر' : userType === 'COMPANY' ? '🏢 شركة' : '👤 فرد'
         const typeColor = userType === 'SHOP' ? 'text-amber-500' : userType === 'COMPANY' ? 'text-purple-400' : 'text-blue-400'
@@ -238,7 +242,7 @@ export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnt
             <Marker
                 key={`user-${user.id}`}
                 position={position}
-                icon={icon}
+                icon={finalIcon}
                 eventHandlers={{
                     mouseover: onMouseEnter,
                     mouseout: onMouseLeave
@@ -248,7 +252,7 @@ export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnt
                     <div className="text-right min-w-[160px] p-1" dir="rtl">
                         <div className="flex items-center gap-2 mb-2">
                             {user.avatarUrl ? (
-                                <img src={user.avatarUrl} className="w-8 h-8 rounded-full object-cover border-2 border-white shadow" alt={user.name || user.username || 'مستخدم'} />
+                                <Image src={user.avatarUrl} width={32} height={32} className="rounded-full object-cover border-2 border-white shadow" alt={user.name || user.username || 'مستخدم'} />
                             ) : (
                                 <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center">
                                     <UserIcon size={16} className="text-zinc-400" />
