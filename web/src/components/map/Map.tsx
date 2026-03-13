@@ -114,68 +114,12 @@ export default function Map({
         return false
     })
 
-    // Group items by coordinate to space them out perfectly horizontally if they overlap
-    const rawItems: MapItem[] = [
+    const allItems: MapItem[] = [
         ...filteredListings.map(l => ({ type: 'LISTING' as const, data: l, lat: l.latitude, lng: l.longitude, id: l.id })),
         ...filteredStories.map(s => ({ type: 'STORY' as const, data: s, lat: s.latitude, lng: s.longitude, id: s.id })),
         ...posts.map(p => ({ type: 'POST' as const, data: p, lat: p.latitude, lng: p.longitude, id: p.id })),
         ...globalUsers.filter(u => u.id !== currentUserId).map(u => ({ type: 'USER' as const, data: u as any, lat: u.latitude, lng: u.longitude, id: `user-${u.id}` }))
     ]
-
-    const positionMap: Record<string, MapItem[]> = {};
-    rawItems.forEach(item => {
-        const key = `${item.lat},${item.lng}`;
-        if (!positionMap[key]) positionMap[key] = [];
-        positionMap[key].push(item);
-    });
-
-    const allItems: MapItem[] = [];
-    Object.values(positionMap).forEach((itemsAtPosition) => {
-        // First group by exact type so similar icons merge
-        const groups: Record<string, MapItem[]> = {};
-
-        itemsAtPosition.forEach(item => {
-            let subType = item.type as string;
-            if (item.type === 'LISTING') {
-                subType = `LISTING:${(item.data as any).type}`; // PRODUCT or REQUEST
-            } else if (item.type === 'STORY') {
-                subType = `STORY:${(item.data as any).mediaType}`; // VIDEO or IMAGE
-            }
-            if (!groups[subType]) groups[subType] = [];
-            groups[subType].push(item);
-        });
-
-        const consolidatedItems = Object.values(groups).map(group => {
-            const first = group[0];
-            return {
-                ...first,
-                count: group.length,
-                groupedData: group.map(g => g.data)
-            };
-        });
-
-        const total = consolidatedItems.length;
-        if (total === 1) {
-            allItems.push(consolidatedItems[0]);
-        } else {
-            // Distribute distinct horizontal categories cleanly beneath the main point
-            consolidatedItems.forEach((item, index) => {
-                const centerOffset = (total - 1) / 2;
-                // Offset vertically by 38 pixels to ensure it clears the main icon (size 32 + shadow)
-                // Offset horizontally by 36 pixels per item to form a perfect line
-                const offsetX = (index - centerOffset) * 36;
-                const offsetY = 38;
-
-                allItems.push({
-                    ...item,
-                    lat: item.lat, // Original lat
-                    lng: item.lng, // Original lng
-                    offsetX,
-                    offsetY
-                });
-            });
-        }
-    });
 
     async function handleStartChat(listingId: string, sellerId: string, sellerName?: string | null) {
         if (!currentUserId) {
