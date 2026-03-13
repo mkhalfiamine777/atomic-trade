@@ -15,13 +15,14 @@ import { StoryViewer } from '../StoryViewer'
 import { MapFilterBar, FilterType, ALL_FILTERS } from './MapFilterBar'
 import { CommentsSheet } from '../CommentsSheet'
 
-import { getIndividualIcon } from '@/utils/mapIcons'
+import { getIndividualIcon, getShopIcon, getCompanyIcon } from '@/utils/mapIcons'
 
 import { LocationUser, Listing, Story, Post } from "@/types"
 import { MapControls, RecenterButton } from './MapControls'
 import { MapMarker, MapItem } from './MapMarker'
 import { getAllActiveUsers } from '@/actions/map'
 import { ZoneGridLayer } from './ZoneGridLayer'
+import { SuperclusterLayer } from './SuperclusterLayer'
 
 import { useAppStore } from '@/store/useAppStore'
 
@@ -117,7 +118,8 @@ export default function Map({
     const rawItems: MapItem[] = [
         ...filteredListings.map(l => ({ type: 'LISTING' as const, data: l, lat: l.latitude, lng: l.longitude, id: l.id })),
         ...filteredStories.map(s => ({ type: 'STORY' as const, data: s, lat: s.latitude, lng: s.longitude, id: s.id })),
-        ...posts.map(p => ({ type: 'POST' as const, data: p, lat: p.latitude, lng: p.longitude, id: p.id }))
+        ...posts.map(p => ({ type: 'POST' as const, data: p, lat: p.latitude, lng: p.longitude, id: p.id })),
+        ...globalUsers.filter(u => u.id !== currentUserId).map(u => ({ type: 'USER' as const, data: u as any, lat: u.latitude, lng: u.longitude, id: `user-${u.id}` }))
     ]
 
     const positionMap: Record<string, MapItem[]> = {};
@@ -237,7 +239,13 @@ export default function Map({
 
                 <Marker
                     position={center}
-                    icon={getIndividualIcon(false, true, isLocationVisible)}
+                    icon={
+                        userType === 'SHOP'
+                            ? getShopIcon(false, true, isLocationVisible)
+                            : userType === 'COMPANY'
+                                ? getCompanyIcon(false, true, isLocationVisible)
+                                : getIndividualIcon(false, true, isLocationVisible)
+                    }
                     eventHandlers={{
                         mouseover: handleMouseEnterCluster,
                         mouseout: handleMouseLeaveCluster,
@@ -270,36 +278,16 @@ export default function Map({
                     </Popup>
                 </Marker>
 
-                {/* Global Users Markers */}
-                {globalUsers
-                    .filter(user => user.id !== currentUserId) // Exclude current user
-                    .map((user) => (
-                        <MapMarker
-                            key={`user-${user.id}`}
-                            item={{
-                                type: 'USER',
-                                id: user.id,
-                                lat: user.latitude,
-                                lng: user.longitude,
-                                data: user as any
-                            }}
-                            position={[user.latitude, user.longitude]}
-                            onStartChat={(_, sellerId, sellerName) => handleStartChat(user.id, sellerId, sellerName)}
-                            onViewStory={() => { }}
-                        />
-                    ))}
-
-                {showUserCluster && allItems.map((item) => (
-                    <MapMarker
-                        key={item.id}
-                        item={item}
-                        position={[item.lat, item.lng]}
+                {/* Smart Clustering Layer for ALL Items and Users */}
+                {showUserCluster && (
+                    <SuperclusterLayer
+                        items={allItems}
                         onStartChat={handleStartChat}
                         onViewStory={(story) => setSelectedStory(story)}
                         onMouseEnter={handleMouseEnterCluster}
                         onMouseLeave={handleMouseLeaveCluster}
                     />
-                ))}
+                )}
 
                 {/* 🏰 Zone Grid Layer (Conditional) */}
                 {showZoneGrid && <ZoneGridLayer currentUserId={currentUserId} />}

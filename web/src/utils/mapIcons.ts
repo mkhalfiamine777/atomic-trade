@@ -21,8 +21,19 @@ export const getPinIcon = (
     })
 
 // 🏪 Shop: Gold Neon (Online Status)
-export const getShopIcon = (hasStories: boolean, isOnline: boolean = true, count?: number) => {
+export const getShopIcon = (hasStories: boolean, isOnline: boolean = true, isVisible: boolean = true, count?: number) => {
     const badge = getBadgeHtml(count);
+
+    // 🔴 Hidden Mode — Same icon, red color
+    if (!isVisible) {
+        return L.divIcon({
+            className: '',
+            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full red-neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold animate-bounce">🏪</div>${badge}</div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -16]
+        })
+    }
     // If Online -> Neon Gold Disc + Pulse
     if (isOnline) {
         return L.divIcon({
@@ -45,8 +56,19 @@ export const getShopIcon = (hasStories: boolean, isOnline: boolean = true, count
 }
 
 // 🏢 Company: Purple Neon (Online Status)
-export const getCompanyIcon = (hasStories: boolean, isOnline: boolean = true, count?: number) => {
+export const getCompanyIcon = (hasStories: boolean, isOnline: boolean = true, isVisible: boolean = true, count?: number) => {
     const badge = getBadgeHtml(count);
+
+    // 🔴 Hidden Mode — Same icon, red color
+    if (!isVisible) {
+        return L.divIcon({
+            className: '',
+            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full red-neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold animate-bounce">🏢</div>${badge}</div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -16]
+        })
+    }
     // If Online -> Neon Purple Disc + Pulse
     if (isOnline) {
         return L.divIcon({
@@ -155,16 +177,22 @@ export const getLootIcon = (rarity: 'COMMON' | 'RARE' | 'LEGENDARY' = 'COMMON') 
     })
 }
 
-// 🔴 Cluster Icon
-export const getClusterIcon = (count: number) =>
-    L.divIcon({
-        html: `<div class="bg-indigo-600 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center border-2 border-white shadow-lg relative ml-[-6px] mt-[-6px]">
+// 🔴 الذكاء المكاني: Cluster Icon
+export const getSmartClusterIcon = (count: number, hasShop: boolean) => {
+    // If it contains a shop, make it glow amber/gold to attract attention
+    const bgClass = hasShop ? 'bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)] border-amber-200' : 'bg-indigo-600 shadow-lg border-white';
+    const textClass = hasShop ? 'text-white' : 'text-white';
+
+    return L.divIcon({
+        html: `<div class="${bgClass} ${textClass} font-bold rounded-full w-10 h-10 flex items-center justify-center border-2 relative ml-[-10px] mt-[-10px] transform transition-transform hover:scale-110">
                 ${count}
+                ${hasShop ? '<div class="absolute -top-1 -right-1 text-[10px] bg-white text-amber-500 rounded-full w-4 h-4 flex items-center justify-center font-black shadow-sm">🏪</div>' : ''}
                </div>`,
         className: 'custom-cluster-icon',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16] // Center anchor
+        iconSize: [40, 40],
+        iconAnchor: [20, 20] // Center anchor
     })
+}
 
 // ❌ Close/Collapse Icon
 export const getCloseIcon = () =>
