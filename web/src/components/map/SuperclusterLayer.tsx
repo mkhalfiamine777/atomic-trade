@@ -92,7 +92,7 @@ export function SuperclusterLayer({
         points,
         bounds,
         zoom,
-        options: { radius: 60, maxZoom: 17 } // maxZoom means past 17 it will spiderfy/break apart
+        options: { radius: 60, maxZoom: 22 } // maxZoom means past 22 it will spiderfy/break apart natively
     });
 
     if (!bounds) return null;
@@ -107,19 +107,46 @@ export function SuperclusterLayer({
                 if (isCluster) {
                     const leaves = supercluster?.getLeaves(clusterId, Infinity) || [];
 
-                    // Spiderfy exact overlapping items when max zoom is reached
+                    // Spiderfy overlapping items when max zoom is reached
                     if (zoom >= 18) {
-                        return leaves.map(leaf => (
-                            <MapMarker
-                                key={leaf.properties.itemId}
-                                item={leaf.properties.itemData}
-                                position={[latitude, longitude]}
-                                onStartChat={onStartChat}
-                                onViewStory={onViewStory}
-                                onMouseEnter={onMouseEnter}
-                                onMouseLeave={onMouseLeave}
-                            />
-                        ));
+                        return leaves.map((leaf, index) => {
+                            const total = leaves.length;
+                            let spiderX = 0;
+                            let spiderY = 0;
+
+                            // Spread out in a circle or spiral
+                            if (total > 1) {
+                                if (total <= 8) {
+                                    const angle = (index / total) * (2 * Math.PI) - (Math.PI / 2);
+                                    const radius = 50; // Spread out enough pixels
+                                    spiderX = Math.cos(angle) * radius;
+                                    spiderY = Math.sin(angle) * radius;
+                                } else {
+                                    const angle = 0.6 * index;
+                                    const radius = 30 + (5 * index);
+                                    spiderX = Math.cos(angle) * radius;
+                                    spiderY = Math.sin(angle) * radius;
+                                }
+                            }
+
+                            const itemWithSpiderOffset = {
+                                ...leaf.properties.itemData,
+                                offsetX: spiderX,
+                                offsetY: spiderY
+                            };
+
+                            return (
+                                <MapMarker
+                                    key={`spider-${leaf.properties.itemId}`}
+                                    item={itemWithSpiderOffset}
+                                    position={[latitude, longitude]} // Use cluster center
+                                    onStartChat={onStartChat}
+                                    onViewStory={onViewStory}
+                                    onMouseEnter={onMouseEnter}
+                                    onMouseLeave={onMouseLeave}
+                                />
+                            );
+                        });
                     }
 
                     const containsShop = leaves.some(l => l.properties.isShop);
