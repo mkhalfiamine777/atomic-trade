@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { MapPin, Users, Store, Building2, BellRing, ArrowLeft } from 'lucide-react'
 import ParticleField from '@/components/ui/ParticleField'
 
@@ -9,9 +10,13 @@ export default function Home() {
         <main className="relative flex min-h-screen flex-col items-center justify-between overflow-hidden">
             {/* 🖼️ Full Screen Static Map Background with Living Pulse */}
             <div className="fixed inset-0 z-0">
-                <div
-                    className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2600&auto=format&fit=crop')] bg-cover bg-center living-map"
-                ></div>
+                <Image
+                    src="https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2600&auto=format&fit=crop"
+                    alt="خلفية الخريطة"
+                    fill
+                    priority
+                    className="object-cover living-map"
+                />
 
                 {/* 🎨 Dynamic Gradient Mesh Overlay */}
                 <div className="absolute inset-0 gradient-mesh opacity-[0.65]"></div>

@@ -21,8 +21,8 @@ export default async function UserProfilePage(props: {
         ? (initialTabStr as 'VIDEOS' | 'STORIES' | 'IMAGES')
         : undefined
 
-    // 1. Resolve User (Smart ID/Username Resolution)
-    const paramId = params.username // Can be UUID or Username
+    // 1. Resolve User (Smart ID/Username Resolution) - Decode for Arabic URLs
+    const paramId = decodeURIComponent(params.username) // Can be UUID or Username
 
     // Check if it's a UUID
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(paramId)

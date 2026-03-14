@@ -95,7 +95,20 @@ export default function Map({
 
     const toggleFilter = (filter: FilterType) => {
         setSelectedFilters(prev => {
-            const next = prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]
+            // If nothing was selected (showing all), clicking one isolates it
+            if (prev.length === 0) {
+                return [filter]
+            }
+
+            // If it's already selected, remove it
+            if (prev.includes(filter)) {
+                const next = prev.filter(f => f !== filter)
+                return next // If this empties it, it goes back to showing all naturally via logic below
+            }
+
+            // Otherwise, add it to the multi-select
+            const next = [...prev, filter]
+            // If they selected everything one by one, just clear it to show all state
             return next.length === ALL_FILTERS.length ? [] : next
         })
     }

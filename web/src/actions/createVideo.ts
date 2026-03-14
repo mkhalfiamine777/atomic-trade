@@ -1,8 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
-
-
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 
@@ -32,6 +30,7 @@ export async function createVideoPost(formData: FormData) {
         })
 
         revalidatePath('/feed')
+        revalidateTag('feed') // Clear the Explore feed cache
         return { success: true, error: undefined }
     } catch (error) {
         console.error('Error creating video post:', error)

@@ -16,7 +16,7 @@ export default async function UserActivityPage(props: {
         ? (tabParam as 'SALES' | 'REQUESTS')
         : 'SALES'
 
-    const paramId = params.username
+    const paramId = decodeURIComponent(params.username)
 
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(paramId)
 

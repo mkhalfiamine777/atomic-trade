@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { MediaType } from '@prisma/client'
 
 export async function createPost(
@@ -48,6 +48,7 @@ export async function createPost(
             revalidatePath(`/u/${user.username}`)
         }
         revalidatePath('/dashboard')
+        revalidateTag('feed') // Clear the Explore feed cache
         return { success: true, post }
     } catch (error) {
         console.error('Error creating post:', error)

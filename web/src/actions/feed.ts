@@ -40,10 +40,24 @@ export type FeedItemDTO = {
 
 // P-2 FIX: Static import instead of dynamic for better tree-shaking
 import { getMixedFeedLogic } from '@/services/feedService'
+import { unstable_cache } from 'next/cache'
+
+// Wrap the core feed logic with Next.js unstable_cache to drastically reduce Server Response Time
+const getCachedMixedFeed = unstable_cache(
+    async (page: number, limit: number, currentUserId?: string) => {
+        return getMixedFeedLogic(page, limit, currentUserId)
+    },
+    ['mixed-feed-cache'], // Base cache key
+    {
+        revalidate: 60, // Cache for 60 seconds to balance freshness and performance
+        tags: ['feed']  // Tag for targeted manual revalidation if needed
+    }
+)
 
 export async function getMixedFeed(page = 1, limit = 10, currentUserId?: string): Promise<FeedItemDTO[]> {
     try {
-        const combined = await getMixedFeedLogic(page, limit, currentUserId)
+        // Use the cached version
+        const combined = await getCachedMixedFeed(page, limit, currentUserId)
         return combined
     } catch (error: unknown) {
         console.error('Error getting mixed feed:', error instanceof Error ? error.message : error)

@@ -24,6 +24,12 @@ const nextConfig = {
                 hostname: 'jwbamcdz4e.ufs.sh',
                 port: '',
                 pathname: '/**'
+            },
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+                port: '',
+                pathname: '/**'
             }
         ]
     },
@@ -37,7 +43,7 @@ const nextConfig = {
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "img-src 'self' data: blob: https: http:",
             "font-src 'self' https://fonts.gstatic.com data:",
-            "connect-src 'self' wss: ws: https://utfs.io https://*.utfs.io https://jwbamcdz4e.ufs.sh",
+            "connect-src 'self' wss: ws: https://utfs.io https://*.utfs.io https://jwbamcdz4e.ufs.sh https://uploadthing.com https://*.uploadthing.com",
             "media-src 'self' blob: https://utfs.io https://*.utfs.io https://jwbamcdz4e.ufs.sh",
             "object-src 'none'",
             "base-uri 'self'",

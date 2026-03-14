@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ShoppingBag, Megaphone, Clock, Sparkles, Store, MessageCircle, Flame, Heart } from 'lucide-react'
 import type { FeedItemDTO } from '@/actions/feed'
 import { interactWithListing } from '@/actions/interactions'
@@ -59,11 +60,11 @@ export function ListingFeedCard({ item, isActive, isGhost = false, videosNeededF
         <div className="w-full h-full relative overflow-hidden">
             {/* Background Image (Blurred + Focused) */}
             <div className="absolute inset-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                     src={item.url}
                     alt={item.title || ''}
-                    className="w-full h-full object-cover scale-110 blur-xl opacity-40"
+                    fill
+                    className="object-cover scale-110 blur-xl opacity-40"
                 />
             </div>
 
@@ -137,11 +138,12 @@ export function ListingFeedCard({ item, isActive, isGhost = false, videosNeededF
                 <div className={`relative rounded-3xl overflow-hidden shadow-2xl ${isGolden && !expired ? 'ring-4 ring-yellow-400/60 shadow-yellow-500/30' : 'ring-1 ring-white/10'}`}
                     style={{ width: '85%', maxWidth: '340px', aspectRatio: '3/4' }}
                 >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                         src={item.url}
                         alt={item.title || ''}
-                        className="w-full h-full object-cover"
+                        fill
+                        priority
+                        className="object-cover"
                     />
 
                     {/* Type Badge */}
@@ -187,8 +189,7 @@ export function ListingFeedCard({ item, isActive, isGhost = false, videosNeededF
                     {/* Seller Info */}
                     <div className="flex items-center justify-center gap-2 mb-5">
                         {item.userAvatar && (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={item.userAvatar} className="w-6 h-6 rounded-full object-cover border border-white/20" alt={item.username || 'صورة البائع'} />
+                            <Image src={item.userAvatar} width={24} height={24} className="rounded-full object-cover border border-white/20" alt={item.username || 'صورة البائع'} />
                         )}
                         <span className="text-zinc-400 text-sm">{item.username}</span>
                         {item.isShop && <span className="text-[9px] bg-indigo-500/80 text-white px-1.5 py-0.5 rounded">متجر</span>}
@@ -219,6 +220,7 @@ export function ListingFeedCard({ item, isActive, isGhost = false, videosNeededF
                     <div className="flex gap-2.5 w-full mb-2.5">
                         {/* Like Button */}
                         <button
+                            aria-label={isLiked ? "إلغاء الإعجاب" : "إعجاب"}
                             onClick={async () => {
                                 const newLiked = !isLiked
                                 setIsLiked(newLiked)

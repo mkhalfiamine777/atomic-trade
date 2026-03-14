@@ -11,18 +11,30 @@ interface ListingImageGalleryProps {
 }
 
 export function ListingImageGallery({ images, title }: ListingImageGalleryProps) {
+    // Filter out any empty strings that might have slipped through from the DB
+    const validImages = images.filter(img => img && img.trim() !== '')
+
     const [selectedImage, setSelectedImage] = useState<string | null>(null)
     const [activeIndex, setActiveIndex] = useState(0)
+
+    if (validImages.length === 0) {
+        return (
+            <div className="w-full aspect-square bg-zinc-900 rounded-t-xl flex flex-col items-center justify-center text-zinc-500">
+                <span className="text-4xl mb-2">📸</span>
+                <p>لا توجد صور متاحة</p>
+            </div>
+        )
+    }
 
     return (
         <div className="flex flex-col gap-2">
             {/* Main Display - Click to Zoom */}
             <div
                 className="relative w-full aspect-square bg-zinc-900 overflow-hidden cursor-zoom-in group rounded-t-xl"
-                onClick={() => setSelectedImage(images[activeIndex])}
+                onClick={() => setSelectedImage(validImages[activeIndex])}
             >
                 <Image
-                    src={images[activeIndex]}
+                    src={validImages[activeIndex]}
                     alt={`${title} - image ${activeIndex + 1}`}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -35,17 +47,17 @@ export function ListingImageGallery({ images, title }: ListingImageGalleryProps)
                 </div>
 
                 {/* Image Counter */}
-                {images.length > 1 && (
+                {validImages.length > 1 && (
                     <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-white">
-                        {activeIndex + 1} / {images.length}
+                        {activeIndex + 1} / {validImages.length}
                     </div>
                 )}
             </div>
 
             {/* Thumbnails row */}
-            {images.length > 1 && (
+            {validImages.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto px-4 pb-2 snap-x hide-scrollbar">
-                    {images.map((img, idx) => (
+                    {validImages.map((img, idx) => (
                         <button
                             key={idx}
                             onClick={() => setActiveIndex(idx)}
