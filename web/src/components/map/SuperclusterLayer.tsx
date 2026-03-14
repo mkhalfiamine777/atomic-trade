@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useMap, Marker } from 'react-leaflet';
 import useSupercluster from 'use-supercluster';
 import { MapMarker, MapItem } from './MapMarker';
@@ -24,7 +24,7 @@ export function SuperclusterLayer({
     const [bounds, setBounds] = useState<[number, number, number, number] | undefined>(undefined);
     const [zoom, setZoom] = useState(16);
 
-    const updateMap = () => {
+    const updateMap = useCallback(() => {
         const b = map.getBounds();
         setBounds([
             b.getSouthWest().lng,
@@ -33,17 +33,28 @@ export function SuperclusterLayer({
             b.getNorthEast().lat
         ]);
         setZoom(map.getZoom());
-    };
+    }, [map]);
 
     useEffect(() => {
         updateMap();
-        map.on('move', updateMap);
-        map.on('zoom', updateMap);
-        return () => {
-            map.off('move', updateMap);
-            map.off('zoom', updateMap);
+
+        let timeoutId: NodeJS.Timeout;
+        const throttledUpdateMap = () => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                updateMap();
+            }, 100); // 100ms debounce
         };
-    }, [map]);
+
+        map.on('moveend', throttledUpdateMap); // Use moveend instead of continuous move
+        map.on('zoomend', throttledUpdateMap);
+
+        return () => {
+            clearTimeout(timeoutId);
+            map.off('moveend', throttledUpdateMap);
+            map.off('zoomend', throttledUpdateMap);
+        };
+    }, [map, updateMap]);
 
     const points = useMemo(() => {
         return items.map(item => {
