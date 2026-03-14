@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
 import { ListingType } from '@prisma/client'
 
 import { createListingSchema } from '@/lib/schemas'
@@ -74,7 +74,6 @@ export async function createListing(formData: FormData) {
 
         // 6. Update UI
         revalidatePath('/dashboard')
-        revalidateTag('feed') // Clear the Explore feed cache
         return { success: true }
     } catch (error: unknown) {
         console.error('Market Error:', error instanceof Error ? error.message : error)
