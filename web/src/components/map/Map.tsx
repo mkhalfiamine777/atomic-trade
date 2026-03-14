@@ -114,11 +114,22 @@ export default function Map({
         return false
     })
 
+    const filteredPosts = posts.filter(() => {
+        if (selectedFilters.length === 0) return true
+        return false // Posts don't fit into PRODUCT, REQUEST, VIDEO, or IMAGE yet
+    })
+
+    const filteredUsers = globalUsers.filter(u => {
+        if (u.id === currentUserId) return false // Always hide current user from cluster map
+        if (selectedFilters.length === 0) return true
+        return false // Hide users when filtering for specific items
+    })
+
     const allItems: MapItem[] = [
         ...filteredListings.map(l => ({ type: 'LISTING' as const, data: l, lat: l.latitude, lng: l.longitude, id: l.id })),
         ...filteredStories.map(s => ({ type: 'STORY' as const, data: s, lat: s.latitude, lng: s.longitude, id: s.id })),
-        ...posts.map(p => ({ type: 'POST' as const, data: p, lat: p.latitude, lng: p.longitude, id: p.id })),
-        ...globalUsers.filter(u => u.id !== currentUserId).map(u => ({ type: 'USER' as const, data: u as any, lat: u.latitude, lng: u.longitude, id: `user-${u.id}` }))
+        ...filteredPosts.map(p => ({ type: 'POST' as const, data: p, lat: p.latitude, lng: p.longitude, id: p.id })),
+        ...filteredUsers.map(u => ({ type: 'USER' as const, data: u as any, lat: u.latitude, lng: u.longitude, id: `user-${u.id}` }))
     ]
 
     async function handleStartChat(listingId: string, sellerId: string, sellerName?: string | null) {
