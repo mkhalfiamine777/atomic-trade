@@ -55,6 +55,18 @@ export const getShopIcon = (hasStories: boolean, isOnline: boolean = true, isVis
     })
 }
 
+// 📦 Product: Green Neon
+export const getProductIcon = (count?: number) => {
+    const badge = getBadgeHtml(count);
+    return L.divIcon({
+        className: '',
+        html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full green-neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold">📦</div>${badge}</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16]
+    })
+}
+
 // 🏢 Company: Purple Neon (Online Status)
 export const getCompanyIcon = (hasStories: boolean, isOnline: boolean = true, isVisible: boolean = true, count?: number) => {
     const badge = getBadgeHtml(count);

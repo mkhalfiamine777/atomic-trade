@@ -212,6 +212,13 @@
     box-shadow: 0 0 15px rgba(220, 38, 38, 0.6);
 }
 
+.green-neon-active {
+    animation: neon-pulse 1.8s infinite;
+    background: radial-gradient(circle, #34d399 0%, #059669 100%);
+    border: 2px solid #a7f3d0;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+}
+
 .pink-neon-glow {
     animation: neon-pulse 3s infinite;
     /* Stories pulse slowly */

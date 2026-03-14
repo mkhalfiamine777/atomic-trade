@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import L from 'leaflet'
 import { Marker, Popup } from 'react-leaflet'
-import { getShopIcon, getRequestIcon, getIndividualIcon, getCompanyIcon } from '@/utils/mapIcons'
+import { getShopIcon, getRequestIcon, getIndividualIcon, getCompanyIcon, getProductIcon } from '@/utils/mapIcons'
 import { Listing, Story, Post, LocationUser } from "@/types"
 import { ChevronRight, ChevronLeft, Store, User as UserIcon, MessageCircle, Building2 } from 'lucide-react'
 
@@ -61,7 +61,7 @@ export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnt
 
         // Determine the base icon type (only computed ONCE for the group wrapper)
         const baseListing = item.data as Listing;
-        const baseIcon = baseListing.type === 'PRODUCT' ? getShopIcon(false, true, true, item.count) : getRequestIcon(item.count);
+        const baseIcon = baseListing.type === 'PRODUCT' ? getProductIcon(item.count) : getRequestIcon(item.count);
         const icon = getOffsetIcon(baseIcon, item);
 
         const popupTitle = activeListing.type === 'PRODUCT' ? 'عرض جديد' : 'طلب جديد';
