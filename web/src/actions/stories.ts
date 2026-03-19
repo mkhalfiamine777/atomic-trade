@@ -11,7 +11,9 @@ export async function createStory(formData: FormData) {
         const caption = formData.get('caption') as string
         const latitude = parseFloat(formData.get('latitude') as string)
         const longitude = parseFloat(formData.get('longitude') as string)
-        const mediaType = (formData.get('mediaType') as MediaType) || MediaType.IMAGE
+        const rawMediaType = formData.get('mediaType') as string | null
+        const validMediaTypes: MediaType[] = [MediaType.IMAGE, MediaType.VIDEO]
+        const mediaType = validMediaTypes.includes(rawMediaType as MediaType) ? (rawMediaType as MediaType) : MediaType.IMAGE
 
         // 🛡️ Auth: Use cookie, NEVER trust FormData userId
         const cookieStore = await cookies()

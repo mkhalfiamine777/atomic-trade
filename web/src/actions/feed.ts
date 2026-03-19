@@ -64,6 +64,3 @@ export async function getMixedFeed(page = 1, limit = 10, currentUserId?: string)
         return []
     }
 }
-
-// Keep backward compatibility
-export const getFeedVideos = getMixedFeed

@@ -41,14 +41,15 @@ export async function toggleLike(postId: string) {
     }
 }
 
-export async function getComments(targetId: string) {
+export async function getComments(targetId: string, cursor?: string) {
     try {
         const comments = await db.interaction.findMany({
             where: {
                 postId: targetId,
                 type: 'COMMENT'
             },
-            take: 50,
+            take: 20,
+            ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
             include: {
                 user: {
                     select: {
@@ -64,20 +65,23 @@ export async function getComments(targetId: string) {
             }
         })
 
-        return comments.map(c => ({
-            id: c.id,
-            content: c.content || '',
-            createdAt: c.createdAt,
-            user: {
-                id: c.user.id,
-                name: c.user.name || 'مستخدم',
-                avatarUrl: c.user.avatarUrl,
-                isVerified: c.user.isVerified
-            }
-        }))
+        return {
+            comments: comments.map(c => ({
+                id: c.id,
+                content: c.content || '',
+                createdAt: c.createdAt,
+                user: {
+                    id: c.user.id,
+                    name: c.user.name || 'مستخدم',
+                    avatarUrl: c.user.avatarUrl,
+                    isVerified: c.user.isVerified
+                }
+            })),
+            nextCursor: comments.length === 20 ? comments[comments.length - 1].id : undefined
+        }
     } catch (error) {
         console.error('Error fetching comments:', error)
-        return []
+        return { comments: [], nextCursor: undefined }
     }
 }
 
@@ -88,6 +92,15 @@ export async function addComment(targetId: string, content: string) {
 
         if (!userId) {
             return { success: false, error: 'Unauthorized: Please login' }
+        }
+
+        // Validate comment content
+        const trimmedContent = content.trim()
+        if (!trimmedContent || trimmedContent.length === 0) {
+            return { success: false, error: 'التعليق فارغ' }
+        }
+        if (trimmedContent.length > 500) {
+            return { success: false, error: 'التعليق طويل جداً (500 حرف كحد أقصى)' }
         }
 
         const newComment = await db.interaction.create({
@@ -169,40 +182,48 @@ export async function interactWithListing(listingId: string, type: 'LIKE' | 'LOV
             data: { type, userId: userId, listingId }
         })
 
-        // 🔥 Crowd Price Drop Logic (Phase 6) — Race-safe with $transaction
+        // Crowd Price Drop Logic — Race-safe with interactive $transaction
         let priceDropped = false
-        let newPrice = undefined
-        let currentLikes = undefined
+        let newPrice: number | undefined = undefined
+        let currentLikes: number | undefined = undefined
 
         if (type === 'LIKE') {
-            const listing = await db.listing.findUnique({
-                where: { id: listingId },
-                select: { crowdTarget: true, crowdDiscount: true, price: true }
-            })
+            const result = await db.$transaction(async (tx) => {
+                const listing = await tx.listing.findUnique({
+                    where: { id: listingId },
+                    select: { crowdTarget: true, crowdDiscount: true, price: true }
+                })
 
-            if (listing?.crowdTarget && listing?.crowdDiscount) {
-                currentLikes = await db.interaction.count({
+                if (!listing?.crowdTarget || !listing?.crowdDiscount) {
+                    return { dropped: false }
+                }
+
+                const likeCount = await tx.interaction.count({
                     where: { listingId, type: 'LIKE' }
                 })
 
-                if (currentLikes >= listing.crowdTarget) {
-                    // Atomic update: only apply if crowdTarget is still set (prevents double-apply)
-                    newPrice = Math.max(0, listing.price - (listing.price * (listing.crowdDiscount / 100)))
-
-                    const updated = await db.listing.updateMany({
+                if (likeCount >= listing.crowdTarget) {
+                    const calculatedPrice = Math.max(0, listing.price - (listing.price * (listing.crowdDiscount / 100)))
+                    const updated = await tx.listing.updateMany({
                         where: {
                             id: listingId,
-                            crowdTarget: { not: null } // Guard: only if not already applied
+                            crowdTarget: { not: null }
                         },
                         data: {
-                            price: newPrice,
+                            price: calculatedPrice,
                             crowdTarget: null,
                             crowdDiscount: null
                         }
                     })
-                    priceDropped = updated.count > 0
+                    return { dropped: updated.count > 0, price: calculatedPrice, likes: likeCount }
                 }
-            }
+
+                return { dropped: false, likes: likeCount }
+            })
+
+            priceDropped = result.dropped
+            newPrice = result.price
+            currentLikes = result.likes
         }
 
         return { success: true, action: 'added', priceDropped, newPrice, currentLikes }

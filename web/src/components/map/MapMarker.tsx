@@ -9,14 +9,14 @@ import { ChevronRight, ChevronLeft, Store, User as UserIcon, MessageCircle, Buil
 
 export type MapItem = {
     type: 'LISTING' | 'STORY' | 'POST' | 'USER'
-    data: Listing | Story | Post
+    data: Listing | Story | Post | LocationUser
     lat: number
     lng: number
     id: string
     offsetX?: number
     offsetY?: number
     count?: number
-    groupedData?: any[]
+    groupedData?: MapItem[]
 }
 
 // Helper to shift icons visually using screen pixels instead of geo-coordinates
@@ -223,7 +223,7 @@ export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnt
     }
     // 👤🏪🏢 USER type — Global users on the map
     if (item.type === 'USER') {
-        const user = item.data as any as LocationUser
+        const user = item.data as LocationUser
         const userType = (user.type || 'INDIVIDUAL') as string
 
         // Pick the correct neon icon based on user type

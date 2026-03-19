@@ -5,7 +5,7 @@ import { useMap, Marker } from 'react-leaflet';
 import useSupercluster from 'use-supercluster';
 import { MapMarker, MapItem } from './MapMarker';
 import { getSmartClusterIcon } from '@/utils/mapIcons';
-import { LocationUser } from '@/types';
+import { LocationUser, Listing } from '@/types';
 
 export function SuperclusterLayer({
     items,
@@ -66,7 +66,7 @@ export function SuperclusterLayer({
                 const user = item.data as unknown as LocationUser;
                 isShop = user.type === 'SHOP';
             } else if (item.data && 'seller' in item.data) {
-                const sellerInfo = (item.data as any).seller;
+                const sellerInfo = (item.data as Listing).seller;
                 if (sellerInfo && sellerInfo.type === 'SHOP') {
                     isShop = true;
                 }
@@ -112,7 +112,7 @@ export function SuperclusterLayer({
         <>
             {clusters.map((cluster) => {
                 const [longitude, latitude] = cluster.geometry.coordinates;
-                const { cluster: isCluster, point_count } = cluster.properties as any;
+                const { cluster: isCluster, point_count } = cluster.properties as { cluster: boolean; point_count: number };
                 const clusterId = cluster.id as number;
 
                 if (isCluster) {
