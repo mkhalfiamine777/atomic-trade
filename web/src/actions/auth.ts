@@ -120,9 +120,3 @@ export async function logout() {
     redirect('/login')
 }
 
-// D-1 FIX: getUser() is DEPRECATED — use getCurrentUser() from '@/actions/getCurrentUser' instead.
-/** @deprecated Use getCurrentUser() instead */
-export async function getUser() {
-    const { getCurrentUser } = await import('@/actions/getCurrentUser')
-    return getCurrentUser()
-}

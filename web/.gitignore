@@ -49,3 +49,11 @@ server.js
 build_log.txt
 lint_errors.txt
 lint_report.json
+tsc_out.txt
+tsc-output.txt
+feed-test.log
+project_tree.txt
+
+# Test scripts (keep in local only)
+test_*.ts
+prisma_test.ts

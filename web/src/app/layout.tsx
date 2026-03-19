@@ -3,7 +3,6 @@ import { Inter, Cairo } from 'next/font/google'
 import './globals.css'
 import { cn } from '@/lib/utils'
 import { Toaster } from 'sonner'
-import SocketStatus from '@/components/debug/SocketStatus'
 import { SocketProvider } from '@/providers/SocketProvider'
 import { SearchMenu } from '@/components/ui/SearchMenu'
 import { VideoLightbox } from '@/components/modals/VideoLightbox'
@@ -45,7 +44,6 @@ export default function RootLayout({
                 <SocketProvider>
                     <SearchMenu />
                     {children}
-                    <SocketStatus />
                     <Toaster position="top-left" richColors />
                     <VideoLightbox />
                 </SocketProvider>

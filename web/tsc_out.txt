@@ -1,4 +1,0 @@
-﻿src/actions/createVideo.ts(33,9): error TS2554: Expected 2 arguments, but got 1.
-src/actions/market.ts(77,9): error TS2554: Expected 2 arguments, but got 1.
-src/actions/social.ts(51,9): error TS2554: Expected 2 arguments, but got 1.
-src/components/map/SmartMarkerGroup.tsx(7,10): error TS2724: '"@/utils/mapIcons"' has no exported member named 'getClusterIcon'. Did you mean 'getCloseIcon'?
