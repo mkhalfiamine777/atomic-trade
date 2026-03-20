@@ -39,13 +39,14 @@ export async function createPost(
                 mediaType,
                 latitude,
                 longitude
+            },
+            include: {
+                user: { select: { username: true } }
             }
         })
 
-        // Fetch username for correct revalidation path
-        const user = await db.user.findUnique({ where: { id: userId }, select: { username: true } })
-        if (user?.username) {
-            revalidatePath(`/u/${user.username}`)
+        if (post.user?.username) {
+            revalidatePath(`/u/${post.user.username}`)
         }
         revalidatePath('/dashboard')
         return { success: true, post }
@@ -55,12 +56,18 @@ export async function createPost(
     }
 }
 
-export async function getMapPosts() {
+/**
+ * Fetches recent map posts within a specific geographic area (viewport).
+ * Includes user reputation and verification status.
+ * @param bounds - Optional map viewport boundaries { north, south, east, west }
+ * @returns Array of social posts with location data
+ */
+export async function getMapPosts(bounds?: { north: number, south: number, east: number, west: number }) {
     try {
         const posts = await db.socialPost.findMany({
             where: {
-                latitude: { not: null },
-                longitude: { not: null }
+                latitude: bounds ? { gte: bounds.south, lte: bounds.north } : { not: null },
+                longitude: bounds ? { gte: bounds.west, lte: bounds.east } : { not: null }
             },
             take: 50,
             orderBy: { createdAt: 'desc' },

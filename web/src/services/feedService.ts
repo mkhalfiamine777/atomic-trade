@@ -70,7 +70,7 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
     const storiesPromise = db.mapStory.findMany({
         take: storyCount,
         skip: storySkip,
-        // DISABLED FOR EXPLORE TESTING: where: { expiresAt: { gt: new Date() } },
+        where: { expiresAt: { gt: new Date() } },
         orderBy: { createdAt: 'desc' },
         include: {
             user: {
@@ -113,11 +113,10 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
     const [posts, stories, listings] = await Promise.all([postsPromise, storiesPromise, listingsPromise])
 
     // Map Posts
-    const postItems: FeedItemDTO[] = posts.map((post: PostWithRelations) => {
-        const likeCount = post.interactions.filter((i: { type: string }) => i.type === 'LIKE').length
-        const commentCount = post.interactions.filter((i: { type: string }) => i.type === 'COMMENT').length
-        const isLiked = currentUserId ? post.interactions.some((i: { type: string; userId: string }) => i.type === 'LIKE' && i.userId === currentUserId) : false
+    const countInteractions = (interactions: { type: string, userId?: string }[], type: string) => interactions.filter(i => i.type === type).length
+    const checkLiked = (interactions: { type: string, userId: string }[], userId?: string) => userId ? interactions.some(i => i.type === 'LIKE' && i.userId === userId) : false
 
+    const postItems: FeedItemDTO[] = posts.map((post: PostWithRelations) => {
         return {
             id: post.id,
             type: post.mediaType as 'VIDEO' | 'IMAGE',
@@ -125,11 +124,11 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
             username: post.user.name || 'مستخدم',
             userAvatar: post.user.avatarUrl || undefined,
             description: post.caption || '',
-            likes: likeCount,
-            comments: commentCount,
+            likes: countInteractions(post.interactions, 'LIKE'),
+            comments: countInteractions(post.interactions, 'COMMENT'),
             shares: 0,
             isShop: post.user.type === 'SHOP',
-            isLiked: isLiked,
+            isLiked: checkLiked(post.interactions, currentUserId),
             createdAt: post.createdAt
         }
     })
@@ -154,8 +153,6 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
     // 🛍️ Map Listings
     const listingItems: FeedItemDTO[] = listings.map((listing: ListingWithSeller) => {
         const imageUrl = listing.images ? listing.images.split(',')[0].trim() : ''
-        const likeCount = listing.interactions.filter((i: { type: string }) => i.type === 'LIKE').length
-        const isLiked = currentUserId ? listing.interactions.some((i: { type: string; userId: string }) => i.type === 'LIKE' && i.userId === currentUserId) : false
 
         return {
             id: listing.id,
@@ -164,11 +161,11 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
             username: listing.seller.name || 'بائع',
             userAvatar: listing.seller.avatarUrl || undefined,
             description: listing.description || '',
-            likes: likeCount,
-            comments: 0,
+            likes: countInteractions(listing.interactions, 'LIKE'),
+            comments: countInteractions(listing.interactions, 'COMMENT'), // Listings can now use the helper too
             shares: 0,
             isShop: listing.seller.type === 'SHOP',
-            isLiked: isLiked,
+            isLiked: checkLiked(listing.interactions, currentUserId),
             createdAt: listing.createdAt,
 
             // Commerce-specific fields

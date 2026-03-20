@@ -9,6 +9,14 @@ import bcrypt from 'bcryptjs'
 
 import { loginSchema, signupSchema } from '@/lib/schemas'
 
+/**
+ * Authenticates a user based on their phone number and password.
+ * If successful, securely sets an encrypted HTTP-only cookie (`user_id`).
+ *
+ * @param _prevState - Required for React useActionState / useFormState
+ * @param formData - Requires 'phone' and 'password'
+ * @returns Object with `{ error: string }` on failure, or redirects on success.
+ */
 export async function login(_prevState: unknown, formData: FormData) {
     const rawData = {
         phone: formData.get('phone'),

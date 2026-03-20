@@ -25,7 +25,7 @@ export function useMediaUpload({
     const [isVideo, setIsVideo] = useState(false)
 
     // UploadThing SDK expects a literal endpoint string, not a union variable — cast required
-    const { startUpload: uploadThingStart } = useUploadThing(endpoint as any, {
+    const { startUpload: uploadThingStart } = useUploadThing(endpoint, {
         onClientUploadComplete: (res) => {
             setUploading(false)
             if (res) {

@@ -6,7 +6,10 @@ import { cookies } from 'next/headers'
 /**
  * 🪙 Watch-To-Earn Logic (Phase 3 of Explore Addiction Engine)
  * Awards the user coins when they completely watch a video in the Explore feed.
- * It also logs a WATCH_COMPLETE interaction to prevent double-awarding.
+ * It also logs a WATCH_COMPLETE interaction to prevent double-awarding and enforces a daily cap.
+ *
+ * @param postId - ID of the social post being watched
+ * @returns Object indicating success, coinsEarned, newBalance, and a user-friendly message.
  */
 export async function awardCoinsForWatch(postId: string): Promise<{ success: boolean, coinsEarned?: number, newBalance?: number, message?: string }> {
     try {

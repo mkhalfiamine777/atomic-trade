@@ -106,7 +106,7 @@ export async function addComment(targetId: string, content: string) {
         const newComment = await db.interaction.create({
             data: {
                 type: 'COMMENT',
-                content: content,
+                content: trimmedContent,
                 userId: userId,
                 postId: targetId
             },

@@ -3,10 +3,10 @@
 import dynamic from 'next/dynamic'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { CreatePostModal } from '@/components/modals/CreatePostModal'
-import { AddProductModal } from '@/components/modals/AddProductModal'
-import { CreateRequestModal } from '@/components/modals/CreateRequestModal'
-import { CreateStoryModal } from '@/components/modals/CreateStoryModal'
+const CreatePostModal = dynamic(() => import('@/components/modals/CreatePostModal').then(m => m.CreatePostModal), { ssr: false })
+const AddProductModal = dynamic(() => import('@/components/modals/AddProductModal').then(m => m.AddProductModal), { ssr: false })
+const CreateRequestModal = dynamic(() => import('@/components/modals/CreateRequestModal').then(m => m.CreateRequestModal), { ssr: false })
+const CreateStoryModal = dynamic(() => import('@/components/modals/CreateStoryModal').then(m => m.CreateStoryModal), { ssr: false })
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { updateUserLocation } from '@/actions/user'
 import { BottomNav } from '@/components/layout/BottomNav'

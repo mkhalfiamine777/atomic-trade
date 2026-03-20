@@ -7,6 +7,14 @@ import { ListingType } from '@prisma/client'
 
 import { createListingSchema } from '@/lib/schemas'
 
+/**
+ * Creates a new Listing (Product or Request)
+ * Performs input validation via Zod, checks authentication, checks for existence of required media.
+ * Also asynchronously triggers the background matching engine.
+ *
+ * @param formData - The FormData containing 'title', 'price', 'description', 'type', 'category', 'subcategory', 'imageUrl', 'lat', 'lng'.
+ * @returns Object with `success: true` or `{ error: string }` if validation or creation failed.
+ */
 export async function createListing(formData: FormData) {
     // 1. Auth Check
     const userId = (await cookies()).get('user_id')?.value
@@ -81,9 +89,19 @@ export async function createListing(formData: FormData) {
     }
 }
 
-export async function getListings() {
+/**
+ * Retrieves a paginated list of market listings in descending order of creation.
+ * Returns only safe user data (avoids leaking passwords or phone numbers).
+ *
+ * @param limit - Optional maximum number of items to return (default: 50)
+ * @param cursor - Optional ID from the last listing item for backwards pagination
+ * @returns Array of Listing objects including Seller data.
+ */
+export async function getListings(limit: number = 50, cursor?: string) {
     try {
         const listings = await db.listing.findMany({
+            take: limit,
+            ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
             orderBy: { createdAt: 'desc' },
             include: {
                 seller: {

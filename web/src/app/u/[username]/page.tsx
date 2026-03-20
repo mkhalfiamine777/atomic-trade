@@ -27,46 +27,27 @@ export default async function UserProfilePage(props: {
     // Check if it's a UUID
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(paramId)
 
-    let user = null
+    // Single query: try UUID first (via OR), fallback to username — avoids 2 sequential DB round-trips
+    const userSelect = {
+        id: true,
+        name: true,
+        username: true,
+        type: true,
+        avatarUrl: true,
+        bio: true,
+        shopCategory: true,
+        isVerified: true,
+        reputationScore: true,
+        createdAt: true,
+        stories: { select: { id: true, mediaUrl: true, mediaType: true, caption: true } }
+    } as const
 
-    if (isUUID) {
-        user = await db.user.findUnique({
-            where: { id: paramId },
-            select: {
-                id: true,
-                name: true,
-                username: true,
-                type: true,
-                avatarUrl: true,
-                bio: true,
-                shopCategory: true,
-                isVerified: true,
-                reputationScore: true,
-                createdAt: true,
-                stories: { select: { id: true, mediaUrl: true, mediaType: true, caption: true } } // P-1: Only needed fields
-            }
-        })
-    }
-
-    // If not UUID or not found by ID, try finding by username
-    if (!user) {
-        user = await db.user.findUnique({
-            where: { username: paramId.toLowerCase() }, // Case insensitive search
-            select: {
-                id: true,
-                name: true,
-                username: true,
-                type: true,
-                avatarUrl: true,
-                bio: true,
-                shopCategory: true,
-                isVerified: true,
-                reputationScore: true,
-                createdAt: true,
-                stories: { select: { id: true, mediaUrl: true, mediaType: true, caption: true } } // P-1: Only needed fields
-            }
-        })
-    }
+    const user = await db.user.findFirst({
+        where: isUUID
+            ? { OR: [{ id: paramId }, { username: paramId.toLowerCase() }] }
+            : { username: paramId.toLowerCase() },
+        select: userSelect
+    })
 
     if (!user) {
         return notFound()
