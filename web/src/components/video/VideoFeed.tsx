@@ -35,28 +35,25 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
 
     // Preload Next Item Strategy (Video or Image)
     useEffect(() => {
-        if (feedItems.length > activeIndex + 1) {
-            const nextItem = feedItems[activeIndex + 1]
-            let link: HTMLLinkElement | null = null
+        if (feedItems.length <= activeIndex + 1) return
 
-            if (nextItem.type === 'VIDEO') {
-                link = document.createElement('link')
-                link.rel = 'preload'
-                link.as = 'video'
-                link.href = nextItem.url
-            } else if (nextItem.type === 'IMAGE' || nextItem.type === 'STORY' || nextItem.type === 'LISTING') {
-                link = document.createElement('link')
-                link.rel = 'preload'
-                link.as = 'image'
-                link.href = nextItem.url
-            }
+        const nextItem = feedItems[activeIndex + 1]
+        const link = document.createElement('link')
+        link.rel = 'preload'
 
-            if (link) {
-                document.head.appendChild(link)
-                return () => {
-                    document.head.removeChild(link)
-                }
-            }
+        if (nextItem.type === 'VIDEO') {
+            link.as = 'video'
+            link.href = nextItem.url
+        } else if (nextItem.type === 'IMAGE' || nextItem.type === 'STORY' || nextItem.type === 'LISTING') {
+            link.as = 'image'
+            link.href = nextItem.url
+        } else {
+            return // Unknown type — skip preload entirely
+        }
+
+        document.head.appendChild(link)
+        return () => {
+            document.head.removeChild(link)
         }
     }, [activeIndex, feedItems])
 

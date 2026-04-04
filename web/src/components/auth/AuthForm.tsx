@@ -123,9 +123,13 @@ export function AuthForm({ mode }: AuthFormProps) {
                         كلمة المرور
                     </label>
                     {mode === 'login' && (
-                        <Link href="#" className="text-xs text-primary hover:underline">
+                        <button
+                            type="button"
+                            onClick={() => toast.info('ميزة استعادة كلمة المرور قريباً!')}
+                            className="text-xs text-primary hover:underline"
+                        >
                             نسيت كلمة المرور؟
-                        </Link>
+                        </button>
                     )}
                 </div>
                 <Input

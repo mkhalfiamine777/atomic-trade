@@ -149,6 +149,7 @@ export default function DashboardClient({
                     onClick={() => setIsSettingsOpen(true)}
                     className="w-10 h-10 bg-black/40 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-colors shadow-lg"
                     title="القائمة"
+                    aria-label="فتح القائمة"
                 >
                     <MenuIcon size={20} />
                 </button>
