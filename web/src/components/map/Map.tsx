@@ -91,6 +91,7 @@ export default function Map({
         getListings().then(data => setListings(data as unknown as Listing[]))
         getStories().then(data => setStories(data as unknown as Story[]))
         getMapPosts().then(data => setPosts(data as unknown as Post[]))
+        getAllActiveUsers().then(setGlobalUsers)
     }, [refreshTrigger]) // Only re-fetch on explicit refresh, NOT on every GPS update
 
     const toggleFilter = (filter: FilterType) => {
@@ -142,7 +143,9 @@ export default function Map({
         ...filteredListings.map(l => ({ type: 'LISTING' as const, data: l, lat: l.latitude, lng: l.longitude, id: l.id })),
         ...filteredStories.map(s => ({ type: 'STORY' as const, data: s, lat: s.latitude, lng: s.longitude, id: s.id })),
         ...filteredPosts.map(p => ({ type: 'POST' as const, data: p, lat: p.latitude, lng: p.longitude, id: p.id })),
-        ...filteredUsers.map(u => ({ type: 'USER' as const, data: u, lat: u.latitude, lng: u.longitude, id: `user-${u.id}` }))
+        ...(showUserCluster 
+            ? filteredUsers.map(u => ({ type: 'USER' as const, data: u, lat: u.latitude, lng: u.longitude, id: `user-${u.id}` }))
+            : [])
     ]
 
     async function handleStartChat(listingId: string, sellerId: string, sellerName?: string | null) {
@@ -247,15 +250,13 @@ export default function Map({
                 </Marker>
 
                 {/* Smart Clustering Layer for ALL Items and Users */}
-                {showUserCluster && (
-                    <SuperclusterLayer
-                        items={allItems}
-                        onStartChat={handleStartChat}
-                        onViewStory={(story) => setSelectedStory(story)}
-                        onMouseEnter={handleMouseEnterCluster}
-                        onMouseLeave={handleMouseLeaveCluster}
-                    />
-                )}
+                <SuperclusterLayer
+                    items={allItems}
+                    onStartChat={handleStartChat}
+                    onViewStory={(story) => setSelectedStory(story)}
+                    onMouseEnter={handleMouseEnterCluster}
+                    onMouseLeave={handleMouseLeaveCluster}
+                />
 
                 {/* 🏰 Zone Grid Layer (Conditional) */}
                 {showZoneGrid && <ZoneGridLayer currentUserId={currentUserId} />}
