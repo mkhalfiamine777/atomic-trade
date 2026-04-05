@@ -15,6 +15,7 @@ export function NotificationBell() {
     // Use the global persistent notification store
     const { notifications, addNotification, markAsRead, markAllAsRead, clearAll, dismissPopout, deleteNotification } = useNotificationStore()
 
+
     const [isOpen, setIsOpen] = useState(false)
     const [hasNewFlash, setHasNewFlash] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)

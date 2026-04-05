@@ -181,7 +181,6 @@ export function MediaUploader({
                                     onClick={handleUpload}
                                     className="w-full bg-indigo-600 hover:bg-indigo-700 py-6 text-lg font-bold shadow-lg shadow-indigo-500/20"
                                 >
-                                    {/* Icon removed to fix TS error */}
                                     <Check className="w-5 h-5 ml-2 inline-block" />
                                     تأكيد ونشر
                                 </Button>

@@ -258,6 +258,11 @@ model Interaction {
   @@index([targetUserId])
   @@index([listingId])
   @@index([type])
+
+  // Prevent duplicate interactions (e.g. double-likes from race conditions)
+  @@unique([userId, postId, type])
+  @@unique([userId, listingId, type])
+  @@unique([userId, targetUserId, type])
 }
 
 // Follow System

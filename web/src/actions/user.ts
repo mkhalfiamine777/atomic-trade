@@ -24,10 +24,11 @@ export async function updateUserLocation(lat: number, lng: number) {
 
         // 3. IF INDIVIDUAL: Sync "Merchandise" & "Stories" to follow the user 🚶‍♂️📦
         if (user.type === 'INDIVIDUAL') {
-            // Move active products AND requests
+            // Move active (unsold) products AND requests only
             await db.listing.updateMany({
                 where: {
                     sellerId: userId,
+                    isSold: false,
                     type: { in: ['PRODUCT', 'REQUEST'] }
                 },
                 data: { latitude: lat, longitude: lng }

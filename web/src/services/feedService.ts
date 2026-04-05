@@ -28,7 +28,7 @@ type ListingWithSeller = Prisma.ListingGetPayload<{
  * Mixes Social Content (Posts + Stories) with Commerce (Listings + Golden Deals)
  * Ratio: ~7 media : 2-3 listings per page of 10
  */
-export async function getMixedFeedLogic(page: number, limit: number, currentUserId?: string): Promise<FeedItemDTO[]> {
+export async function getMixedFeedLogic(page: number, limit: number, currentUserId?: string): Promise<{ postItems: FeedItemDTO[], storyItems: FeedItemDTO[], listingItems: FeedItemDTO[] }> {
     // Distribute feed items across the 3 types (e.g. for limit 10: 4 posts, 3 stories, 3 listings)
     const postCount = Math.ceil(limit * 0.4)
     const storyCount = Math.ceil(limit * 0.3)
@@ -185,40 +185,6 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
         }
     })
 
-    // 🎰 Golden Deal: Pick ONE random listing and make it a golden deal
-    if (listingItems.length > 0 && Math.random() < 0.4) {
-        const goldenIndex = Math.floor(Math.random() * listingItems.length)
-        listingItems[goldenIndex].isGoldenDeal = true
-        listingItems[goldenIndex].dealExpiresAt = new Date(Date.now() + 60 * 1000) // 60 seconds from now
-    }
-
-    // 🔀 Smart Interleaving: Insert listings between media items
-    const mediaItems = [...postItems, ...storyItems]
-    const combined: FeedItemDTO[] = []
-
-    // Shuffle media first (Fisher-Yates)
-    for (let i = mediaItems.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [mediaItems[i], mediaItems[j]] = [mediaItems[j], mediaItems[i]]
-    }
-
-    // Interleave: every 3-4 media items, insert a listing
-    let listingIdx = 0
-    for (let i = 0; i < mediaItems.length; i++) {
-        combined.push(mediaItems[i])
-
-        // After every 3rd or 4th media item, inject a listing
-        if ((i + 1) % 3 === 0 && listingIdx < listingItems.length) {
-            combined.push(listingItems[listingIdx])
-            listingIdx++
-        }
-    }
-
-    // Append any remaining listings at the end
-    while (listingIdx < listingItems.length) {
-        combined.push(listingItems[listingIdx])
-        listingIdx++
-    }
-
-    return combined
+    // Return raw items — shuffle/golden deal applied OUTSIDE cache by feed.ts
+    return { postItems, storyItems, listingItems }
 }

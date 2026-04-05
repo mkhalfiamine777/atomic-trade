@@ -94,11 +94,13 @@ export async function signup(_prevState: unknown, formData: FormData) {
         const hashedPassword = await bcrypt.hash(password, 10)
 
         // Create user
+        const baseName = name ? name.replace(/\s+/g, '').toLowerCase() : 'user'
+        const uniqueSuffix = Date.now().toString(36) // collision-safe: base36 timestamp
         const newUser = await db.user.create({
             data: {
                 phone,
                 name,
-                username: name ? `${name.replace(/\s+/g, '').toLowerCase()}${Math.floor(Math.random() * 1000)}` : `user${Math.floor(Math.random() * 10000)}`,
+                username: `${baseName}${uniqueSuffix}`,
                 password: hashedPassword,
                 type: type,
                 shopCategory
@@ -115,7 +117,7 @@ export async function signup(_prevState: unknown, formData: FormData) {
         })
     } catch (error) {
         console.error('Signup error:', error)
-        return { error: error instanceof Error ? error.message : 'فشل التسجيل' }
+        return { error: 'فشل التسجيل، حاول مرة أخرى' }
     }
 
     // Redirect to dashboard or login

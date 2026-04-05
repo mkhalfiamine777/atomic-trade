@@ -37,6 +37,6 @@ export async function submitReview(targetUserId: string, listingId: string, rati
 
     } catch (error: unknown) {
         console.error('Submit Review Error:', error)
-        return { success: false, error: error instanceof Error ? error.message : 'حدث خطأ غير معروف' }
+        return { success: false, error: 'فشل إرسال التقييم، حاول مرة أخرى' }
     }
 }

@@ -1,12 +1,6 @@
-import { cookies } from 'next/headers'
-import { VideoFeed } from '@/components/video/VideoFeed'
+import { redirect } from 'next/navigation'
 
-export default async function FeedPage() {
-    const userId = (await cookies()).get('user_id')?.value
-
-    return (
-        <div className="bg-black min-h-screen">
-            <VideoFeed currentUserId={userId} />
-        </div>
-    )
+// /feed is deprecated — redirect to /explore which has the full experience (Streak + Feed)
+export default function FeedPage() {
+    redirect('/explore')
 }

@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl
 
     // Public routes that don't require authentication
-    // Added /feed and /upload for testing/mock mode access
+    // Note: /dashboard is intentionally public — unauthenticated users see GuestDashboardClient (map only)
     const publicRoutes = ['/', '/login', '/signup', '/dashboard']
 
     // Check if the current route is public

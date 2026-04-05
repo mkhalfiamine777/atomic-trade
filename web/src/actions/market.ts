@@ -102,6 +102,7 @@ export async function getListings(limit: number = 50, cursor?: string) {
         const listings = await db.listing.findMany({
             take: limit,
             ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+            where: { isSold: false },
             orderBy: { createdAt: 'desc' },
             include: {
                 seller: {

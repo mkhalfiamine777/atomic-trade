@@ -21,10 +21,11 @@ interface ChatWindowProps {
         avatarUrl: string | null
         username: string
     }
+    listingId?: string | null
     onBack?: () => void
 }
 
-export default function ChatWindow({ conversationId, currentUserId, otherUser, onBack }: ChatWindowProps) {
+export default function ChatWindow({ conversationId, currentUserId, otherUser, listingId, onBack }: ChatWindowProps) {
     const { messages, sendMessage, isLoading, isConnected } = useChat(conversationId, currentUserId)
     const [content, setContent] = useState("")
     const [isRatingOpen, setIsRatingOpen] = useState(false)
@@ -131,7 +132,7 @@ export default function ChatWindow({ conversationId, currentUserId, otherUser, o
                 onClose={() => setIsRatingOpen(false)}
                 targetUserId={otherUser.id}
                 targetUserName={otherUser.name}
-                listingId={conversationId} // Using conversationId as context if listing is unknown
+                listingId={listingId || conversationId} // Use actual listingId when available
                 listingTitle={"محادثة مع " + otherUser.name}
             />
         </div>

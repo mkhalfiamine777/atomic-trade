@@ -56,8 +56,38 @@ const getCachedMixedFeed = unstable_cache(
 
 export async function getMixedFeed(page = 1, limit = 10, currentUserId?: string): Promise<FeedItemDTO[]> {
     try {
-        // Use the cached version
-        const combined = await getCachedMixedFeed(page, limit, currentUserId)
+        // 1. Get cached raw data (deterministic — safe to cache)
+        const { postItems, storyItems, listingItems } = await getCachedMixedFeed(page, limit, currentUserId)
+
+        // 2. 🎰 Golden Deal (random — applied per-request, NOT cached)
+        if (listingItems.length > 0 && Math.random() < 0.4) {
+            const goldenIndex = Math.floor(Math.random() * listingItems.length)
+            listingItems[goldenIndex].isGoldenDeal = true
+            listingItems[goldenIndex].dealExpiresAt = new Date(Date.now() + 60 * 1000)
+        }
+
+        // 3. 🔀 Fisher-Yates Shuffle (random — per-request)
+        const mediaItems = [...postItems, ...storyItems]
+        for (let i = mediaItems.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [mediaItems[i], mediaItems[j]] = [mediaItems[j], mediaItems[i]]
+        }
+
+        // 4. Interleave: every 3 media items, inject a listing
+        const combined: FeedItemDTO[] = []
+        let listingIdx = 0
+        for (let i = 0; i < mediaItems.length; i++) {
+            combined.push(mediaItems[i])
+            if ((i + 1) % 3 === 0 && listingIdx < listingItems.length) {
+                combined.push(listingItems[listingIdx])
+                listingIdx++
+            }
+        }
+        while (listingIdx < listingItems.length) {
+            combined.push(listingItems[listingIdx])
+            listingIdx++
+        }
+
         return combined
     } catch (error: unknown) {
         console.error('Error getting mixed feed:', error instanceof Error ? error.message : error)

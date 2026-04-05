@@ -44,8 +44,14 @@ export async function updateProfile(formData: FormData) {
         const username = formData.get('username') as string
         const avatarUrl = formData.get('avatarUrl') as string
         const bio = formData.get('bio') as string | null
-        const type = formData.get('type') as UserType
+        const type = formData.get('type') as string | null
         const shopCategory = formData.get('shopCategory') as string | null
+
+        // Validate UserType whitelist
+        const validTypes = ['INDIVIDUAL', 'SHOP', 'COMPANY']
+        if (type && !validTypes.includes(type)) {
+            return { success: false, error: 'نوع الحساب غير صالح' }
+        }
         const currentPassword = formData.get('currentPassword') as string | null
         const newPassword = formData.get('newPassword') as string | null
 
@@ -97,7 +103,7 @@ export async function updateProfile(formData: FormData) {
                     username: username ? username.toLowerCase() : undefined,
                     avatarUrl: avatarUrl || undefined,
                     bio: bio !== null ? bio.trim() : undefined,
-                    type: type || undefined,
+                    type: (type as UserType) || undefined,
                     shopCategory: shopCategory || undefined,
                     ...(hashedPassword ? { password: hashedPassword } : {})
                 }

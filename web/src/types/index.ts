@@ -10,7 +10,6 @@ export interface UserProfile {
     id: string
     name: string | null
     username: string | null
-    email?: string | null
     type: 'INDIVIDUAL' | 'SHOP' | 'COMPANY' | null
     avatarUrl: string | null
     isVerified: boolean

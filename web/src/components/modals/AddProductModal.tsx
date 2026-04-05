@@ -50,7 +50,7 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
 
             if (files.length > 0) {
                 const uploadRes = await startUpload()
-                console.log("🟢 [DEBUG] Raw UploadThing Response:", uploadRes)
+
                 if (uploadRes && uploadRes.length > 0) {
                     // Combine all uploaded URLs separated by commas
                     imageUrl = uploadRes.map(res => res.url).join(',')
@@ -62,12 +62,12 @@ export function AddProductModal({ isOpen, onClose, onSuccess }: Props) {
             formData.append('lng', coordinates.lng.toString())
             if (imageUrl) formData.append('imageUrl', imageUrl)
 
-            console.log("Submitting formData with imageUrls:", imageUrl)
+
 
             // Server Action
             const result = await createListing(formData)
 
-            console.log("Action result:", result)
+
 
             if (result.error) {
                 toast.error(result.error)

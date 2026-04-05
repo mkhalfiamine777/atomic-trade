@@ -29,7 +29,7 @@ export async function getAllActiveUsers(): Promise<LocationUser[]> {
             avatarUrl: user.avatarUrl,
             latitude: user.latitude as number,
             longitude: user.longitude as number,
-            type: user.type as 'INDIVIDUAL' | 'SHOP' | null,
+            type: user.type as 'INDIVIDUAL' | 'SHOP' | 'COMPANY' | null,
             isOnline: false,
             hasStories: false
         }))

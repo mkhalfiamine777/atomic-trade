@@ -77,6 +77,36 @@ export async function getProfileContent(userId: string, type: ContentType, page:
                 hasMore
             }
         }
+        else if (type === 'STORIES') {
+            const stories = await db.mapStory.findMany({
+                where: { userId },
+                orderBy: { createdAt: 'desc' },
+                take: limit,
+                skip: skip,
+                select: {
+                    id: true,
+                    mediaUrl: true,
+                    mediaType: true,
+                    caption: true,
+                    createdAt: true,
+                }
+            })
+
+            const total = await db.mapStory.count({ where: { userId } })
+            const hasMore = skip + stories.length < total
+
+            return {
+                success: true,
+                data: stories.map(s => ({
+                    id: s.id,
+                    mediaUrl: s.mediaUrl,
+                    mediaType: s.mediaType,
+                    caption: s.caption,
+                    type: 'STORY',
+                })),
+                hasMore
+            }
+        }
 
         return { success: false, error: 'Invalid type' }
 

@@ -3,6 +3,7 @@ import L from 'leaflet'
 const getBadgeHtml = (count?: number) => {
     return (count && count > 1) ? `<div class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-md z-50">${count}</div>` : '';
 }
+
 // 🔥 Unified Pin Logic (DRY Principle)
 export const getPinIcon = (
     colorStart: string,
@@ -13,47 +14,96 @@ export const getPinIcon = (
     className: string
 ) =>
     L.divIcon({
-        className: '', // Empty for proper positioning
+        className: '',
         html: `<div class="${hasStories ? className : ''}" style="width:20px;height:25px;background:linear-gradient(135deg,${colorStart},${colorEnd});border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid ${borderColor};box-shadow:0 2px 5px rgba(0,0,0,0.3);${hasStories ? `animation:beacon-pulse 1.3s infinite;filter:drop-shadow(0 0 8px ${shadowColor});` : ''}"></div>`,
         iconSize: [20, 25],
         iconAnchor: [10, 25],
         popupAnchor: [0, -25]
     })
 
-// 🏪 Shop: Gold Neon (Online Status)
-export const getShopIcon = (hasStories: boolean, isOnline: boolean = true, isVisible: boolean = true, count?: number) => {
+// ── User Type Icon Config ───────────────────────────────────
+interface UserIconConfig {
+    emoji: string
+    neonClass: string           // CSS class for online/active neon effect
+    offlineBgClass: string      // Tailwind background for offline state
+    offlineBorderClass: string  // Tailwind border for offline state
+}
+
+const USER_ICON_CONFIGS: Record<string, UserIconConfig> = {
+    SHOP: {
+        emoji: '🏪',
+        neonClass: 'gold-neon-active',
+        offlineBgClass: 'bg-amber-200',
+        offlineBorderClass: 'border-amber-100',
+    },
+    COMPANY: {
+        emoji: '🏢',
+        neonClass: 'purple-neon-active',
+        offlineBgClass: 'bg-violet-200',
+        offlineBorderClass: 'border-violet-100',
+    },
+    INDIVIDUAL: {
+        emoji: '👤',
+        neonClass: 'neon-active',
+        offlineBgClass: 'bg-slate-400',
+        offlineBorderClass: 'border-slate-300',
+    },
+}
+
+// 🧩 Unified User Icon Factory (replaces getShopIcon, getCompanyIcon, getIndividualIcon)
+const createUserIcon = (
+    config: UserIconConfig,
+    isOnline: boolean,
+    isVisible: boolean,
+    count?: number
+) => {
     const badge = getBadgeHtml(count);
 
-    // 🔴 Hidden Mode — Same icon, red color
+    // 🔴 Hidden Mode — Red neon warning
     if (!isVisible) {
         return L.divIcon({
             className: '',
-            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full red-neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold animate-bounce">🏪</div>${badge}</div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-            popupAnchor: [0, -16]
-        })
-    }
-    // If Online -> Neon Gold Disc + Pulse
-    if (isOnline) {
-        return L.divIcon({
-            className: '',
-            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full gold-neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold">🏪</div>${badge}</div>`,
+            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full red-neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold animate-bounce">${config.emoji}</div>${badge}</div>`,
             iconSize: [32, 32],
             iconAnchor: [16, 16],
             popupAnchor: [0, -16]
         })
     }
 
-    // If Offline -> Faded Static Gold
+    // 🟢 Online — Neon glow
+    if (isOnline) {
+        return L.divIcon({
+            className: '',
+            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full ${config.neonClass} shadow-lg flex items-center justify-center text-white text-sm font-bold">${config.emoji}</div>${badge}</div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -16]
+        })
+    }
+
+    // ⚫ Offline — Faded static
     return L.divIcon({
         className: '',
-        html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full bg-amber-200 shadow-sm flex items-center justify-center text-white text-sm font-bold border-2 border-amber-100 opacity-80">🏪</div>${badge}</div>`,
+        html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full ${config.offlineBgClass} shadow-sm flex items-center justify-center text-white text-sm font-bold border-2 ${config.offlineBorderClass} opacity-80">${config.emoji}</div>${badge}</div>`,
         iconSize: [32, 32],
         iconAnchor: [16, 16],
         popupAnchor: [0, -16]
     })
 }
+
+// ── Public API (backward-compatible) ────────────────────────
+
+// 🏪 Shop: Gold Neon
+export const getShopIcon = (hasStories: boolean, isOnline: boolean = true, isVisible: boolean = true, count?: number) =>
+    createUserIcon(USER_ICON_CONFIGS.SHOP, isOnline, isVisible, count)
+
+// 🏢 Company: Purple Neon
+export const getCompanyIcon = (hasStories: boolean, isOnline: boolean = true, isVisible: boolean = true, count?: number) =>
+    createUserIcon(USER_ICON_CONFIGS.COMPANY, isOnline, isVisible, count)
+
+// 👤 Individual: Blue Neon
+export const getIndividualIcon = (hasStories: boolean, isOnline: boolean = true, isVisible: boolean = true, count?: number) =>
+    createUserIcon(USER_ICON_CONFIGS.INDIVIDUAL, isOnline, isVisible, count)
 
 // 📦 Product: Green Neon
 export const getProductIcon = (count?: number) => {
@@ -67,79 +117,7 @@ export const getProductIcon = (count?: number) => {
     })
 }
 
-// 🏢 Company: Purple Neon (Online Status)
-export const getCompanyIcon = (hasStories: boolean, isOnline: boolean = true, isVisible: boolean = true, count?: number) => {
-    const badge = getBadgeHtml(count);
-
-    // 🔴 Hidden Mode — Same icon, red color
-    if (!isVisible) {
-        return L.divIcon({
-            className: '',
-            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full red-neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold animate-bounce">🏢</div>${badge}</div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-            popupAnchor: [0, -16]
-        })
-    }
-    // If Online -> Neon Purple Disc + Pulse
-    if (isOnline) {
-        return L.divIcon({
-            className: '',
-            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full purple-neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold">🏢</div>${badge}</div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-            popupAnchor: [0, -16]
-        })
-    }
-
-    // If Offline -> Faded Static Purple
-    return L.divIcon({
-        className: '',
-        html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full bg-violet-200 shadow-sm flex items-center justify-center text-white text-sm font-bold border-2 border-violet-100 opacity-80">🏢</div>${badge}</div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -16]
-    })
-}
-
-// 👤 Individual: Blue
-// 👤 Individual: Blue Neon (Online Status)
-export const getIndividualIcon = (hasStories: boolean, isOnline: boolean = true, isVisible: boolean = true, count?: number) => {
-    const badge = getBadgeHtml(count);
-    // 🔴 Hidden Mode — Same icon, red color
-    if (!isVisible) {
-        return L.divIcon({
-            className: '',
-            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full red-neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold animate-bounce">👤</div>${badge}</div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-            popupAnchor: [0, -16]
-        })
-    }
-
-    // If Online -> Neon Blue Disc + Pulse
-    if (isOnline) {
-        return L.divIcon({
-            className: '',
-            html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full neon-active shadow-lg flex items-center justify-center text-white text-sm font-bold animate-bounce">👤</div>${badge}</div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16],
-            popupAnchor: [0, -16]
-        })
-    }
-
-    // If Offline -> Faded Static Disc (No Pulse)
-    return L.divIcon({
-        className: '',
-        html: `<div class="relative w-8 h-8"><div class="w-full h-full rounded-full bg-slate-400 shadow-sm flex items-center justify-center text-white text-sm font-bold border-2 border-slate-300 opacity-80 animate-bounce">👤</div>${badge}</div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -16]
-    })
-}
-
-// 📣 Request Icon (Distinct Circular Shape)
-// 📣 Request Icon (Red Neon - Fast Pulse)
+// 📣 Request Icon: Red Neon
 export const getRequestIcon = (count?: number) => {
     const badge = getBadgeHtml(count);
     return L.divIcon({
@@ -151,8 +129,7 @@ export const getRequestIcon = (count?: number) => {
     })
 }
 
-// 📸 Story Icon (Pink Neon Glow)
-// 📸 Story Icon (Pink Neon Glow)
+// 📸 Story Icon: Pink Neon Glow
 export const getStoryIcon = (mediaUrl: string, mediaType: string, count?: number) => {
     const badge = getBadgeHtml(count);
     const borderColor = mediaType === 'VIDEO' ? 'border-pink-500' : 'border-cyan-400';
@@ -170,8 +147,7 @@ export const getStoryIcon = (mediaUrl: string, mediaType: string, count?: number
     })
 }
 
-// 🏴‍☠️ Loot Chest Icon (Treasure)
-// Adding this now as we prepare for the "ZoneMaster Loot" feature
+// 🏴‍☠️ Loot Chest Icon (ZoneMaster feature)
 export const getLootIcon = (rarity: 'COMMON' | 'RARE' | 'LEGENDARY' = 'COMMON') => {
     const colors = {
         COMMON: ['#9ca3af', '#4b5563'],
@@ -189,20 +165,18 @@ export const getLootIcon = (rarity: 'COMMON' | 'RARE' | 'LEGENDARY' = 'COMMON') 
     })
 }
 
-// 🔴 الذكاء المكاني: Cluster Icon
+// 🔴 Smart Cluster Icon
 export const getSmartClusterIcon = (count: number, hasShop: boolean) => {
-    // If it contains a shop, make it glow amber/gold to attract attention
     const bgClass = hasShop ? 'bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)] border-amber-200' : 'bg-indigo-600 shadow-lg border-white';
-    const textClass = hasShop ? 'text-white' : 'text-white';
 
     return L.divIcon({
-        html: `<div class="${bgClass} ${textClass} font-bold rounded-full w-10 h-10 flex items-center justify-center border-2 relative ml-[-10px] mt-[-10px] transform transition-transform hover:scale-110">
+        html: `<div class="${bgClass} text-white font-bold rounded-full w-10 h-10 flex items-center justify-center border-2 relative ml-[-10px] mt-[-10px] transform transition-transform hover:scale-110">
                 ${count}
                 ${hasShop ? '<div class="absolute -top-1 -right-1 text-[10px] bg-white text-amber-500 rounded-full w-4 h-4 flex items-center justify-center font-black shadow-sm">🏪</div>' : ''}
                </div>`,
         className: 'custom-cluster-icon',
         iconSize: [40, 40],
-        iconAnchor: [20, 20] // Center anchor
+        iconAnchor: [20, 20]
     })
 }
 

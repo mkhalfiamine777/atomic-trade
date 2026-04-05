@@ -10,8 +10,6 @@ const CreateStoryModal = dynamic(() => import('@/components/modals/CreateStoryMo
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { updateUserLocation } from '@/actions/user'
 import { BottomNav } from '@/components/layout/BottomNav'
-import { LogOut } from 'lucide-react'
-import { AnimatePresence, motion } from 'framer-motion'
 import { SettingsDrawer } from '@/components/dashboard/SettingsDrawer'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 

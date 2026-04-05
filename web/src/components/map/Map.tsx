@@ -91,7 +91,7 @@ export default function Map({
         getListings().then(data => setListings(data as unknown as Listing[]))
         getStories().then(data => setStories(data as unknown as Story[]))
         getMapPosts().then(data => setPosts(data as unknown as Post[]))
-    }, [refreshTrigger, coordinates])
+    }, [refreshTrigger]) // Only re-fetch on explicit refresh, NOT on every GPS update
 
     const toggleFilter = (filter: FilterType) => {
         setSelectedFilters(prev => {

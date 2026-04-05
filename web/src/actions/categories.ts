@@ -2,6 +2,7 @@
 
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { verifyAdmin } from '@/lib/adminGuard'
 
 // Fetch all categories and subcategories
 export async function getCategories() {
@@ -19,6 +20,8 @@ export async function getCategories() {
 
 // Add a new main Category
 export async function createCategory(name: string, icon: string) {
+    const { authorized, error: authError } = await verifyAdmin()
+    if (!authorized) return { error: authError }
     try {
         const newCat = await db.category.create({
             data: { name, icon }
@@ -33,6 +36,8 @@ export async function createCategory(name: string, icon: string) {
 
 // Delete a main Category
 export async function deleteCategory(id: string) {
+    const { authorized, error: authError } = await verifyAdmin()
+    if (!authorized) return { error: authError }
     try {
         await db.category.delete({
             where: { id }
@@ -47,6 +52,8 @@ export async function deleteCategory(id: string) {
 
 // Add a new Subcategory
 export async function createSubcategory(name: string, categoryId: string) {
+    const { authorized, error: authError } = await verifyAdmin()
+    if (!authorized) return { error: authError }
     try {
         const newSub = await db.subcategory.create({
             data: { name, categoryId }
@@ -61,6 +68,8 @@ export async function createSubcategory(name: string, categoryId: string) {
 
 // Delete a Subcategory
 export async function deleteSubcategory(id: string) {
+    const { authorized, error: authError } = await verifyAdmin()
+    if (!authorized) return { error: authError }
     try {
         await db.subcategory.delete({
             where: { id }
