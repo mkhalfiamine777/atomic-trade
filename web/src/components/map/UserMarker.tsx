@@ -7,9 +7,10 @@ import { LocationUser } from "@/types"
 import { User as UserIcon, MessageCircle } from 'lucide-react'
 import { MapItem, getOffsetIcon } from './MapMarker'
 
-export function UserMarker({ item, position, onStartChat, onMouseEnter, onMouseLeave }: {
+export function UserMarker({ item, position, zIndexOffset, onStartChat, onMouseEnter, onMouseLeave }: {
     item: MapItem
     position: [number, number]
+    zIndexOffset?: number
     onStartChat: (listingId: string, sellerId: string, sellerName?: string | null) => void
     onMouseEnter?: () => void
     onMouseLeave?: () => void
@@ -32,6 +33,7 @@ export function UserMarker({ item, position, onStartChat, onMouseEnter, onMouseL
             key={`user-${user.id}`}
             position={position}
             icon={finalIcon}
+            zIndexOffset={zIndexOffset}
             eventHandlers={{ mouseover: onMouseEnter, mouseout: onMouseLeave }}
         >
             <Popup>

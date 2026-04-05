@@ -187,6 +187,7 @@ export function SuperclusterLayer({
                         key={cluster.properties.itemId}
                         item={cluster.properties.itemData}
                         position={[latitude, longitude]}
+                        zIndexOffset={cluster.properties.zIndexPriority}
                         onStartChat={onStartChat}
                         onViewStory={onViewStory}
                         onMouseEnter={onMouseEnter}

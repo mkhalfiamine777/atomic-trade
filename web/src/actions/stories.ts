@@ -27,25 +27,42 @@ export async function createStory(formData: FormData) {
         // Expires in 24 hours
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
 
+        // ⚓ THE ANCHOR RULE Logic
+        const user = await db.user.findUnique({ where: { id: userId }, select: { type: true, latitude: true, longitude: true } })
+        if (!user) return { error: 'User not found' }
+
+        let finalLat = latitude
+        let finalLng = longitude
+        let shouldUpdateUserGPS = true
+
+        if (user.type === 'SHOP' || user.type === 'COMPANY') {
+            if (user.latitude != null && user.longitude != null) {
+                // Fixed physical location override
+                finalLat = user.latitude
+                finalLng = user.longitude
+                shouldUpdateUserGPS = false // Prevent drifting the physical shop
+            }
+        }
+
         const operations: any[] = [
             db.mapStory.create({
                 data: {
                     mediaUrl, // URL from Uploadthing
                     mediaType,
                     caption,
-                    latitude,
-                    longitude,
+                    latitude: finalLat,
+                    longitude: finalLng,
                     userId,
                     expiresAt
                 }
             })
         ]
         
-        if (latitude != null && longitude != null && !isNaN(latitude) && !isNaN(longitude)) {
+        if (shouldUpdateUserGPS && finalLat != null && finalLng != null && !isNaN(finalLat) && !isNaN(finalLng)) {
             operations.push(
                 db.user.update({
                     where: { id: userId },
-                    data: { latitude, longitude }
+                    data: { latitude: finalLat, longitude: finalLng }
                 })
             )
         }

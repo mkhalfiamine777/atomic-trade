@@ -56,8 +56,25 @@ export async function createListing(formData: FormData) {
     }
 
     try {
-        // 4. Create Listing in DB AND Update User's Sync Location
-        const [newListing] = await db.$transaction([
+        // 4. Anchor Rule Logic: Check user type
+        const user = await db.user.findUnique({ where: { id: userId }, select: { type: true, latitude: true, longitude: true } });
+        if (!user) return { error: 'User not found' };
+
+        let finalLat = latitude;
+        let finalLng = longitude;
+        let shouldUpdateUserGPS = true;
+
+        if (user.type === 'SHOP' || user.type === 'COMPANY') {
+            if (user.latitude && user.longitude) {
+                // ⚓ THE ANCHOR RULE: Force the activity to spawn EXACTLY at the shop's fixed location
+                finalLat = user.latitude;
+                finalLng = user.longitude;
+                shouldUpdateUserGPS = false; // Prevent moving the shop to the owner's laptop/home GPS
+            }
+        }
+
+        // 5. Create Listing in DB AND Update User's Sync Location (if INDIVIDUAL or initial SHOP setup)
+        const operations: any[] = [
             db.listing.create({
                 data: {
                     title,
@@ -67,16 +84,23 @@ export async function createListing(formData: FormData) {
                     type,
                     category: category,
                     subcategory: subcategory,
-                    latitude,
-                    longitude,
+                    latitude: finalLat,
+                    longitude: finalLng,
                     sellerId: userId
                 }
-            }),
-            db.user.update({
-                where: { id: userId },
-                data: { latitude, longitude }
             })
-        ])
+        ];
+
+        if (shouldUpdateUserGPS) {
+            operations.push(
+                db.user.update({
+                    where: { id: userId },
+                    data: { latitude: finalLat, longitude: finalLng }
+                })
+            );
+        }
+
+        const [newListing] = await db.$transaction(operations);
 
         // 5. Smart Matching Engine 🎯 (Extracted to Service)
         if (category && subcategory) {

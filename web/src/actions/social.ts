@@ -30,19 +30,36 @@ export async function createPost(
             return { success: false, error: 'نوع الوسائط غير صالح' }
         }
 
+        // ⚓ THE ANCHOR RULE Logic
+        const user = await db.user.findUnique({ where: { id: userId }, select: { type: true, latitude: true, longitude: true } })
+        if (!user) return { success: false, error: 'User not found' }
+
+        let finalLat = latitude
+        let finalLng = longitude
+        let shouldUpdateUserGPS = true
+
+        if (user.type === 'SHOP' || user.type === 'COMPANY') {
+            if (user.latitude != null && user.longitude != null) {
+                // Fixed physical location override
+                finalLat = user.latitude
+                finalLng = user.longitude
+                shouldUpdateUserGPS = false // Prevent drifting the physical shop
+            }
+        }
+
         // Transactional update: Create post AND update user's last known location
         const operations: any[] = [
             db.socialPost.create({
-                data: { userId, caption, mediaUrl, type, mediaType, latitude, longitude },
+                data: { userId, caption, mediaUrl, type, mediaType, latitude: finalLat, longitude: finalLng },
                 include: { user: { select: { username: true } } }
             })
         ]
         
-        if (latitude != null && longitude != null) {
+        if (shouldUpdateUserGPS && finalLat != null && finalLng != null) {
             operations.push(
                 db.user.update({
                     where: { id: userId },
-                    data: { latitude, longitude }
+                    data: { latitude: finalLat, longitude: finalLng }
                 })
             )
         }

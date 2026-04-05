@@ -43,15 +43,16 @@ export const getOffsetIcon = (baseIcon: L.DivIcon, item: MapItem) => {
 interface MapMarkerProps {
     item: MapItem
     position: [number, number]
+    zIndexOffset?: number
     onStartChat: (listingId: string, sellerId: string, sellerName?: string | null) => void
     onViewStory?: (story: Story) => void
     onMouseEnter?: () => void
     onMouseLeave?: () => void
 }
 
-export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnter, onMouseLeave }: MapMarkerProps) {
+export function MapMarker({ item, position, zIndexOffset, onStartChat, onViewStory, onMouseEnter, onMouseLeave }: MapMarkerProps) {
     if (item.type === 'LISTING') {
-        return <ListingMarker item={item} position={position} onStartChat={onStartChat} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
+        return <ListingMarker item={item} position={position} zIndexOffset={zIndexOffset} onStartChat={onStartChat} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
     }
 
     if (item.type === 'STORY' && 'mediaType' in item.data) {
@@ -87,6 +88,7 @@ export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnt
                 key={story.id}
                 position={position}
                 icon={finalIcon}
+                zIndexOffset={zIndexOffset}
                 eventHandlers={{
                     click: () => onViewStory?.(story),
                     mouseover: onMouseEnter,
@@ -107,7 +109,7 @@ export function MapMarker({ item, position, onStartChat, onViewStory, onMouseEnt
     }
 
     if (item.type === 'USER') {
-        return <UserMarker item={item} position={position} onStartChat={onStartChat} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
+        return <UserMarker item={item} position={position} zIndexOffset={zIndexOffset} onStartChat={onStartChat} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
     }
 
     return null

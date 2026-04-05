@@ -8,9 +8,10 @@ import { Listing } from "@/types"
 import { ChevronRight, ChevronLeft, Store, User as UserIcon } from 'lucide-react'
 import { MapItem, getOffsetIcon } from './MapMarker'
 
-export function ListingMarker({ item, position, onStartChat, onMouseEnter, onMouseLeave }: {
+export function ListingMarker({ item, position, zIndexOffset, onStartChat, onMouseEnter, onMouseLeave }: {
     item: MapItem
     position: [number, number]
+    zIndexOffset?: number
     onStartChat: (listingId: string, sellerId: string, sellerName?: string | null) => void
     onMouseEnter?: () => void
     onMouseLeave?: () => void
@@ -42,6 +43,7 @@ export function ListingMarker({ item, position, onStartChat, onMouseEnter, onMou
             key={baseListing.id}
             position={position}
             icon={icon}
+            zIndexOffset={zIndexOffset}
             eventHandlers={{ mouseover: onMouseEnter, mouseout: onMouseLeave }}
         >
             <Popup className="compact-popup" closeButton={true}>
