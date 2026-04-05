@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache'
 import { ListingType } from '@prisma/client'
 
 import { createListingSchema } from '@/lib/schemas'
+import { getOrbitLocation } from '@/utils/geo'
 
 /**
  * Creates a new Listing (Product or Request)
@@ -66,9 +67,11 @@ export async function createListing(formData: FormData) {
 
         if (user.type === 'SHOP' || user.type === 'COMPANY') {
             if (user.latitude && user.longitude) {
-                // ⚓ THE ANCHOR RULE: Force the activity to spawn EXACTLY at the shop's fixed location
-                finalLat = user.latitude;
-                finalLng = user.longitude;
+                // ⚓ THE ANCHOR RULE + ORBIT RULE:
+                // Force the activity to spawn around the shop's physical location (10 to 20 meters away)
+                const orbit = getOrbitLocation(user.latitude, user.longitude)
+                finalLat = orbit.lat;
+                finalLng = orbit.lng;
                 shouldUpdateUserGPS = false; // Prevent moving the shop to the owner's laptop/home GPS
             }
         }

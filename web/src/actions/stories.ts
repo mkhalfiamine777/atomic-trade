@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { MediaType } from '@prisma/client'
+import { getOrbitLocation } from '@/utils/geo'
 
 export async function createStory(formData: FormData) {
     try {
@@ -37,9 +38,11 @@ export async function createStory(formData: FormData) {
 
         if (user.type === 'SHOP' || user.type === 'COMPANY') {
             if (user.latitude != null && user.longitude != null) {
-                // Fixed physical location override
-                finalLat = user.latitude
-                finalLng = user.longitude
+                // ⚓ THE ANCHOR RULE + ORBIT RULE:
+                // Force the activity to spawn around the shop's physical location (10 to 20 meters away)
+                const orbit = getOrbitLocation(user.latitude, user.longitude)
+                finalLat = orbit.lat
+                finalLng = orbit.lng
                 shouldUpdateUserGPS = false // Prevent drifting the physical shop
             }
         }
