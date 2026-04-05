@@ -47,34 +47,6 @@ export default function Map({
     const [selectedFilters, setSelectedFilters] = useState<FilterType[]>([])
     const [selectedListingForComments, setSelectedListingForComments] = useState<string | null>(null)
 
-    // User Cluster Visibility State
-    const [userClusterVisibility, setUserClusterVisibility] = useState<'auto' | 'pinned' | 'hidden'>('auto')
-    const [isUserClusterHovered, setIsUserClusterHovered] = useState(false)
-    const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-    useEffect(() => {
-        if (userClusterVisibility === 'auto') {
-            const timer = setTimeout(() => {
-                setUserClusterVisibility('hidden')
-            }, 30000) // 30 seconds auto-hide
-            return () => clearTimeout(timer)
-        }
-    }, [userClusterVisibility])
-
-    const handleMouseEnterCluster = () => {
-        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
-        setIsUserClusterHovered(true)
-    }
-
-    const handleMouseLeaveCluster = () => {
-        hoverTimeoutRef.current = setTimeout(() => {
-            setIsUserClusterHovered(false)
-        }, 500) // 500ms grace period so moving mouse to cluster doesn't hide it
-    }
-
-    const showUserCluster = userClusterVisibility === 'pinned' || userClusterVisibility === 'auto' || isUserClusterHovered
-
-
     useEffect(() => {
         setIsMounted(true)
         // Fetch all active users for global visibility
@@ -143,9 +115,7 @@ export default function Map({
         ...filteredListings.map(l => ({ type: 'LISTING' as const, data: l, lat: l.latitude, lng: l.longitude, id: l.id })),
         ...filteredStories.map(s => ({ type: 'STORY' as const, data: s, lat: s.latitude, lng: s.longitude, id: s.id })),
         ...filteredPosts.map(p => ({ type: 'POST' as const, data: p, lat: p.latitude, lng: p.longitude, id: p.id })),
-        ...(showUserCluster 
-            ? filteredUsers.map(u => ({ type: 'USER' as const, data: u, lat: u.latitude, lng: u.longitude, id: `user-${u.id}` }))
-            : [])
+        ...filteredUsers.map(u => ({ type: 'USER' as const, data: u, lat: u.latitude, lng: u.longitude, id: `user-${u.id}` }))
     ]
 
     async function handleStartChat(listingId: string, sellerId: string, sellerName?: string | null) {
@@ -217,11 +187,6 @@ export default function Map({
                                 ? getCompanyIcon(false, true, isLocationVisible)
                                 : getIndividualIcon(false, true, isLocationVisible)
                     }
-                    eventHandlers={{
-                        mouseover: handleMouseEnterCluster,
-                        mouseout: handleMouseLeaveCluster,
-                        click: () => setUserClusterVisibility(prev => prev === 'pinned' ? 'hidden' : 'pinned')
-                    }}
                 >
                     <Popup>
                         <div className="text-right min-w-[180px] p-2" dir="rtl">
@@ -236,15 +201,6 @@ export default function Map({
                                     )}
                                 </div>
                             </div>
-                            <button
-                                onClick={() => setUserClusterVisibility(prev => prev === 'pinned' ? 'hidden' : 'pinned')}
-                                className={`w-full text-[11px] font-medium py-1.5 px-3 rounded-lg border transition-all flex items-center justify-center gap-1.5 ${userClusterVisibility === 'pinned'
-                                    ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
-                                    : 'bg-white/[0.06] text-zinc-300 border-white/10 hover:bg-white/10'
-                                    }`}
-                            >
-                                {userClusterVisibility === 'pinned' ? '📌 الرموز مُثبتة — إلغاء' : '📌 تثبيت الرموز'}
-                            </button>
                         </div>
                     </Popup>
                 </Marker>
@@ -254,8 +210,8 @@ export default function Map({
                     items={allItems}
                     onStartChat={handleStartChat}
                     onViewStory={(story) => setSelectedStory(story)}
-                    onMouseEnter={handleMouseEnterCluster}
-                    onMouseLeave={handleMouseLeaveCluster}
+                    onMouseEnter={() => {}} // Disabled hover events
+                    onMouseLeave={() => {}} // Disabled hover events
                 />
 
                 {/* 🏰 Zone Grid Layer (Conditional) */}
