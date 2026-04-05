@@ -9,16 +9,20 @@ import { useNotificationStore } from '@/store/useNotificationStore'
 import Link from 'next/link'
 
 export function NotificationBell() {
+    const [isMounted, setIsMounted] = useState(false)
     const { socket } = useSocket()
     const router = useRouter()
 
     // Use the global persistent notification store
     const { notifications, addNotification, markAsRead, markAllAsRead, clearAll, dismissPopout, deleteNotification } = useNotificationStore()
 
-
     const [isOpen, setIsOpen] = useState(false)
     const [hasNewFlash, setHasNewFlash] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
 
     const unreadCount = notifications.filter(n => !n.read).length
 
@@ -95,8 +99,8 @@ export function NotificationBell() {
         return () => timers.forEach(t => clearTimeout(t));
     }, [notifications, dismissPopout]);
 
-    // Don't render if no notifications ever received
-    if (notifications.length === 0 && !isOpen) {
+    // Don't render until mounted to prevent Hydration errors with Zustand Persist
+    if (!isMounted || (notifications.length === 0 && !isOpen)) {
         return (
             <button
                 className="relative p-2.5 rounded-full hover:bg-white/5 transition-colors text-zinc-500"
