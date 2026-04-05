@@ -56,21 +56,27 @@ export async function createListing(formData: FormData) {
     }
 
     try {
-        // 4. Create Listing in DB
-        const newListing = await db.listing.create({
-            data: {
-                title,
-                price,
-                description: description || '',
-                images: imageUrl || '', // Saved URL
-                type,
-                category: category,
-                subcategory: subcategory,
-                latitude,
-                longitude,
-                sellerId: userId
-            }
-        })
+        // 4. Create Listing in DB AND Update User's Sync Location
+        const [newListing] = await db.$transaction([
+            db.listing.create({
+                data: {
+                    title,
+                    price,
+                    description: description || '',
+                    images: imageUrl || '', // Saved URL
+                    type,
+                    category: category,
+                    subcategory: subcategory,
+                    latitude,
+                    longitude,
+                    sellerId: userId
+                }
+            }),
+            db.user.update({
+                where: { id: userId },
+                data: { latitude, longitude }
+            })
+        ])
 
         // 5. Smart Matching Engine 🎯 (Extracted to Service)
         if (category && subcategory) {

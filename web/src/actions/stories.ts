@@ -27,17 +27,30 @@ export async function createStory(formData: FormData) {
         // Expires in 24 hours
         const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
 
-        await db.mapStory.create({
-            data: {
-                mediaUrl, // URL from Uploadthing
-                mediaType,
-                caption,
-                latitude,
-                longitude,
-                userId,
-                expiresAt
-            }
-        })
+        const operations: any[] = [
+            db.mapStory.create({
+                data: {
+                    mediaUrl, // URL from Uploadthing
+                    mediaType,
+                    caption,
+                    latitude,
+                    longitude,
+                    userId,
+                    expiresAt
+                }
+            })
+        ]
+        
+        if (latitude != null && longitude != null && !isNaN(latitude) && !isNaN(longitude)) {
+            operations.push(
+                db.user.update({
+                    where: { id: userId },
+                    data: { latitude, longitude }
+                })
+            )
+        }
+
+        await db.$transaction(operations)
 
         revalidatePath('/dashboard')
         return { success: true }

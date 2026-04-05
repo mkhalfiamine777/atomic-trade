@@ -65,11 +65,11 @@ export default function DashboardClient({
 
     const { coordinates } = useGeolocation()
 
-    // Live Tracking: Throttled - update user location every 30s max
+    // Live Tracking: Throttled - update user location every 20s max
     useEffect(() => {
         if (coordinates && isLocationVisible) { // Only update if visible
             const now = Date.now()
-            if (now - lastLocationUpdate.current > 30000) {
+            if (now - lastLocationUpdate.current > 20000) {
                 lastLocationUpdate.current = now
                 updateUserLocation(coordinates.lat, coordinates.lng)
             }

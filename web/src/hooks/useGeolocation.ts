@@ -52,8 +52,8 @@ export function useGeolocation() {
             },
             {
                 enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 5000 // More partial real-time
+                timeout: 15000,
+                maximumAge: 20000 // تحديث كل 20 ثانية للحفاظ على البطارية وضبط الإحداثيات
             }
         )
 

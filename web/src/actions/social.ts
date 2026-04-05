@@ -30,20 +30,24 @@ export async function createPost(
             return { success: false, error: 'نوع الوسائط غير صالح' }
         }
 
-        const post = await db.socialPost.create({
-            data: {
-                userId,
-                caption,
-                mediaUrl,
-                type,
-                mediaType,
-                latitude,
-                longitude
-            },
-            include: {
-                user: { select: { username: true } }
-            }
-        })
+        // Transactional update: Create post AND update user's last known location
+        const operations: any[] = [
+            db.socialPost.create({
+                data: { userId, caption, mediaUrl, type, mediaType, latitude, longitude },
+                include: { user: { select: { username: true } } }
+            })
+        ]
+        
+        if (latitude != null && longitude != null) {
+            operations.push(
+                db.user.update({
+                    where: { id: userId },
+                    data: { latitude, longitude }
+                })
+            )
+        }
+
+        const [post] = await db.$transaction(operations)
 
         if (post.user?.username) {
             revalidatePath(`/u/${post.user.username}`)
