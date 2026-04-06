@@ -14,11 +14,17 @@ vi.mock('next/navigation', () => ({
     redirect: vi.fn(),
 }))
 
+// Mock generic Next.js cache
+vi.mock('next/cache', () => ({
+    revalidatePath: vi.fn(),
+    revalidateTag: vi.fn(),
+}))
+
 // Mock generic Next.js cookies
 vi.mock('next/headers', () => ({
-    cookies: () => ({
+    cookies: vi.fn().mockImplementation(() => Promise.resolve({
         get: vi.fn().mockReturnValue({ value: 'test-user-id' }),
         set: vi.fn(),
         delete: vi.fn(),
-    }),
+    })),
 }))

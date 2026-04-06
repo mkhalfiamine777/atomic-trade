@@ -32,6 +32,9 @@ jobs:
       - name: 🔍 Type Check
         run: npx tsc --noEmit --skipLibCheck
 
+      - name: 🧪 Run Tests
+        run: npx vitest run
+
       - name: 🏗️ Build Project
         run: npm run build
         env:

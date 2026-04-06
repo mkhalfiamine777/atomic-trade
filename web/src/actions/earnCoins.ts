@@ -43,8 +43,9 @@ export async function awardCoinsForWatch(postId: string): Promise<{ success: boo
             return { success: false, message: 'لقد ربحت عملات هذا الفيديو مسبقاً' }
         }
 
-        // L-3 FIX: Daily coin cap (100 coins/day) to prevent bot abuse
-        const DAILY_CAP = 100
+        // L-3 FIX: Daily video watch cap to prevent bot abuse
+        // Each video earns 5-15 coins, so 20 watches = ~100-300 coins/day
+        const DAILY_VIDEO_CAP = 20
         const todayStart = new Date()
         todayStart.setHours(0, 0, 0, 0)
 
@@ -56,7 +57,7 @@ export async function awardCoinsForWatch(postId: string): Promise<{ success: boo
             }
         })
 
-        if (todayWatchCount >= 20) { // ~20 videos * 5-15 coins avg = 100-300 cap
+        if (todayWatchCount >= DAILY_VIDEO_CAP) {
             return { success: false, message: 'وصلت الحد اليومي! عد غداً لربح المزيد 💰' }
         }
 
