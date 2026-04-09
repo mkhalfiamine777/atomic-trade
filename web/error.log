@@ -1,0 +1,29 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "railway", schema "public" at "centerbeam.proxy.rlwy.net:48259"
+node.exe : Error: P1001: 
+Can't reach database 
+server at `centerbeam.proxy
+.rlwy.net`:`48259`
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: (Err  
+  or: P1001: C...wy.net`   
+ :`48259`:String) [], R    
+emoteException
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+
+Please make sure your 
+database server is running 
+at `centerbeam.proxy.rlwy.n
+et`:`48259`.
+
