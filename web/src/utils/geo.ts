@@ -3,7 +3,7 @@
  * This is used to ensure shop activities (products, stories) don't stack directly
  * on top of the shop marker, but rather orbit around it.
  * 
- * Target range: between 10 meters and 20 meters.
+ * Target range: between 15 meters and 35 meters.
  * 
  * @param centerLat Shop's fixed latitude
  * @param centerLng Shop's fixed longitude
@@ -12,10 +12,10 @@
 export function getOrbitLocation(centerLat: number, centerLng: number) {
     if (centerLat == null || centerLng == null) return { lat: centerLat, lng: centerLng }
 
-    const RADIUS_MIN = 10; // 10 meters min
-    const RADIUS_MAX = 20; // 20 meters max
+    const RADIUS_MIN = 15; // 15 meters min
+    const RADIUS_MAX = 35; // 35 meters max
 
-    // 1. Generate a random distance between 10m and 20m
+    // 1. Generate a random distance between 15m and 35m
     const r = RADIUS_MIN + Math.random() * (RADIUS_MAX - RADIUS_MIN);
 
     // 2. Generate a random angle

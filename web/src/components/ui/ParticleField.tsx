@@ -22,7 +22,7 @@ export default function ParticleField() {
             background: {
                 color: { value: 'transparent' }
             },
-            fpsLimit: 60,
+            fpsLimit: 30,
             particles: {
                 color: {
                     value: ['#3b82f6', '#a855f7', '#22c55e', '#f97316', '#ec4899']
@@ -41,7 +41,7 @@ export default function ParticleField() {
                     }
                 },
                 number: {
-                    value: 65,
+                    value: 40,
                     density: {
                         enable: true,
                         area: 800

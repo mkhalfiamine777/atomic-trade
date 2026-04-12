@@ -1,9 +1,8 @@
-'use client'
-
 import Link from 'next/link'
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import { MapPin, Users, Store, Building2, BellRing, ArrowLeft } from 'lucide-react'
-import ParticleField from '@/components/ui/ParticleField'
+const ParticleField = dynamic(() => import('@/components/ui/ParticleField'), { ssr: false })
 
 export default function Home() {
     return (
