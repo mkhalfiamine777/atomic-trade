@@ -1,8 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import dynamic from 'next/dynamic'
 import { MapPin, Users, Store, Building2, BellRing, ArrowLeft } from 'lucide-react'
-const ParticleField = dynamic(() => import('@/components/ui/ParticleField'), { ssr: false })
+import ParticleWrapper from '@/components/ui/ParticleWrapper'
 
 export default function Home() {
     return (
@@ -24,7 +23,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"></div>
 
                 {/* 🌠 Smart Particles Layer */}
-                <ParticleField />
+                <ParticleWrapper />
 
                 {/* 📍 Live Elements (Floating Icons) */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
