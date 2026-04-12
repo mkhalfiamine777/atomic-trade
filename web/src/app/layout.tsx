@@ -11,12 +11,25 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-cairo' })
 
 export const metadata: Metadata = {
-    title: 'SouqMap - منصة التجارة المحلية الذكية',
-    description: 'أول منصة تجارة اجتماعية تعتمد على الموقع الجغرافي في المغرب.',
+    title: 'Atomic Trade — بيع واشترِ من محيطك',
+    description: 'أول منصة تجارة اجتماعية تعتمد على الموقع الجغرافي. اكتشف، اشترِ، وبع لمن حولك في دائرة 300 متر.',
     manifest: '/manifest.json',
     alternates: {
         canonical: 'https://atomic-trade-production.up.railway.app'
-    }
+    },
+    openGraph: {
+        title: 'Atomic Trade — التجارة من حيك إلى العالم',
+        description: 'منصة التجارة الاجتماعية الأولى التي تربطك بمحيطك. اكتشف الباعة والمتاجر من حولك.',
+        url: 'https://atomic-trade-production.up.railway.app',
+        siteName: 'Atomic Trade',
+        locale: 'ar_MA',
+        type: 'website',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Atomic Trade — بيع واشترِ من محيطك',
+        description: 'منصة التجارة الاجتماعية الأولى التي تربطك بمحيطك في دائرة 300 متر.',
+    },
 }
 
 export const viewport: Viewport = {

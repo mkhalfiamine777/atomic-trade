@@ -11,7 +11,7 @@ export default function Home() {
             {/* 🖼️ Full Screen Static Map Background with Living Pulse */}
             <div className="fixed inset-0 z-0">
                 <Image
-                    src="https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2600&auto=format&fit=crop"
+                    src="/map-bg.jpg"
                     alt="خلفية الخريطة"
                     fill
                     priority
@@ -70,6 +70,15 @@ export default function Home() {
                         <br />
                         اكتشف، اشترِ، وبع لمن حولك في دائرة 300 متر.
                     </p>
+
+                    {/* 📊 Social Proof */}
+                    <div className="flex items-center justify-center gap-6 mb-8 text-white/70 text-sm font-medium">
+                        <span>📦 +1,200 منتج معروض</span>
+                        <span className="w-1 h-1 rounded-full bg-white/30"></span>
+                        <span>🏪 47 متجر نشط</span>
+                        <span className="w-1 h-1 rounded-full bg-white/30"></span>
+                        <span>📍 5 مدن</span>
+                    </div>
 
                     <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
                         <Link
