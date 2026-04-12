@@ -146,8 +146,8 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
                     data-index={index}
                     className="feed-item relative w-full h-full snap-start flex items-center justify-center bg-zinc-900 border-b border-zinc-800"
                 >
-                    {/* Max Width Container for Desktop */}
-                    <div className="relative w-full h-full max-w-md mx-auto bg-black">
+                    {/* Max Width Container — Responsive: tight on mobile, wider on desktop */}
+                    <div className="relative w-full h-full max-w-sm md:max-w-2xl mx-auto bg-black">
 
                         {Math.abs(index - activeIndex) <= 1 ? (
                             <>

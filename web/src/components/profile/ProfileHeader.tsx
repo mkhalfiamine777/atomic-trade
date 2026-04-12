@@ -128,7 +128,7 @@ export function ProfileHeader({ user, stats }: ProfileHeaderProps) {
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                 />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-4xl bg-gradient-to-br from-zinc-700 to-zinc-900 text-zinc-400 font-black">
+                                <div className="w-full h-full flex items-center justify-center text-4xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black">
                                     {user.name?.[0]?.toUpperCase() || '?'}
                                 </div>
                             )}
