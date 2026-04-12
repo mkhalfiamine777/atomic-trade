@@ -22,7 +22,7 @@ export default function Home() {
                 <div className="absolute inset-0 gradient-mesh opacity-[0.65]"></div>
 
                 {/* Overlay to ensure text readability */}
-                <div className="absolute inset-0 bg-background/40"></div>
+                <div className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"></div>
 
                 {/* 🌠 Smart Particles Layer */}
                 <ParticleField />
@@ -81,7 +81,7 @@ export default function Home() {
                         </Link>
                         <Link
                             href="/dashboard"
-                            className="inline-flex h-14 items-center justify-center rounded-full liquid-glass px-8 text-base font-bold shadow-lg transition-all hover:bg-white/10 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            className="inline-flex h-14 items-center justify-center rounded-full liquid-glass border-2 border-white/30 px-8 text-base font-bold shadow-lg transition-all hover:bg-white/10 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
                             دخول للأعضاء
                         </Link>
@@ -125,7 +125,7 @@ export default function Home() {
                 </section>
 
                 <footer className="w-full py-6 text-center text-sm font-medium text-white/60 liquid-glass">
-                    © 2026 SouqMap. جميع الحقوق محفوظة.
+                    © 2026 Atomic Trade. جميع الحقوق محفوظة.
                 </footer>
             </div>
         </main>
