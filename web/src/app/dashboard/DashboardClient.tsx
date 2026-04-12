@@ -12,6 +12,7 @@ import { updateUserLocation } from '@/actions/user'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { SettingsDrawer } from '@/components/dashboard/SettingsDrawer'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
+import { OnboardingOverlay } from '@/components/ui/OnboardingOverlay'
 
 import { useAppStore } from '@/store/useAppStore'
 
@@ -24,17 +25,20 @@ const Map = dynamic(() => import('@/components/map/Map'), {
 export default function DashboardClient({
     userId,
     userType,
-    userName
+    userName,
+    hasCompletedOnboarding = false
 }: {
     userId: string
     userType: string
     userName?: string | null
+    hasCompletedOnboarding?: boolean
 }) {
     const [isAddProductOpen, setIsAddProductOpen] = useState(false)
     const [isRequestOpen, setIsRequestOpen] = useState(false)
     const [isPostOpen, setIsPostOpen] = useState(false) // New Post Modal State
     const [isStoryOpen, setIsStoryOpen] = useState(false)
     const [isSettingsOpen, setIsSettingsOpen] = useState(false) // ⚙️ Drawer Control
+    const [showOnboarding, setShowOnboarding] = useState(!hasCompletedOnboarding)
 
     // Local UI states
     const [isLocationVisible, setIsLocationVisible] = useState(true) // 👻 Location Visibility State
@@ -88,6 +92,8 @@ export default function DashboardClient({
 
     return (
         <div className="relative h-screen w-full overflow-hidden bg-zinc-950">
+            {showOnboarding && <OnboardingOverlay onClose={() => setShowOnboarding(false)} />}
+            
             {/* Modals */}
             <AddProductModal
                 isOpen={isAddProductOpen}

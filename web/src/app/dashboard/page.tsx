@@ -13,12 +13,12 @@ export default async function DashboardPage() {
     // 🛡️ Fetch User Details to know their Role (Shop vs Individual)
     const user = await db.user.findUnique({
         where: { id: userId },
-        select: { type: true, name: true }
+        select: { type: true, name: true, hasCompletedOnboarding: true }
     })
 
     if (!user) {
         return <GuestDashboardClient />
     }
 
-    return <DashboardClient userId={userId} userType={user.type} userName={user.name} />
+    return <DashboardClient userId={userId} userType={user.type} userName={user.name} hasCompletedOnboarding={user.hasCompletedOnboarding} />
 }

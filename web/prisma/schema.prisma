@@ -75,6 +75,7 @@ model User {
   type      UserType @default(INDIVIDUAL)
   shopCategory String? // e.g. GROCERY, FASHION, TECH
   isVerified Boolean @default(false)
+  hasCompletedOnboarding Boolean @default(false) // Onboarding status (True = experienced)
   reputationScore Int @default(100)
   latitude  Float?
   longitude Float?

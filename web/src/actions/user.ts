@@ -57,3 +57,18 @@ export async function updateUserLocation(lat: number, lng: number) {
         return { error: 'Failed to update location' }
     }
 }
+
+export async function completeOnboarding() {
+    const userId = (await cookies()).get('user_id')?.value
+    if (!userId) return { error: 'Unauthorized' }
+
+    try {
+        await db.user.update({
+            where: { id: userId },
+            data: { hasCompletedOnboarding: true }
+        })
+        return { success: true }
+    } catch (_error) {
+        return { error: 'Failed to complete onboarding' }
+    }
+}
