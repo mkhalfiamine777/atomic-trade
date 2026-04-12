@@ -4,8 +4,8 @@
 > 2.  **النهاية (الاختتام):** يجب تحديث هذا الملف قبل إغلاق الجلسة. سجل "الإنجازات" الجديدة وحدث "الحالة".
 > 3.  **الهدف:** لا تشتت. التزم بالمسار. كل ميزة يجب أن تخدم **العرض والطلب على الخريطة**.
 
-**آخر تحديث:** 06-04-2026
-**الحالة:** الجلسة 28 مكتملة (بيئة الاختبار التكاملية، Prisma Mocking، ودليل المعمارية) 🟢
+**آخر تحديث:** 12-04-2026
+**الحالة:** الجلسة 29 مكتملة (التحصين الأمني، تحسين الإنتاج، ومعالجة P3005) 🟢
 **تقرير الوقت:** [مشاهدة التقرير](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/0d613229-8543-476c-a1ea-1a205584bf05/task.md)
 **📜 الرؤية الجوهرية:** [الوثيقة التأسيسية](file:///C:/Users/%D9%85%D8%B1%D9%8A%D9%85/.gemini/antigravity/brain/0eee0296-0fbf-43ba-ad1c-7b67f579aedc/core_vision_report.md) ← **اقرأها أولاً!**
 **💥 تقرير الإنفجار (boom_Report):** [السجل التاريخي الشامل](session_reports/boom_Report.md) ← **يُحدَّث أوتوماتيكياً عند `/session_end`**
@@ -39,17 +39,25 @@
 ---
 
 ## 📍 2. الحالة الحالية (Current Pulse)
-**نحن الآن في:** إتمام **الجلسة 27** (تصليد وتثبيت خريطة المشروع والقواعد الجغرافية المدارية).
-*   ✅ **تم إنجاز (الجلسة 27):**
-    1. **Architecture:** تصميم قانون التثبيت الجغرافي (Anchor Rule) لمنع المتاجر من الانجراف وراء مكان هاتف البائع حالياً.
-    2. **Geo-Math:** بناء قانون التفريق المداري (Orbital Spread) الرياضي لتوزيع المنتجات كحلقة متوازنة بمسافة 10 لـ 20 متراً حول المتجر لتجنب تكدس الأيقونات.
-    3. **UI / UX:** إصلاح الـ Z-Index وتمريرها في مكونات الخريطة لتسليط الأولوية المرئية لأيقونات المتاجر على الأفراد.
-*   🚀 **حالة النظام:** **صلب جداً ويدمج التنسيقات المكانية بدقة 100%.**
-*   🚧 **المرحلة القادمة:** بناء جداول وميكانيكيات **المزادات اللحظية (Flash Auctions)** بقوة بعد التأكد من صلابة أرضية الخريطة الحية.
+**نحن الآن في:** إتمام **الجلسة 29** (مرحلة التحصين الاستراتيجي ونقل المشروع لمستوى الإنتاج الحقيقي).
+*   ✅ **تم إنجاز (الجلسة 29):**
+    1. **DevOps Hardening:** التخلص نهائياً من أوامر مسح البيانات الكارثية (مثل `db push --force-reset`) واستبدالها بـ `migrate deploy`.
+    2. **Prod Optimization:** تحويل السيرفر ليعمل بـ `node server.js` المسبق التجميع بدلاً من `tsx` المباشر لتوفير الذاكرة.
+    3. **P3005 Fix:** تطبيق آلية الـ Baselining (`migrate resolve`) لحل تعارضات قاعدة بيانات Railway دون فقدان بيانات.
+    4. **Safety Docs:** إنشاء `.env.example` لتوثيق المتغيرات المطلوبة للتشغيل الآمن.
+*   🚀 **حالة النظام:** **إنتاجي (Production-Ready)، محصن أمنياً، ومستقر معمارياً.**
+*   🚧 **المرحلة القادمة:** البدء في تنفيذ **المزادات اللحظية (Flash Auctions)** باستخدام Redis Sorted Sets.
 
 ---
 
 ## 📜 3. سجل الإنجازات (Achievement Log)
+
+### 📅 12-04-2026 — الجلسة 29 (🛡️ التحصين الأمني وتحسين أداء الإنتاج)
+*   **🛡️ أمان البيانات (Anti-Data-Loss):** منع الكارثة المحتملة بإلغاء سكريبتات `db push` المدمرة واستبدالها بـ `prisma migrate deploy` للحفاظ على بيانات المستخدمين في الإنتاج.
+*   **⚡ تحسين الـ Build:** إضافة خطوة تجميع `server.ts` عبر `tsc` ليعمل السيرفر بـ `node` الصافي في الإنتاج (أسرع وأقل استهلاكاً للـ RAM من `tsx`).
+*   **🔧 حل P3005 (Baselining):** معالجة خطأ "قاعدة البيانات ليست فارغة" في Railway عبر تطبيق `migrate resolve` يدوياً لوسم الجداول الحالية كـ Baseline آمن.
+*   **📄 الشفافية التقنية:** إنشاء `.env.example` متكامل يوثق كل المتغيرات المطلوبة (Redis, Uploadthing, Database).
+*   **التقارير:** [تقرير الجلسة 29](session_reports/Session_Report_2026_04_12_Session_29.md)
 
 ### 📅 06-04-2026 — الجلسة 28 (🧪 الاختبارات التكاملية، قواعد النظام، ودليل المعمارية)
 *   **🏗️ الدليل المعماري:** إنشاء `ARCHITECTURE.md` و `ARCHITECTURE_AR.md` لتوثيق قلب المشروع والقواعد الهندسية للمطورين.
@@ -217,7 +225,7 @@
 
 ### 📅 21-02-2026 — الجلسة 12 (Critical Audit Fixes & Build Verification)
 *   **الإنجاز: 🛡️ إغلاق الثغرات الأمنية (Security Hardening):**
-    *   إزالة `--force-reset` الكارثي من `package.json` وتأمين بيانات الإنتاج.
+    *   إزالة الأوامر المدمرة للبيانات (مثل `--force-reset`) من `package.json` وتأمين بيانات الإنتاج.
     *   فرض المصادقة عبر الكوكيز لـ `createPost`, `purchaseZone`, وجميع التفاعلات (Interactions).
     *   إضافة طبقة حماية لـ Socket.IO لمنع الانضمام غير المصرح به للغرف.
 *   **الإنجاز: 🔗 إصلاحات التكامل والبيانات (Integration & Data):**
@@ -237,7 +245,7 @@
 *   **الإنجاز: 🔍 تدقيق شامل للمشروع (Full Project Audit):**
     *   مراجعة سطر بسطر لـ **30+ ملف مصدري** عبر جميع الطبقات.
     *   توثيق **22 مشكلة** في `full_project_audit.md`:
-        *   🔴 5 مشاكل أمنية حرجة (force-reset, missing auth, Socket.IO)
+        *   🔴 5 مشاكل أمنية حرجة (**Data Destruction Commands**, missing auth, Socket.IO)
         *   🟠 6 مشاكل تكامل (missing bio, duplicate queries, wrong revalidatePath)
         *   🟡 3 مشاكل توافق (in-memory rate limiting, RTL Toaster)
         *   🔵 8 مشاكل جودة كود (mock comments, unused imports, empty handlers)
@@ -492,14 +500,15 @@
 *   **Production:**
     *   **Platform:** **Railway**.
     *   **Scaling:** Single service (Web + Socket combined).
-    *   **Start Script:** `npx prisma db push --accept-data-loss && NODE_ENV=production npx tsx server.ts`
-    *   ✅ **تم التأمين (ج14):** `--force-reset` أُزيل واستُبدل بـ `--accept-data-loss` لحماية بيانات الإنتاج.
+    *   **Start Script:** `npx prisma migrate resolve ... && npx prisma migrate deploy && NODE_ENV=production node server.js`
+    *   ✅ **تم التحصين (ج29):** الأوامر العشوائية لمسح البيانات (مثل `reset-force`) **ممنوعة تماماً** في الإنتاج. التشغيل يعتمد حصراً على `migrate deploy` والملفات المجمعة.
 
 ---
 
 ## 💡 6. ذاكرة وقواعد العمل (AI Memory)
-*   **Server:** موحّد في `server.ts` واحد (Next.js + Socket.io مدمج عبر `tsx`). لا حاجة لسيرفر منفصل.
+*   **Server:** يعمل بـ `tsx` في التطوير (`npm run dev`) وبـ `node server.js` في الإنتاج (`npm run start`).
 *   **Auth:** المصادقة عبر كوكي `user_id`. استخدم `getCurrentUser()`. الـ `/api/messages` الآن يستخدم cookies بدلاً من query params.
+*   **Prisma Policy:** ممنوع استخدام `db push` في أجهزة التطوير المرتبطة بقاعدة بيانات Railway مباشرة. استخدم `prisma migrate dev` دائماً.
 *   **Socket URL:** يُقرأ من `NEXT_PUBLIC_SOCKET_URL` (مُعرف في `.env`). لا تستخدم URL ثابت.
 *   **Location Throttle:** تحديث الموقع في `DashboardClient.tsx` مُقيد بـ 30 ثانية عبر `useRef`.
 *   **Dependencies:** `@prisma/client` و `socket.io` و `prisma` في `dependencies` لضمان الإنتاج المستقر.

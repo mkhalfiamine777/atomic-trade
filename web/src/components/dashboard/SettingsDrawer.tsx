@@ -46,6 +46,8 @@ export function SettingsDrawer({
     const { showZoneGrid, toggleZoneGrid, mapType, toggleMapType } = useAppStore()
 
     const handleLogout = async () => {
+        const confirmed = window.confirm('هل أنت متأكد من تسجيل الخروج؟')
+        if (!confirmed) return
         await logout()
     }
 
@@ -186,8 +188,7 @@ export function SettingsDrawer({
                                         />
                                     </div>
                                 </button>
-                                <MenuItem icon={Bell} label="الإشعارات" onClick={() => { }} disabled badge="قريباً" />
-                                <MenuItem icon={Wallet} label="المحفظة" onClick={() => { }} disabled badge="قريباً" />
+
                             </div>
 
                         </div>
@@ -211,8 +212,13 @@ export function SettingsDrawer({
 }
 
 // Sub-components for cleaner code
-function ActionButton({ icon: Icon, label, color, onClick }: any) {
-    const colors: any = {
+function ActionButton({ icon: Icon, label, color, onClick }: {
+    icon: React.ComponentType<{ size?: number }>
+    label: string
+    color: 'blue' | 'orange' | 'purple' | 'pink'
+    onClick: () => void
+}) {
+    const colors: Record<string, string> = {
         blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20',
         orange: 'bg-orange-500/10 text-orange-400 border-orange-500/20 hover:bg-orange-500/20',
         purple: 'bg-purple-500/10 text-purple-400 border-purple-500/20 hover:bg-purple-500/20',
@@ -230,7 +236,13 @@ function ActionButton({ icon: Icon, label, color, onClick }: any) {
     )
 }
 
-function MenuItem({ icon: Icon, label, onClick, disabled, badge }: any) {
+function MenuItem({ icon: Icon, label, onClick, disabled, badge }: {
+    icon: React.ComponentType<{ size?: number }>
+    label: string
+    onClick: () => void
+    disabled?: boolean
+    badge?: string
+}) {
     return (
         <button
             onClick={onClick}

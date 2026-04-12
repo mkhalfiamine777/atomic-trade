@@ -46,6 +46,7 @@ next-env.d.ts
 server.js
 
 # Temp files
+error.log
 build_log.txt
 lint_errors.txt
 lint_report.json
