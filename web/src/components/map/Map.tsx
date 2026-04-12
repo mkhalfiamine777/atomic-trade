@@ -236,7 +236,7 @@ export default function Map({
                 currentUserId={currentUserId || undefined}
             />
 
-            <div className="absolute top-4 right-4 z-[1000] bg-white/90 dark:bg-zinc-900/90 backdrop-blur px-4 py-2 rounded-lg border shadow-lg text-xs">
+            <div className="absolute top-4 right-4 z-[1000] bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 shadow-lg text-xs text-white">
                 {loading
                     ? '📡 جاري البحث عن الأقمار الصناعية...'
                     : error

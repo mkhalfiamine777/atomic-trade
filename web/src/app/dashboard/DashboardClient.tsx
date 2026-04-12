@@ -137,6 +137,13 @@ export default function DashboardClient({
 
 
 
+            {/* 📍 Value Proposition — يظهر للمستخدم الجديد */}
+            <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+                <div className="bg-black/50 backdrop-blur-md border border-white/10 rounded-full px-5 py-2.5 shadow-lg">
+                    <span className="text-white/90 text-sm font-medium">📍 بيع واشترِ من محيطك — اكتشف ما حولك</span>
+                </div>
+            </div>
+
             {/* 📱 Bottom Navigation */}
             <BottomNav />
 
