@@ -1,6 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
 import {
     X,
     LogOut,
@@ -15,11 +16,15 @@ import {
     Eye,
     EyeOff,
     Swords,
-    Shield
+    Shield,
+    AlertTriangle,
+    Loader2
 } from 'lucide-react'
 import { logout } from '@/actions/auth'
+import { scheduleAccountDeletion } from '@/actions/user'
 import { useRouter } from 'next/navigation'
 import { useAppStore } from '@/store/useAppStore'
+import { toast } from 'sonner'
 
 interface SettingsDrawerProps {
     isOpen: boolean
@@ -45,10 +50,33 @@ export function SettingsDrawer({
     const router = useRouter()
     const { showZoneGrid, toggleZoneGrid, mapType, toggleMapType } = useAppStore()
 
+    // Delete account state
+    const [showDeletePanel, setShowDeletePanel] = useState(false)
+    const [deletePhone, setDeletePhone] = useState('')
+    const [deletePassword, setDeletePassword] = useState('')
+    const [isDeleting, setIsDeleting] = useState(false)
+
     const handleLogout = async () => {
         const confirmed = window.confirm('هل أنت متأكد من تسجيل الخروج؟')
         if (!confirmed) return
         await logout()
+    }
+
+    const handleDeleteAccount = async () => {
+        if (!deletePhone || !deletePassword) {
+            toast.error('الرجاء إدخال رقم الهاتف والرمز السري')
+            return
+        }
+        setIsDeleting(true)
+        const result = await scheduleAccountDeletion(deletePhone, deletePassword)
+        if (result.success) {
+            toast.success('تم جدولة حذف الحساب. سيتم مسحه نهائياً بعد 6 أشهر.')
+            onClose()
+            router.push('/')
+        } else {
+            toast.error(result.error || 'فشل العملية')
+            setIsDeleting(false)
+        }
     }
 
     return (
@@ -193,8 +221,67 @@ export function SettingsDrawer({
 
                         </div>
 
-                        {/* Footer / Logout */}
-                        <div className="p-4 border-t border-white/10 mt-auto">
+                        {/* Footer / Danger + Logout */}
+                        <div className="p-4 border-t border-white/10 mt-auto space-y-2">
+
+                            {/* Delete Account Toggle */}
+                            <button
+                                onClick={() => setShowDeletePanel(!showDeletePanel)}
+                                className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-red-500/10 text-red-400/70 hover:text-red-400 transition-colors"
+                            >
+                                <AlertTriangle size={18} />
+                                <span className="text-sm font-medium">إيقاف الحساب</span>
+                            </button>
+
+                            {/* Delete Account Confirmation Panel */}
+                            <AnimatePresence>
+                                {showDeletePanel && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="overflow-hidden"
+                                    >
+                                        <div className="bg-red-950/30 border border-red-900/40 rounded-xl p-4 space-y-3">
+                                            <p className="text-[11px] text-red-400/80 leading-relaxed">
+                                                سيتم تجميد حسابك ومسحه نهائياً بعد 6 أشهر. يمكنك التراجع بتسجيل الدخول مجدداً خلال تلك المهلة.
+                                            </p>
+                                            <input
+                                                type="text"
+                                                value={deletePhone}
+                                                onChange={e => setDeletePhone(e.target.value)}
+                                                placeholder="رقم الهاتف"
+                                                className="w-full bg-red-950/40 border border-red-900/40 rounded-lg px-3 py-2 text-white text-sm outline-none focus:ring-1 focus:ring-red-500 placeholder:text-red-900/60"
+                                                style={{ direction: 'ltr' }}
+                                            />
+                                            <input
+                                                type="password"
+                                                value={deletePassword}
+                                                onChange={e => setDeletePassword(e.target.value)}
+                                                placeholder="الرمز السري"
+                                                className="w-full bg-red-950/40 border border-red-900/40 rounded-lg px-3 py-2 text-white text-sm outline-none focus:ring-1 focus:ring-red-500 placeholder:text-red-900/60"
+                                            />
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={handleDeleteAccount}
+                                                    disabled={isDeleting || !deletePhone || !deletePassword}
+                                                    className="flex-1 bg-red-600 text-white font-bold py-2 rounded-lg text-xs hover:bg-red-500 active:scale-95 transition-all disabled:opacity-40 flex items-center justify-center gap-1"
+                                                >
+                                                    {isDeleting ? <Loader2 size={14} className="animate-spin" /> : 'تأكيد التجميد'}
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowDeletePanel(false)}
+                                                    className="px-3 bg-zinc-800 text-zinc-300 font-bold rounded-lg text-xs hover:bg-zinc-700 active:scale-95 transition-all"
+                                                >
+                                                    إلغاء
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            {/* Logout */}
                             <button
                                 onClick={handleLogout}
                                 className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-red-500/10 text-red-400 hover:text-red-300 transition-colors"
