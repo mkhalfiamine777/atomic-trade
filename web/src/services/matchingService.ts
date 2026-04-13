@@ -142,7 +142,7 @@ export async function runMatchingEngine(
                 if (!alreadyNotifiedShopIds.has(shop.id)) {
                     io.to(`user:${shop.id}`).emit('match_found', {
                         type: 'reverse_market_alert',
-                        message: `طلب على نفس منتجنا: زبون جديد يطلب "${title}". أرسل له العرض!`,
+                        message: `🚨 زبون بالقرب منك يطلب "${title}"! أرسل له عرضك الآن قبل المنافسين.`,
                         category,
                         subcategory,
                         listingId: newListingId,

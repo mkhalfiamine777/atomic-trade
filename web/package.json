@@ -9,7 +9,7 @@
     "scripts": {
         "dev": "npx tsx server.ts",
         "build": "next build && tsc server.ts --module CommonJS --moduleResolution node --esModuleInterop --skipLibCheck",
-        "start": "npx prisma migrate resolve --applied 20260213192512_init_with_enums || true && npx prisma migrate deploy && NODE_ENV=production node server.js",
+        "start": "npx prisma db push --accept-data-loss && NODE_ENV=production node server.js",
         "lint": "eslint",
         "postinstall": "prisma generate"
     },
