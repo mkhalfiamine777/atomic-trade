@@ -8,7 +8,7 @@ import { ListingFeedCard } from './ListingFeedCard'
 import { VideoActions } from './VideoActions'
 import { getMixedFeed, type FeedItemDTO } from '@/actions/feed'
 import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
+import { Loader2, ShoppingBag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -20,6 +20,18 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
     const [page, setPage] = useState(1)
     const [hasMore, setHasMore] = useState(true)
     const loaderRef = useRef<HTMLDivElement>(null)
+
+    // 🏷️ Filter State
+    const [feedFilter, setFeedFilter] = useState<'SOCIAL' | 'COMMERCE'>('SOCIAL')
+
+    const handleFilterChange = (type: 'SOCIAL' | 'COMMERCE') => {
+        if (feedFilter === type) return
+        setFeedFilter(type)
+        setFeedItems([])
+        setPage(1)
+        setHasMore(true)
+        setLoading(true)
+    }
 
     // 👻 Ghost Product Session State
     const [watchedVideos, setWatchedVideos] = useState<Set<string>>(new Set())
@@ -60,12 +72,12 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
     // Fetch Feed Items
     const loadItems = useCallback(async () => {
         try {
-            const newItems = await getMixedFeed(page, 10, currentUserId)
+            const newItems = await getMixedFeed(page, 10, currentUserId, feedFilter)
             if (newItems.length === 0) {
                 setHasMore(false)
                 if (page === 1) toast.info('لا يوجد محتوى حالياً')
             } else {
-                setFeedItems(prev => [...prev, ...newItems])
+                setFeedItems(prev => page === 1 ? newItems : [...prev, ...newItems])
             }
         } catch (error) {
             console.error(error)
@@ -73,7 +85,7 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
         } finally {
             setLoading(false)
         }
-    }, [page, currentUserId])
+    }, [page, currentUserId, feedFilter])
 
     useEffect(() => {
         loadItems()
@@ -135,11 +147,30 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
     }
 
     return (
-        <div
-            ref={containerRef}
-            className="h-[calc(100vh-64px)] w-full overflow-y-scroll snap-y snap-mandatory bg-black"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // Hide scrollbar
-        >
+        <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden bg-black">
+            {/* Overlay Tabs Filter */}
+            <div className="absolute top-0 left-0 right-0 z-50 flex justify-center pt-6 pb-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none">
+                <div className="flex items-center gap-6 text-base font-bold shadow-sm pointer-events-auto backdrop-blur-md bg-white/10 px-6 py-2 rounded-full border border-white/20">
+                    <button 
+                        onClick={() => handleFilterChange('SOCIAL')}
+                        className={`transition-colors drop-shadow-md ${feedFilter === 'SOCIAL' ? 'text-white border-b-2 border-white pb-1' : 'text-white/60 hover:text-white/90 pb-1'}`}
+                    >
+                        ترفيه
+                    </button>
+                    <button 
+                        onClick={() => handleFilterChange('COMMERCE')}
+                        className={`flex items-center gap-1.5 transition-colors drop-shadow-md ${feedFilter === 'COMMERCE' ? 'text-amber-400 border-b-2 border-amber-400 pb-1' : 'text-white/60 hover:text-white/90 pb-1'}`}
+                    >
+                        <span>تسوق المتاجر</span>
+                    </button>
+                </div>
+            </div>
+
+            <div
+                ref={containerRef}
+                className="h-full w-full overflow-y-scroll snap-y snap-mandatory"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // Hide scrollbar
+            >
             {feedItems.map((item, index) => (
                 <div
                     key={`${item.id}-${index}`}
@@ -170,14 +201,21 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
                                         {/* Overlay Content for Video */}
                                         <div className="absolute bottom-0 left-0 right-0 p-4 pb-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none z-10">
                                             <div className="flex flex-col items-end w-full pr-16">
-                                                <div className="pointer-events-auto text-right w-full">
-                                                    <Link href={`/u/${item.username}`} className="text-white font-bold text-lg drop-shadow-md mb-1 flex items-center justify-end gap-2 hover:underline">
-                                                        {item.isShop && <span className="text-[10px] bg-indigo-500 px-1.5 py-0.5 rounded text-white font-normal">متجر</span>}
+                                                <div className="pointer-events-auto text-right w-full flex flex-col items-end">
+                                                    <Link href={`/activity/${item.sellerId || item.sellerUsername || item.username}`} className="text-white font-bold text-lg drop-shadow-md mb-1 flex items-center justify-end gap-2 hover:underline">
+                                                        {item.isShop && <span className="text-[10px] bg-indigo-500 px-2 py-0.5 rounded-full text-white font-bold">متجر</span>}
                                                         {item.username}
                                                     </Link>
                                                     <p className="text-white/90 text-sm drop-shadow-md leading-relaxed line-clamp-3 ml-auto" dir="rtl">
                                                         {item.description}
                                                     </p>
+                                                    {/* زر التوجه للرفوف */}
+                                                    {item.isShop && (
+                                                        <Link href={`/activity/${item.sellerId || item.sellerUsername || item.username}`} className="mt-3 inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold px-5 py-2.5 rounded-full shadow-lg shadow-orange-500/30 hover:scale-105 transition-transform origin-right">
+                                                            <ShoppingBag className="w-4 h-4" />
+                                                            <span>اكتشف رفوف المتجر</span>
+                                                        </Link>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -206,6 +244,8 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
                                         src={item.url}
                                         caption={item.description}
                                         username={item.username}
+                                        sellerUsername={item.sellerUsername}
+                                        sellerId={item.sellerId}
                                         userAvatar={item.userAvatar}
                                         isActive={index === activeIndex}
                                         likes={item.likes}
@@ -268,6 +308,7 @@ export function VideoFeed({ currentUserId }: { currentUserId?: string }) {
                     <p className="font-bold">🏁 وصلت إلى النهاية</p>
                 </div>
             )}
+            </div>
         </div>
     )
 }

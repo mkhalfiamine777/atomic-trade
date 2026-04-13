@@ -80,6 +80,7 @@ model User {
   latitude  Float?
   longitude Float?
   subscription SubscriptionPlan @default(FREE)
+  scheduledDeletionAt DateTime? // Account will be permanently deleted 6 months from this date
   walletBalance Float @default(0.0)
   coins       Int @default(0) // Virtual currency for Watch-to-Earn and gamification
   streakDays  Int @default(0) // Daily active streak for Explore
@@ -129,6 +130,7 @@ model Listing {
   sellerId    String
   seller      User     @relation(fields: [sellerId], references: [id])
   isSold      Boolean  @default(false)
+  soldAt      DateTime?
   views       Int      @default(0)
   createdAt   DateTime @default(now())
   

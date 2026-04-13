@@ -46,15 +46,36 @@ export function OnboardingOverlay({ onClose }: OnboardingOverlayProps) {
         if (currentStep < steps.length - 1) {
             setCurrentStep(prev => prev + 1)
         } else {
-            // Finish
+            // Finish - Request GPS Before Leaving
             setIsSaving(true)
-            const result = await completeOnboarding()
-            if (result.success) {
-                onClose()
-            } else {
-                toast.error('حدث خطأ أثناء حفظ تقدمك')
+
+            if (!navigator.geolocation) {
+                toast.error('عذراً، متصفحك لا يدعم تحديد الموقع.')
                 setIsSaving(false)
+                return
             }
+
+            toast.info('جاري تحديد موقعك لإنهاء التسجيل...', { duration: 3000 })
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const { latitude, longitude } = position.coords
+                    const result = await completeOnboarding(latitude, longitude)
+                    if (result.success) {
+                        toast.success('تم تحديد الموقع والتسجيل بنجاح! 🚀')
+                        onClose()
+                    } else {
+                        toast.error('حدث خطأ أثناء حفظ تقدمك')
+                        setIsSaving(false)
+                    }
+                },
+                (error) => {
+                    // User denied or error
+                    toast.error('⚠️ لا يمكن بدء العمل حتى توافق على مشاركة موقعك للظهور للمتسوقين!')
+                    setIsSaving(false)
+                },
+                { enableHighAccuracy: true, timeout: 15000 }
+            )
         }
     }
 

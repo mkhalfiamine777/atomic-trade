@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { ActivityTabs } from '@/components/activity/ActivityTabs'
 import { ProfileHeader } from '@/components/profile/ProfileHeader'
 
@@ -11,10 +12,8 @@ export default async function UserActivityPage(props: {
     const params = await props.params
     const searchParams = await props.searchParams
 
-    const tabParam = typeof searchParams.tab === 'string' ? searchParams.tab.toUpperCase() : 'SALES'
-    const initialTab = ['SALES', 'REQUESTS'].includes(tabParam)
-        ? (tabParam as 'SALES' | 'REQUESTS')
-        : 'SALES'
+    // Remove tab selection logic since we only have Store shelves now.
+    const initialTab = 'SALES'
 
     const paramId = decodeURIComponent(params.username)
 
@@ -36,18 +35,25 @@ export default async function UserActivityPage(props: {
 
     if (!user) return notFound()
 
-    const [products, requests, interactionStats, postsCount] = await Promise.all([
+    const currentUserId = (await cookies()).get('user_id')?.value
+    const isOwner = currentUserId === user.id
+
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+
+    const [products, interactionStats, postsCount] = await Promise.all([
         db.listing.findMany({
-            where: { sellerId: user.id, type: 'PRODUCT' },
+            where: {
+                sellerId: user.id,
+                type: 'PRODUCT',
+                OR: [
+                    { isSold: false },
+                    { isSold: true, soldAt: { gte: sevenDaysAgo } },
+                    { isSold: true, soldAt: null }
+                ]
+            },
             orderBy: { createdAt: 'desc' },
-            take: 12,
-            select: { id: true, title: true, price: true, images: true }
-        }),
-        db.listing.findMany({
-            where: { sellerId: user.id, type: 'REQUEST' },
-            orderBy: { createdAt: 'desc' },
-            take: 12,
-            select: { id: true, title: true, price: true, images: true }
+            take: 24, // زيادة عدد المنتجات المجلوبة في الصفحة الواحدة للرفوف
+            select: { id: true, title: true, price: true, images: true, isSold: true, soldAt: true }
         }),
         db.interaction.groupBy({
             by: ['type'],
@@ -106,8 +112,7 @@ export default async function UserActivityPage(props: {
                         <ActivityTabs
                             userId={user.id}
                             initialProducts={products as import('@/types').TabListing[]}
-                            initialRequests={requests as import('@/types').TabListing[]}
-                            initialTab={initialTab}
+                            isOwner={isOwner}
                         />
                     </div>
                 </div>

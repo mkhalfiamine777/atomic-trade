@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Save, User, Store, Lock, Eye, EyeOff } from 'lucide-react'
+import { X, Save, User, Store, Lock, Eye, EyeOff, AlertTriangle, Loader2 } from 'lucide-react'
 import { updateProfile } from '@/actions/updateProfile'
+import { scheduleAccountDeletion } from '@/actions/user'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { AvatarUploader } from './AvatarUploader'
@@ -39,6 +40,12 @@ export function EditProfileModal({ isOpen, onClose, user }: EditProfileModalProp
     const [showCurrentPass, setShowCurrentPass] = useState(false)
     const [showNewPass, setShowNewPass] = useState(false)
 
+    // Deletion state
+    const [showDeleteSection, setShowDeleteSection] = useState(false)
+    const [deletePhone, setDeletePhone] = useState('')
+    const [deletePassword, setDeletePassword] = useState('')
+    const [isDeleting, setIsDeleting] = useState(false)
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
@@ -66,6 +73,25 @@ export function EditProfileModal({ isOpen, onClose, user }: EditProfileModalProp
         }
 
         setIsLoading(false)
+    }
+
+    const handleDeleteAccount = async () => {
+        if (!deletePhone || !deletePassword) {
+            toast.error('الرجاء إدخال رقم الهاتف والرمز السري')
+            return
+        }
+
+        setIsDeleting(true)
+        const result = await scheduleAccountDeletion(deletePhone, deletePassword)
+        
+        if (result.success) {
+            toast.success('تم جدولة حذف الحساب. سيتم مسحه نهائياً بعد 6 أشهر.')
+            onClose()
+            router.push('/')
+        } else {
+            toast.error(result.error || 'فشل الخوادم في الاستجابة')
+            setIsDeleting(false)
+        }
     }
 
     if (!isOpen) return null
@@ -262,6 +288,78 @@ export function EditProfileModal({ isOpen, onClose, user }: EditProfileModalProp
                         </button>
 
                     </form>
+
+                    {/* Threat Zone: Delete Account */}
+                    <div className="p-6 pt-0 border-t border-zinc-800/50">
+                        <div className="mt-6 bg-red-950/20 border border-red-900/50 rounded-2xl p-5 relative overflow-hidden group">
+                            <div className="absolute inset-0 bg-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                            <div className="flex items-start gap-4">
+                                <div className="p-2 bg-red-500/10 rounded-full shrink-0">
+                                    <AlertTriangle className="w-6 h-6 text-red-500" />
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="text-red-500 font-bold mb-1">منطقة الخطر - إيقاف الحساب</h4>
+                                    <p className="text-xs text-red-400/80 leading-relaxed mb-4">
+                                        سيتم تجميد متجرك وتقييد وصولك. سيتم المسح التام لكافة الفيديوهات، المحادثات، والمنتجات بشكل آلي لا رجعة فيه بعد 6 أشهر، مما يتيح لك فرصة الاسترجاع قبل الانتهاء.
+                                    </p>
+
+                                    {!showDeleteSection ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowDeleteSection(true)}
+                                            className="text-xs font-bold bg-red-500/10 text-red-500 px-4 py-2 rounded-lg hover:bg-red-500/20 transition-all border border-red-500/20"
+                                        >
+                                            طلب إيقاف الحساب
+                                        </button>
+                                    ) : (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: 'auto', opacity: 1 }}
+                                            className="space-y-4 pt-2"
+                                        >
+                                            <div className="space-y-1.5">
+                                                <label className="text-xs font-medium text-red-300">رقم الهاتف التأكيدي</label>
+                                                <input
+                                                    type="text"
+                                                    value={deletePhone}
+                                                    onChange={e => setDeletePhone(e.target.value)}
+                                                    placeholder="أدخل رقمك"
+                                                    className="w-full bg-red-950/40 border border-red-900/50 rounded-lg px-3 py-2.5 text-white focus:ring-1 focus:ring-red-500 outline-none text-sm placeholder:text-red-900"
+                                                    style={{ direction: 'ltr' }}
+                                                />
+                                            </div>
+                                            <div className="space-y-1.5 border-none">
+                                                <label className="text-xs font-medium text-red-300">الرمز السري</label>
+                                                <input
+                                                    type="password"
+                                                    value={deletePassword}
+                                                    onChange={e => setDeletePassword(e.target.value)}
+                                                    placeholder="أدخل الرمز السري"
+                                                    className="w-full bg-red-950/40 border border-red-900/50 rounded-lg px-3 py-2.5 text-white focus:ring-1 focus:ring-red-500 outline-none text-sm placeholder:text-red-900"
+                                                />
+                                            </div>
+                                            
+                                            <div className="flex gap-2 pt-2">
+                                                <button
+                                                    onClick={handleDeleteAccount}
+                                                    disabled={isDeleting || !deletePhone || !deletePassword}
+                                                    className="flex-1 bg-red-600 text-white font-bold py-2.5 rounded-lg hover:bg-red-500 active:scale-95 transition-all outline-none text-sm disabled:opacity-50 flex items-center justify-center"
+                                                >
+                                                    {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "تأكيد التجميد (6 أشهر)"}
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowDeleteSection(false)}
+                                                    className="px-4 bg-zinc-800 text-white font-bold rounded-lg hover:bg-zinc-700 active:scale-95 transition-all text-sm"
+                                                >
+                                                    إلغاء
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </motion.div>
             </motion.div>
         </AnimatePresence>

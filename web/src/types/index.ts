@@ -102,6 +102,8 @@ export interface TabListing {
     title: string
     price: number
     images: string
+    isSold?: boolean
+    soldAt?: Date | null
 }
 
 export interface TabPost {

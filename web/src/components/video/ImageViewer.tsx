@@ -12,6 +12,8 @@ interface ImageViewerProps {
     className?: string
     caption?: string
     username: string
+    sellerUsername?: string
+    sellerId?: string
     userAvatar?: string
     likes?: number
     comments?: number
@@ -30,6 +32,8 @@ export function ImageViewer({
     className,
     caption,
     username,
+    sellerUsername,
+    sellerId,
     userAvatar,
     likes = 0,
     comments = 0,
@@ -67,15 +71,22 @@ export function ImageViewer({
 
             {/* Overlay Content (Simulating Video Feed UI) */}
             <div className="absolute bottom-0 left-0 right-0 p-4 pb-20 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none z-20">
-                <div className="flex flex-col items-end w-full pr-16">
-                    <div className="pointer-events-auto text-right w-full">
-                        <Link href={`/u/${username}`} className="text-white font-bold text-lg drop-shadow-md mb-1 flex items-center justify-end gap-2 hover:underline">
-                            {isShop && <span className="text-[10px] bg-indigo-500 px-1.5 py-0.5 rounded text-white font-normal">متجر</span>}
+                <div className="flex flex-col items-end w-full pr-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                    <div className="pointer-events-auto text-right w-full flex flex-col items-end">
+                        <Link href={`/activity/${sellerId || sellerUsername || username}`} className="text-white font-bold text-lg drop-shadow-md mb-1 flex items-center justify-end gap-2 hover:underline">
+                            {isShop && <span className="text-[10px] bg-indigo-500 px-2 py-0.5 rounded-full text-white font-bold">متجر</span>}
                             {username}
                         </Link>
                         <p className="text-white/90 text-sm drop-shadow-md leading-relaxed line-clamp-3 ml-auto" dir="rtl">
                             {caption}
                         </p>
+                        {/* زر التوجه للرفوف */}
+                        {isShop && (
+                            <Link href={`/activity/${sellerId || sellerUsername || username}`} className="mt-3 inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold px-5 py-2.5 rounded-full shadow-lg shadow-orange-500/30 hover:scale-105 transition-transform origin-right">
+                                <span className="text-lg">🛒</span>
+                                <span>اكتشف رفوف المتجر</span>
+                            </Link>
+                        )}
                     </div>
                 </div>
             </div>

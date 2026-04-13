@@ -46,6 +46,21 @@ export async function login(_prevState: unknown, formData: FormData) {
             return { error: 'رقم الهاتف أو كلمة المرور غير صحيحة' }
         }
 
+        // --- ACCOUNT FREEZE (SOFT DELETE) CHECK ---
+        if (user.scheduledDeletionAt) {
+            const now = new Date()
+            if (now > user.scheduledDeletionAt) {
+                // Should be hard-deleted by a CRON job, but just in case:
+                return { error: 'تم تدمير ومسح هذا الحساب نهائياً لانتهاء مهلة التجميد (6 أشهر).' }
+            } else {
+                // Cancel Deletion!
+                await db.user.update({
+                    where: { id: user.id },
+                    data: { scheduledDeletionAt: null }
+                })
+            }
+        }
+
         // Set secure session cookie
         const cookieStore = await cookies()
         cookieStore.set('user_id', user.id, {

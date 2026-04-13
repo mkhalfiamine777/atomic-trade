@@ -5,14 +5,14 @@ import type { FeedItemDTO } from '@/actions/feed'
 // Type definitions pulled from feed to avoid duplication inside the service
 type PostWithRelations = Prisma.SocialPostGetPayload<{
     include: {
-        user: { select: { id: true; name: true; avatarUrl: true; type: true; isVerified: true } }
+        user: { select: { id: true; name: true; username: true; avatarUrl: true; type: true; isVerified: true } }
         interactions: { select: { type: true; userId: true } }
     }
 }>
 
 type StoryWithUser = Prisma.MapStoryGetPayload<{
     include: {
-        user: { select: { id: true; name: true; avatarUrl: true; type: true; isVerified: true } }
+        user: { select: { id: true; name: true; username: true; avatarUrl: true; type: true; isVerified: true } }
     }
 }>
 
@@ -28,11 +28,26 @@ type ListingWithSeller = Prisma.ListingGetPayload<{
  * Mixes Social Content (Posts + Stories) with Commerce (Listings + Golden Deals)
  * Ratio: ~7 media : 2-3 listings per page of 10
  */
-export async function getMixedFeedLogic(page: number, limit: number, currentUserId?: string): Promise<{ postItems: FeedItemDTO[], storyItems: FeedItemDTO[], listingItems: FeedItemDTO[] }> {
-    // Distribute feed items across the 3 types (e.g. for limit 10: 4 posts, 3 stories, 3 listings)
-    const postCount = Math.ceil(limit * 0.4)
-    const storyCount = Math.ceil(limit * 0.3)
-    const listingCount = limit - postCount - storyCount
+export async function getMixedFeedLogic(
+    page: number, 
+    limit: number, 
+    currentUserId?: string,
+    filterType: 'SOCIAL' | 'COMMERCE' = 'SOCIAL'
+): Promise<{ postItems: FeedItemDTO[], storyItems: FeedItemDTO[], listingItems: FeedItemDTO[] }> {
+    
+    let postCount, storyCount, listingCount;
+
+    if (filterType === 'COMMERCE') {
+        // Commerce Mode (100% or 90% Products/Shop media)
+        postCount = Math.ceil(limit * 0.1)
+        storyCount = Math.ceil(limit * 0.1) // Maybe some shop stories
+        listingCount = limit - postCount - storyCount
+    } else {
+        // Social Mode (mostly entertainment, listings injected by feed.ts)
+        postCount = Math.ceil(limit * 0.5)
+        storyCount = Math.ceil(limit * 0.3)
+        listingCount = limit - postCount - storyCount // roughly 2-3 per 10
+    }
 
     // Calculate independent skips for each category to avoid index holes
     const postSkip = (page - 1) * postCount
@@ -52,6 +67,7 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
                 select: {
                     id: true,
                     name: true,
+                    username: true,
                     avatarUrl: true,
                     type: true,
                     isVerified: true
@@ -77,6 +93,7 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
                 select: {
                     id: true,
                     name: true,
+                    username: true,
                     avatarUrl: true,
                     type: true,
                     isVerified: true
@@ -122,6 +139,8 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
             type: post.mediaType as 'VIDEO' | 'IMAGE',
             url: post.mediaUrl,
             username: post.user.name || 'مستخدم',
+            sellerUsername: post.user.username || undefined, // Used for routing
+            sellerId: post.user.id,
             userAvatar: post.user.avatarUrl || undefined,
             description: post.caption || '',
             likes: countInteractions(post.interactions, 'LIKE'),
@@ -139,6 +158,8 @@ export async function getMixedFeedLogic(page: number, limit: number, currentUser
         type: story.mediaType as 'VIDEO' | 'IMAGE',
         url: story.mediaUrl,
         username: story.user.name || 'مستخدم',
+        sellerUsername: story.user.username || undefined, // Used for routing
+        sellerId: story.user.id,
         userAvatar: story.user.avatarUrl || undefined,
         description: story.caption || 'قصة',
         likes: 0,

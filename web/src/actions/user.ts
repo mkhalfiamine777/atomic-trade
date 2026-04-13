@@ -58,17 +58,63 @@ export async function updateUserLocation(lat: number, lng: number) {
     }
 }
 
-export async function completeOnboarding() {
+export async function completeOnboarding(latitude?: number, longitude?: number) {
     const userId = (await cookies()).get('user_id')?.value
     if (!userId) return { error: 'Unauthorized' }
 
     try {
         await db.user.update({
             where: { id: userId },
-            data: { hasCompletedOnboarding: true }
+            data: {
+                hasCompletedOnboarding: true,
+                ...(latitude && longitude ? { latitude, longitude } : {})
+            }
         })
         return { success: true }
     } catch (_error) {
         return { error: 'Failed to complete onboarding' }
+    }
+}
+
+import bcrypt from 'bcryptjs'
+
+export async function scheduleAccountDeletion(phoneInput: string, passwordInput: string) {
+    const cookieStore = await cookies()
+    const userId = cookieStore.get('user_id')?.value
+    if (!userId) return { error: 'غير مصرح' }
+
+    try {
+        const user = await db.user.findUnique({
+            where: { id: userId },
+            select: { phone: true, password: true }
+        })
+
+        if (!user) return { error: 'المستخدم غير موجود' }
+
+        if (user.phone !== phoneInput) {
+            return { error: 'رقم الهاتف غير صحيح' }
+        }
+
+        const isPasswordMatch = await bcrypt.compare(passwordInput, user.password)
+        if (!isPasswordMatch) {
+            return { error: 'الرمز السري غير صحيح' }
+        }
+
+        // Set deletion date to 6 months from now
+        const deletionDate = new Date()
+        deletionDate.setMonth(deletionDate.getMonth() + 6)
+
+        await db.user.update({
+            where: { id: userId },
+            data: { scheduledDeletionAt: deletionDate }
+        })
+
+        // Logout the user
+        cookieStore.delete('user_id')
+
+        return { success: true }
+    } catch (error) {
+        console.error('Account Deletion Error:', error)
+        return { error: 'حدث خطأ غير متوقع أثناء جدولة الحذف' }
     }
 }
