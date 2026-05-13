@@ -36,6 +36,18 @@ Sentry.init({
     return event
   },
 
+  beforeBreadcrumb(breadcrumb) {
+    // P0-2.1: Strip UUIDs from console breadcrumbs to prevent
+    // userId/conversationId leak via server.ts logging
+    if (breadcrumb.category === 'console' && typeof breadcrumb.message === 'string') {
+      breadcrumb.message = breadcrumb.message.replace(
+        /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi,
+        '[uuid-redacted]'
+      )
+    }
+    return breadcrumb
+  },
+
   // 🔇 تجاهل أخطاء شائعة غير مفيدة
   ignoreErrors: [
     'ResizeObserver loop',
