@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { db } from '@/lib/db'
 
 export type ContentType = 'VIDEOS' | 'IMAGES' | 'STORIES' | 'SALES' | 'REQUESTS'
@@ -111,6 +112,7 @@ export async function getProfileContent(userId: string, type: ContentType, page:
         return { success: false, error: 'Invalid type' }
 
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'getProfileContent' } })
         console.error('Error fetching profile content:', error)
         return { success: false, error: 'Failed to fetch content' }
     }

@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { db } from '@/lib/db'
 import { verifyAdmin } from '@/lib/adminGuard'
 
@@ -56,6 +57,7 @@ export async function getDashboardStats() {
             }
         }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'getDashboardStats' } })
         console.error('Failed to fetch dashboard stats:', error)
         return { error: 'Failed to fetch dashboard stats.' }
     }

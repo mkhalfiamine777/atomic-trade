@@ -41,11 +41,14 @@ export type FeedItemDTO = {
 // P-2 FIX: Static import instead of dynamic for better tree-shaking
 import { getMixedFeedLogic } from '@/services/feedService'
 import { unstable_cache } from 'next/cache'
+import { db } from '@/lib/db'
+import * as Sentry from '@sentry/nextjs'
 
-// Wrap the core feed logic with Next.js unstable_cache to drastically reduce Server Response Time
-const getCachedMixedFeed = unstable_cache(
-    async (page: number, limit: number, currentUserId?: string, filterType: 'SOCIAL' | 'COMMERCE' = 'SOCIAL') => {
-        return getMixedFeedLogic(page, limit, currentUserId, filterType)
+// P0-5 FIX: Cache is now USER-INDEPENDENT — no currentUserId in key.
+// This prevents cache key explosion (100k users → 100k cache entries → ~500MB).
+const getCachedRawFeed = unstable_cache(
+    async (page: number, limit: number, filterType: 'SOCIAL' | 'COMMERCE' = 'SOCIAL') => {
+        return getMixedFeedLogic(page, limit, filterType)
     },
     ['mixed-feed-cache'], // Base cache key (Next.js auto-appends args hash)
     {
@@ -54,12 +57,60 @@ const getCachedMixedFeed = unstable_cache(
     }
 )
 
+/**
+ * P0-5 FIX: Fetches only the likes relevant to the current page's items.
+ * This avoids a heavy unbounded query (power user with 10k likes → slow).
+ * Instead: query WHERE postId IN [...pageItemIds] — always small and fast.
+ */
+async function getLikedIdsForFeedItems(
+    userId: string,
+    itemIds: { postIds: string[]; listingIds: string[] }
+): Promise<Set<string>> {
+    if (itemIds.postIds.length === 0 && itemIds.listingIds.length === 0) return new Set()
+
+    const orConditions = []
+    if (itemIds.postIds.length > 0) {
+        orConditions.push({ postId: { in: itemIds.postIds } })
+    }
+    if (itemIds.listingIds.length > 0) {
+        orConditions.push({ listingId: { in: itemIds.listingIds } })
+    }
+
+    const likes = await db.interaction.findMany({
+        where: {
+            userId,
+            type: 'LIKE',
+            OR: orConditions
+        },
+        select: { postId: true, listingId: true }
+    })
+
+    return new Set(
+        [...likes.map(l => l.postId), ...likes.map(l => l.listingId)]
+            .filter(Boolean) as string[]
+    )
+}
+
 export async function getMixedFeed(page = 1, limit = 10, currentUserId?: string, filterType: 'SOCIAL' | 'COMMERCE' = 'SOCIAL'): Promise<FeedItemDTO[]> {
     try {
-        // 1. Get cached raw data
-        const { postItems, storyItems, listingItems } = await getCachedMixedFeed(page, limit, currentUserId, filterType)
+        // 1. Get cached raw data (user-independent — no userId in cache key)
+        const { postItems, storyItems, listingItems } = await getCachedRawFeed(page, limit, filterType)
 
-        // 2. 🎰 Golden Deal (random — applied per-request, NOT cached)
+        // 2. P0-5 FIX: Apply isLiked per-user AFTER cache retrieval
+        if (currentUserId) {
+            const postIds = postItems.map(p => p.id)
+            const listingIds = listingItems.map(l => l.id)
+            const likedIds = await getLikedIdsForFeedItems(currentUserId, { postIds, listingIds })
+
+            for (const item of postItems) {
+                item.isLiked = likedIds.has(item.id)
+            }
+            for (const item of listingItems) {
+                item.isLiked = likedIds.has(item.id)
+            }
+        }
+
+        // 3. 🎰 Golden Deal (random — applied per-request, NOT cached)
         if (listingItems.length > 0 && Math.random() < 0.4) {
             const goldenIndex = Math.floor(Math.random() * listingItems.length)
             listingItems[goldenIndex].isGoldenDeal = true
@@ -121,6 +172,7 @@ export async function getMixedFeed(page = 1, limit = 10, currentUserId?: string,
         }
 
     } catch (error: unknown) {
+        Sentry.captureException(error, { tags: { action: 'getMixedFeed' } })
         console.error('Error getting mixed feed:', error instanceof Error ? error.message : error)
         return []
     }

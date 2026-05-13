@@ -12,7 +12,7 @@ describe('getOrbitLocation (Orbital Spread)', () => {
         expect(result.lng).not.toBe(3.0420)
     })
 
-    it('should return coordinates within 10-20 meter radius', () => {
+    it('should return coordinates within 15-35 meter radius', () => {
         // Run 100 times to validate the statistical guarantee
         for (let i = 0; i < 100; i++) {
             const center = { lat: 36.7525, lng: 3.0420 }
@@ -23,8 +23,8 @@ describe('getOrbitLocation (Orbital Spread)', () => {
             const dLng = (result.lng - center.lng) * 111320 * Math.cos(center.lat * (Math.PI / 180))
             const distance = Math.sqrt(dLat * dLat + dLng * dLng)
 
-            expect(distance).toBeGreaterThanOrEqual(9.9) // Allow tiny float tolerance
-            expect(distance).toBeLessThanOrEqual(20.1)
+            expect(distance).toBeGreaterThanOrEqual(14.9) // Allow tiny float tolerance
+            expect(distance).toBeLessThanOrEqual(35.1)
         }
     })
 
@@ -63,16 +63,16 @@ describe('getOrbitLocation (Orbital Spread)', () => {
     it('should produce exact known output with mocked Math.random', () => {
         // Mock Math.random to return a deterministic sequence
         const mockRandom = vi.spyOn(Math, 'random')
-        mockRandom.mockReturnValueOnce(0.5) // r = 10 + 0.5*10 = 15 meters
+        mockRandom.mockReturnValueOnce(0.5) // r = 15 + 0.5*20 = 25 meters
         mockRandom.mockReturnValueOnce(0)   // theta = 0 radians (due east on unit circle → north in lat)
 
         const result = getOrbitLocation(36.7525, 3.0420)
 
-        // With r=15, theta=0: latOffset = 15*cos(0)/111320 = 15/111320
-        const expectedLatOffset = 15 / 111320
+        // With r=25, theta=0: latOffset = 25*cos(0)/111320 = 25/111320
+        const expectedLatOffset = 25 / 111320
         expect(result.lat).toBeCloseTo(36.7525 + expectedLatOffset, 8)
 
-        // lngOffset = 15*sin(0)/... = 0
+        // lngOffset = 25*sin(0)/... = 0
         expect(result.lng).toBeCloseTo(3.0420, 8)
     })
 })

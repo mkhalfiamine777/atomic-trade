@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { db } from '@/lib/db'
 import { cookies } from 'next/headers'
 
@@ -82,6 +83,7 @@ export async function checkAndUpdateStreak(): Promise<{ success: boolean, streak
         }
 
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'checkAndUpdateStreak' } })
         console.error('Error updating streak:', error)
         return { success: false }
     }

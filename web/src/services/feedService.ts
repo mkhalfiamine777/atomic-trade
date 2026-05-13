@@ -31,7 +31,6 @@ type ListingWithSeller = Prisma.ListingGetPayload<{
 export async function getMixedFeedLogic(
     page: number, 
     limit: number, 
-    currentUserId?: string,
     filterType: 'SOCIAL' | 'COMMERCE' = 'SOCIAL'
 ): Promise<{ postItems: FeedItemDTO[], storyItems: FeedItemDTO[], listingItems: FeedItemDTO[] }> {
     
@@ -131,7 +130,7 @@ export async function getMixedFeedLogic(
 
     // Map Posts
     const countInteractions = (interactions: { type: string, userId?: string }[], type: string) => interactions.filter(i => i.type === type).length
-    const checkLiked = (interactions: { type: string, userId: string }[], userId?: string) => userId ? interactions.some(i => i.type === 'LIKE' && i.userId === userId) : false
+    // P0-5 FIX: isLiked removed from cache layer — applied per-user in feed.ts after cache retrieval
 
     const postItems: FeedItemDTO[] = posts.map((post: PostWithRelations) => {
         return {
@@ -147,7 +146,7 @@ export async function getMixedFeedLogic(
             comments: countInteractions(post.interactions, 'COMMENT'),
             shares: 0,
             isShop: post.user.type === 'SHOP',
-            isLiked: checkLiked(post.interactions, currentUserId),
+            isLiked: false, // P0-5: Set by feed.ts per-user after cache
             createdAt: post.createdAt
         }
     })
@@ -186,7 +185,7 @@ export async function getMixedFeedLogic(
             comments: countInteractions(listing.interactions, 'COMMENT'), // Listings can now use the helper too
             shares: 0,
             isShop: listing.seller.type === 'SHOP',
-            isLiked: checkLiked(listing.interactions, currentUserId),
+            isLiked: false, // P0-5: Set by feed.ts per-user after cache
             createdAt: listing.createdAt,
 
             // Commerce-specific fields

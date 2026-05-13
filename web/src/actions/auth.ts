@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
@@ -70,6 +71,7 @@ export async function login(_prevState: unknown, formData: FormData) {
             maxAge: 60 * 60 * 24 * 7 // 7 days
         })
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'login' } })
         console.error('Login error:', error)
         return { error: 'حدث خطأ ما' }
     }
@@ -131,6 +133,7 @@ export async function signup(_prevState: unknown, formData: FormData) {
             maxAge: 60 * 60 * 24 * 7 // 7 days
         })
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'signup' } })
         console.error('Signup error:', error)
         return { error: 'فشل التسجيل، حاول مرة أخرى' }
     }

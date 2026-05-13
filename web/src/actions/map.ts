@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { db } from "@/lib/db"
 import { LocationUser } from "@/types"
 
@@ -34,6 +35,7 @@ export async function getAllActiveUsers(): Promise<LocationUser[]> {
             hasStories: false
         }))
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'getAllActiveUsers' } })
         console.error('Error fetching global users:', error)
         return []
     }

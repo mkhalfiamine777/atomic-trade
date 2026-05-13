@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 
@@ -26,6 +27,7 @@ export async function startConversation(listingId: string | null, otherUserId: s
         revalidatePath('/messages')
         return { conversationId }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'startConversation' } })
         console.error('Error starting conversation:', error)
         return { error: 'Failed to start conversation' }
     }

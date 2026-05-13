@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
@@ -110,13 +111,14 @@ export async function createListing(formData: FormData) {
             import('@/services/matchingService').then(({ runMatchingEngine }) => {
                 // Run matching in the background, don't await so it doesn't block the response
                 runMatchingEngine(newListing.id, userId, title, type, category, subcategory);
-            }).catch(e => console.error("Failed to dynamically import matching service", e));
+            }).catch(e => { Sentry.captureException(e, { tags: { action: 'matchingService' } }); console.error("Failed to dynamically import matching service", e); });
         }
 
         // 6. Update UI
         revalidatePath('/dashboard')
         return { success: true }
     } catch (error: unknown) {
+        Sentry.captureException(error, { tags: { action: 'createListing' } })
         console.error('Market Error:', error instanceof Error ? error.message : error)
         return { error: 'فشل إنشاء العرض، يرجى المحاولة لاحقاً.' }
     }

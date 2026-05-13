@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { AlertTriangle } from 'lucide-react'
+import * as Sentry from '@sentry/nextjs'
 
 // Global Error components must include html and body tags
 export default function GlobalError({
@@ -12,7 +13,8 @@ export default function GlobalError({
     reset: () => void
 }) {
     useEffect(() => {
-        // Log the error to an error reporting service
+        // Report to Sentry for production monitoring
+        Sentry.captureException(error)
         console.error('🔥 Global Application Error:', error)
     }, [error])
 

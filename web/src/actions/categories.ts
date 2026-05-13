@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { verifyAdmin } from '@/lib/adminGuard'
@@ -13,6 +14,7 @@ export async function getCategories() {
         });
         return { success: true, categories };
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'getCategories' } })
         console.error('Failed to fetch categories:', error);
         return { error: 'Failed to fetch categories.' };
     }
@@ -29,6 +31,7 @@ export async function createCategory(name: string, icon: string) {
         revalidatePath('/admin/categories');
         return { success: true, category: newCat };
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'createCategory' } })
         console.error('Failed to create category:', error);
         return { error: 'Failed to create category.' };
     }
@@ -45,6 +48,7 @@ export async function deleteCategory(id: string) {
         revalidatePath('/admin/categories');
         return { success: true };
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'deleteCategory' } })
         console.error('Failed to delete category:', error);
         return { error: 'Failed to delete category.' };
     }
@@ -61,6 +65,7 @@ export async function createSubcategory(name: string, categoryId: string) {
         revalidatePath('/admin/categories');
         return { success: true, subcategory: newSub };
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'createSubcategory' } })
         console.error('Failed to create subcategory:', error);
         return { error: 'Failed to create subcategory.' };
     }
@@ -77,6 +82,7 @@ export async function deleteSubcategory(id: string) {
         revalidatePath('/admin/categories');
         return { success: true };
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'deleteSubcategory' } })
         console.error('Failed to delete subcategory:', error);
         return { error: 'Failed to delete subcategory.' };
     }

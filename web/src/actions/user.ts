@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 
@@ -114,6 +115,7 @@ export async function scheduleAccountDeletion(phoneInput: string, passwordInput:
 
         return { success: true }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'scheduleAccountDeletion' } })
         console.error('Account Deletion Error:', error)
         return { error: 'حدث خطأ غير متوقع أثناء جدولة الحذف' }
     }

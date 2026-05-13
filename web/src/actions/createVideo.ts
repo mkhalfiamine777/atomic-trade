@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
@@ -32,6 +33,7 @@ export async function createVideoPost(formData: FormData) {
         revalidatePath('/feed')
         return { success: true, error: undefined }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'createVideoPost' } })
         console.error('Error creating video post:', error)
         return { success: false, error: 'Failed to create post' }
     }

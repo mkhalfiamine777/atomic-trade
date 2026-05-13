@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
@@ -65,6 +66,7 @@ export async function purchaseZone(geohash: string) {
         revalidatePath('/dashboard')
         return { success: true, zone: result.zone }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'purchaseZone' } })
         console.error('Zone Purchase Error:', error)
         return { error: 'حدث خطأ أثناء محاولة السيطرة على المنطقة' }
     }

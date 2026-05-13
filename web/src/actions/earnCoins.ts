@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { db } from '@/lib/db'
 import { cookies } from 'next/headers'
 
@@ -90,6 +91,7 @@ export async function awardCoinsForWatch(postId: string): Promise<{ success: boo
         }
 
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'awardCoinsForWatch' } })
         console.error('Error awarding coins:', error)
         return { success: false, message: 'فشل في الاتصال، حاول مجدداً.' }
     }

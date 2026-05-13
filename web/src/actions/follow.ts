@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { db } from '@/lib/db'
 import { cookies } from 'next/headers'
 
@@ -35,6 +36,7 @@ export async function toggleFollow(targetUserId: string) {
             return { success: true, isFollowing: true }
         }
     } catch (error: unknown) {
+        Sentry.captureException(error, { tags: { action: 'toggleFollow' } })
         console.error('Error toggling follow:', error)
         return { success: false, error: 'فشل في تنفيذ العملية' }
     }
@@ -57,6 +59,7 @@ export async function getFollowStatus(targetUserId: string) {
 
         return { isFollowing: !!follow }
     } catch (error: unknown) {
+        Sentry.captureException(error, { tags: { action: 'getFollowStatus' } })
         console.error('Error checking follow status:', error)
         return { isFollowing: false }
     }
@@ -72,6 +75,7 @@ export async function getFollowCounts(userId: string) {
 
         return { followers, following }
     } catch (error: unknown) {
+        Sentry.captureException(error, { tags: { action: 'getFollowCounts' } })
         console.error('Error getting follow counts:', error)
         return { followers: 0, following: 0 }
     }

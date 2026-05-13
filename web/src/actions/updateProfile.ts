@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
@@ -121,6 +122,7 @@ export async function updateProfile(formData: FormData) {
         return { success: true, error: undefined }
 
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'updateProfile' } })
         console.error('Error updating profile:', error)
         return { success: false, error: 'فشل تحديث الملف الشخصي' }
     }

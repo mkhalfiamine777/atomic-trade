@@ -1,6 +1,7 @@
 
 "use server"
 
+import * as Sentry from '@sentry/nextjs'
 import { cookies } from "next/headers"
 import { db } from "@/lib/db"
 import { UserProfile } from "@/types"
@@ -33,6 +34,7 @@ export async function getCurrentUser(): Promise<UserProfile | null> {
 
         return user as UserProfile | null
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'getCurrentUser' } })
         console.error("Error fetching current user:", error)
         return null
     }

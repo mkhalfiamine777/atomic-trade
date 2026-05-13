@@ -30,8 +30,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files (allow .env.example as a template)
+.env
+.env.local
+.env.*.local
 
 # vercel
 .vercel
@@ -42,8 +44,10 @@ next-env.d.ts
 
 /src/generated/prisma
 
-# Compiled server output
+# Compiled server output (tsc server.ts generates these)
 server.js
+src/lib/db.js
+src/lib/socketEngine.js
 
 # Temp files
 error.log

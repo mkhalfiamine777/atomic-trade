@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 import { submitTransactionRating } from '@/services/trustService'
@@ -36,6 +37,7 @@ export async function submitReview(targetUserId: string, listingId: string, rati
         return { success: true, newScore: result.newScore }
 
     } catch (error: unknown) {
+        Sentry.captureException(error, { tags: { action: 'submitReview' } })
         console.error('Submit Review Error:', error)
         return { success: false, error: 'فشل إرسال التقييم، حاول مرة أخرى' }
     }

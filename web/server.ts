@@ -11,6 +11,33 @@ const port = parseInt(process.env.PORT || '3000', 10)
 const app = next({ dev, hostname, port })
 const handle = app.getRequestHandler()
 
+// ─── P0-4 FIX: Socket Rate Limiting (in-memory) ────────────
+// Prevents a single user from flooding the server with messages.
+// Uses userId (not socket.id) to prevent bypass via reconnect.
+const socketRateLimits = new Map<string, { count: number; resetAt: number }>()
+const SOCKET_RATE_LIMIT = 30   // Max messages
+const SOCKET_RATE_WINDOW = 10_000  // Per 10 seconds
+
+function isSocketRateLimited(userKey: string): boolean {
+    const now = Date.now()
+    const entry = socketRateLimits.get(userKey)
+    if (!entry || now > entry.resetAt) {
+        socketRateLimits.set(userKey, { count: 1, resetAt: now + SOCKET_RATE_WINDOW })
+        return false
+    }
+    entry.count++
+    return entry.count > SOCKET_RATE_LIMIT
+}
+
+// Periodic cleanup — prevent memory leak from stale entries
+setInterval(() => {
+    const now = Date.now()
+    const entries = Array.from(socketRateLimits.entries())
+    for (const [key, entry] of entries) {
+        if (now > entry.resetAt + 60_000) socketRateLimits.delete(key)
+    }
+}, 60_000)
+
 app.prepare().then(() => {
     // ── Security Headers (CSP + HSTS + COOP + Trusted Types) ─────
     const cspDirectives = [
@@ -19,7 +46,7 @@ app.prepare().then(() => {
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "img-src 'self' data: blob: https: http:",
         "font-src 'self' https://fonts.gstatic.com data:",
-        "connect-src 'self' wss: ws: https://utfs.io https://*.utfs.io https://jwbamcdz4e.ufs.sh https://uploadthing.com https://*.uploadthing.com",
+        "connect-src 'self' wss: ws: https://*.sentry.io https://*.ingest.sentry.io https://utfs.io https://*.utfs.io https://jwbamcdz4e.ufs.sh https://uploadthing.com https://*.uploadthing.com",
         "media-src 'self' blob: https://utfs.io https://*.utfs.io https://jwbamcdz4e.ufs.sh",
         "object-src 'none'",
         "base-uri 'self'",
@@ -95,6 +122,14 @@ app.prepare().then(() => {
 
         // ── Send message → broadcast to room ────────────────
         socket.on('send_message', (data: { conversationId: string;[key: string]: unknown }) => {
+            // 🛡️ P0-4 FIX: Rate limit by userId (falls back to socket.id for unauthenticated)
+            const rateKey = userId || socket.id
+            if (isSocketRateLimited(rateKey)) {
+                socket.emit('error', { message: 'أنت ترسل بسرعة كبيرة! انتظر قليلاً.' })
+                console.warn(`🚧 Rate limited: ${rateKey} (Socket: ${socket.id})`)
+                return
+            }
+
             // 🛡️ Security: Only broadcast if sender is actually in the room
             if (!socket.rooms.has(data.conversationId)) {
                 console.warn(`🚨 Security: Socket ${socket.id} tried to send to room ${data.conversationId} without joining`)
@@ -124,6 +159,8 @@ app.prepare().then(() => {
         })
 
         socket.on('disconnect', () => {
+            // Clean up rate limit entry for this user
+            if (userId) socketRateLimits.delete(userId)
             console.log(`🔴 Socket disconnected: ${socket.id}`)
         })
     })

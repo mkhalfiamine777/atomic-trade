@@ -1,3 +1,5 @@
+import { withSentryConfig } from '@sentry/nextjs'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     experimental: {
@@ -43,7 +45,7 @@ const nextConfig = {
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "img-src 'self' data: blob: https: http:",
             "font-src 'self' https://fonts.gstatic.com data:",
-            "connect-src 'self' wss: ws: https://utfs.io https://*.utfs.io https://jwbamcdz4e.ufs.sh https://uploadthing.com https://*.uploadthing.com",
+            "connect-src 'self' wss: ws: https://*.sentry.io https://*.ingest.sentry.io https://utfs.io https://*.utfs.io https://jwbamcdz4e.ufs.sh https://uploadthing.com https://*.uploadthing.com",
             "media-src 'self' blob: https://utfs.io https://*.utfs.io https://jwbamcdz4e.ufs.sh",
             "object-src 'none'",
             "base-uri 'self'",
@@ -80,22 +82,22 @@ const nextConfig = {
                         key: 'Permissions-Policy',
                         value: 'camera=(), microphone=(), geolocation=(self)'
                     },
-                    // ── NEW: CSP — Prevents XSS attacks ──────
+                    // ── CSP — Prevents XSS attacks (with Sentry fallback) ──────
                     {
                         key: 'Content-Security-Policy',
                         value: cspDirectives
                     },
-                    // ── NEW: HSTS — Forces HTTPS (2 years) ───
+                    // ── HSTS — Forces HTTPS (2 years) ───
                     {
                         key: 'Strict-Transport-Security',
                         value: 'max-age=63072000; includeSubDomains; preload'
                     },
-                    // ── NEW: COOP — Window isolation ──────────
+                    // ── COOP — Window isolation ──────────
                     {
                         key: 'Cross-Origin-Opener-Policy',
                         value: 'same-origin-allow-popups'
                     },
-                    // ── NEW: Trusted Types — Report-only mode to monitor without breaking ──
+                    // ── Trusted Types — Report-only mode to monitor without breaking ──
                     {
                         key: 'Content-Security-Policy-Report-Only',
                         value: "require-trusted-types-for 'script'"
@@ -106,4 +108,29 @@ const nextConfig = {
     }
 };
 
-export default nextConfig;
+// 🛡️ Sentry Configuration — wraps Next config for error monitoring
+export default withSentryConfig(nextConfig, {
+    // Suppresses source map uploading logs during build
+    silent: true,
+
+    // 🔒 tunnelRoute proxies Sentry events through our own domain
+    // This bypasses ad-blockers that block *.sentry.io
+    tunnelRoute: '/monitoring',
+
+    // 🔐 Hide source maps from the client
+    hideSourceMaps: true,
+
+    // 🔇 Remove Sentry SDK debug logging + unused replay modules for smaller bundle
+    bundleSizeOptimizations: {
+        excludeDebugStatements: true,
+        excludeReplayCanvas: true,
+        excludeReplayShadowDom: true,
+        excludeReplayIframe: true,
+        excludeReplayWorker: true,
+    },
+
+    // Org/project for source map uploads (set via env vars)
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+});

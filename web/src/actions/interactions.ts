@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 
@@ -36,6 +37,7 @@ export async function toggleLike(postId: string) {
             return { liked: true, error: undefined }
         }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'toggleLike' } })
         console.error('Error toggling like:', error)
         return { liked: false, error: 'Database error' }
     }
@@ -80,6 +82,7 @@ export async function getComments(targetId: string, cursor?: string) {
             nextCursor: comments.length === 20 ? comments[comments.length - 1].id : undefined
         }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'getComments' } })
         console.error('Error fetching comments:', error)
         return { comments: [], nextCursor: undefined }
     }
@@ -137,6 +140,7 @@ export async function addComment(targetId: string, content: string) {
             }
         }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'addComment' } })
         console.error('Error adding comment:', error)
         return { success: false, error: 'Failed to add comment' }
     }
@@ -160,6 +164,7 @@ export async function interactWithUser(targetUserId: string, type: 'LIKE' | 'LOV
         })
         return { success: true, action: 'added' }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'interactWithUser' } })
         console.error('Error interacting with user:', error)
         return { success: false, error: 'Database error' }
     }
@@ -228,6 +233,7 @@ export async function interactWithListing(listingId: string, type: 'LIKE' | 'LOV
 
         return { success: true, action: 'added', priceDropped, newPrice, currentLikes }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'interactWithListing' } })
         console.error('Error interacting with listing:', error)
         return { success: false, error: 'Database error' }
     }

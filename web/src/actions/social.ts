@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
@@ -75,6 +76,7 @@ export async function createPost(
         revalidatePath('/dashboard')
         return { success: true, post }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'createPost' } })
         console.error('Error creating post:', error)
         return { success: false, error: 'Failed to create post' }
     }
@@ -111,6 +113,7 @@ export async function getMapPosts(bounds?: { north: number, south: number, east:
         })
         return posts
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'getMapPosts' } })
         console.error('Error fetching map posts:', error)
         return []
     }

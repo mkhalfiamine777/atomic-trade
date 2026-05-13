@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { db } from '@/lib/db'
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
@@ -75,6 +76,7 @@ export async function createStory(formData: FormData) {
         revalidatePath('/dashboard')
         return { success: true }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'createStory' } })
         console.error('Error creating story:', error)
         return { error: 'Failed to create story' }
     }
@@ -123,6 +125,7 @@ export async function getStories() {
             return story
         })
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'getStories' } })
         console.error('Error fetching stories:', error)
         return []
     }

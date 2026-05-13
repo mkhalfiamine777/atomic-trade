@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { db } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { verifyAdmin } from '@/lib/adminGuard'
@@ -29,6 +30,7 @@ export async function getAllUsers() {
         });
         return { success: true, users };
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'getAllUsers' } })
         console.error('Failed to fetch users:', error);
         return { error: 'Failed to fetch users.' };
     }
@@ -47,6 +49,7 @@ export async function toggleUserVerification(userId: string, currentStatus: bool
         revalidatePath('/admin/users')
         return { success: true }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'toggleUserVerification' } })
         console.error('Failed to toggle verification:', error);
         return { error: 'Failed to update verification status.' };
     }
@@ -65,6 +68,7 @@ export async function resetReputation(userId: string) {
         revalidatePath('/admin/users')
         return { success: true }
     } catch (error) {
+        Sentry.captureException(error, { tags: { action: 'resetReputation' } })
         console.error('Failed to reset reputation:', error);
         return { error: 'Failed to reset reputation.' };
     }
